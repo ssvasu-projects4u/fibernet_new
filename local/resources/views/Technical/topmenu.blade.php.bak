@@ -1,0 +1,204 @@
+<div class="card-header my-0 py-0 pl-0">
+<nav class="toptabs navbar navbar-expand-sm bg-light navbar-light py-0  pl-0">
+
+@canany([
+  "olt",
+  "edfa",
+  "fiber-laying",
+  "dpd",
+  "dp",
+  "fh",
+  "create-olt",
+  "create-edfa",
+  "create-fiber-laying",
+  "create-dpd",
+  "create-dp",
+  "create-fh",
+])
+<ul class="nav nav-tabs my-0 pl-0">
+
+@canany([
+  "olt",
+  "create-olt"
+])
+<li class="nav-item dropdown">
+    @can("")
+      <a class="nav-link dropdown-toggle <?php if(Request::segment(2) == 'olt'){echo 'active';} ?>" data-toggle="dropdown" href="{{url('admin/olt')}}">OLT</a>
+    @endcan
+
+    <div class="dropdown-menu">
+      @can("create-olt")
+        <a class="dropdown-item" href="{{url('admin/olt/create')}}">Create OLT</a>
+      @endcan
+      @can("olt")
+        <a class="dropdown-item" href="{{url('admin/olt')}}">List OLT</a>
+      @endcan
+    </div>
+</li>
+@endcanany
+
+@canany([
+  "edfa",
+  "create-edfa",
+])
+  <li class="nav-item dropdown">
+    @can("edfa")
+      <a class="nav-link dropdown-toggle <?php if(Request::segment(2) == 'edfa'){echo 'active';} ?>" data-toggle="dropdown" href="{{url('admin/edfa')}}">EDFA</a>
+    @endcan  
+    <div class="dropdown-menu">
+      @can("create-edfa")
+        <a class="dropdown-item" href="{{url('admin/edfa/create')}}">Create EDFA</a>
+      @endcan
+      @can("edfa")
+        <a class="dropdown-item" href="{{url('admin/edfa')}}">List EDFA</a>
+      @endcan
+    </div>
+  </li>
+@endcanany
+
+
+@canany([
+  "fiber-laying",
+  "create-fiber-laying",
+])
+  <li class="nav-item dropdown">
+    @can("fiber-laying")
+      <a class="nav-link dropdown-toggle <?php if(Request::segment(2) == 'fiber-laying'){echo 'active';} ?>" data-toggle="dropdown" href="{{url('admin/fiber-laying')}}">Fiber Laying</a>
+    @endcan
+    <div class="dropdown-menu">
+      @can("create-fiber-laying")
+        <a class="dropdown-item" href="{{url('admin/fiber-laying/create')}}">Create Fiber Laying</a>
+       @endcan
+      @can("fiber-laying")
+        <a class="dropdown-item" href="{{url('admin/fiber-laying')}}">List Fiber Laying</a>
+      @endcan
+    </div>
+  </li>
+@endcanany
+
+@canany([
+  "dpd",
+  "create-dpd",
+])
+  <li class="nav-item dropdown">
+    @can("dpd")
+      <a class="nav-link dropdown-toggle <?php if(Request::segment(2) == 'dpd'){echo 'active';} ?>" data-toggle="dropdown" href="{{url('admin/dpd')}}">DPD</a>
+    @endcan
+    <div class="dropdown-menu">
+      @can("create-dpd")
+        <a class="dropdown-item" href="{{url('admin/dpd/create')}}">Create DPD</a>
+      @endcan
+      @can("dpd")
+        <a class="dropdown-item" href="{{url('admin/dpd')}}">List DPD</a>
+      @endcan
+    </div>
+  </li>
+@endcanany
+
+  @canany([
+    "dp",
+    "create-dp",
+  ])
+  <li class="nav-item dropdown">
+      @can("dp")
+    <a class="nav-link dropdown-toggle <?php if(Request::segment(2) == 'dp'){echo 'active';} ?>" data-toggle="dropdown" href="{{url('admin/dp')}}">DP</a>
+      @endcan
+  
+    <div class="dropdown-menu">
+      @can("create-dp")
+        <a class="dropdown-item" href="{{url('admin/dp/create')}}">Create DP</a>
+      @endcan
+      @can("dp")
+        <a class="dropdown-item" href="{{url('admin/dp')}}">List DP</a>
+      @endcan
+    </div>
+  </li>
+  @endcanany
+
+  @canany([
+    "fh",
+    "create-fh",
+  ])
+  <li class="nav-item dropdown">
+    @can("fh")
+      <a class="nav-link dropdown-toggle <?php if(Request::segment(2) == 'fh'){echo 'active';} ?>" data-toggle="dropdown" href="{{url('admin/fh')}}">FH</a>
+    @endcan
+    <div class="dropdown-menu">
+      @can("create-fh")
+        <a class="dropdown-item" href="{{url('admin/fh/create')}}">Create FH</a>
+      @endcan
+      @can("fh")
+        <a class="dropdown-item" href="{{url('admin/fh')}}">List FH</a>
+      @endcan
+    </div>
+  </li>
+  @endcanany
+
+  </ul>
+@endcanany
+
+</nav>
+</div>
+
+<div class="card-header bottom-submenu my-0 py-0 pl-0 pt-0 pr-2">
+<nav class="navbar py-0">
+
+<ul class="nav">
+
+@if(Request::segment(2) == 'olt')
+  @can("create-olt")
+    <li class="nav-item"><a class="nav-link active" href="{{url('admin/olt/create')}}">Create OLT</a></li>
+  @endcan
+  @can("olt")
+    <li class="nav-item"><a class="nav-link" href="{{url('admin/olt')}}">List OLT</a></li>
+  @endcan
+@endif
+
+@if(Request::segment(2) == 'edfa')
+  @can("create-edfa")
+    <li class="nav-item"><a class="nav-link active" href="{{url('admin/edfa/create')}}">Create EDFA</a></li>
+  @endcan
+  @can("edfa")
+    <li class="nav-item"><a class="nav-link" href="{{url('admin/edfa')}}">List EDFA</a></li>
+  @endcan
+@endif
+
+@if(Request::segment(2) == 'fiber-laying')
+  @can("create-fiber-laying")
+    <li class="nav-item"><a class="nav-link active" href="{{url('admin/fiber-laying/create')}}">Create Fiber Laying</a></li>
+  @endcan
+  @can("fiber-laying")
+    <li class="nav-item"><a class="nav-link" href="{{url('admin/fiber-laying')}}">List Fiber Laying</a></li>
+  @endcan
+@endif
+
+@if(Request::segment(2) == 'dpd')
+  @can("create-dpd")
+    <li class="nav-item"><a class="nav-link active" href="{{url('admin/dpd/create')}}">Create DPD</a></li>
+  @endcan  
+  @can("dpd")
+    <li class="nav-item"><a class="nav-link" href="{{url('admin/dpd')}}">List DPD</a></li>
+  @endcan
+@endif
+
+@if(Request::segment(2) == 'dp')
+  @can("create-dp")
+    <li class="nav-item"><a class="nav-link active" href="{{url('admin/dp/create')}}">Create DP</a></li>
+  @endcan  
+  @can("dp")
+    <li class="nav-item"><a class="nav-link" href="{{url('admin/dp')}}">List DP</a></li>
+  @endcan
+@endif
+
+@if(Request::segment(2) == 'fh')
+  @can("create-fh")
+    <li class="nav-item"><a class="nav-link active" href="{{url('admin/fh/create')}}">Create FH</a></li>
+  @endcan
+  @can("fh")
+    <li class="nav-item"><a class="nav-link" href="{{url('admin/fh')}}">List FH</a></li>
+  @endcan
+@endif
+
+</ul>
+</nav>
+</div>

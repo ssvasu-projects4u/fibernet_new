@@ -1,0 +1,56 @@
+@extends('layouts.admin')
+
+@section('content')
+    <!-- Page Heading -->
+    <div class="card shadow mb-4">
+	   @include('customers.topmenu1')
+
+	<div class="card-header py-2">
+	  <div class="float-left"><h4 class="m-0 font-weight-bold text-primary">Add Competator</h4></div>
+	  
+	</div>
+	
+	
+	<div class="card-body">
+	   @if(Session::has('success'))
+        <div class="alert alert-success alert-dismissible fade show">
+		<button type="button" class="close" data-dismiss="alert">&times;</button>
+            <strong>Success!</strong> {{ Session::get('success') }}
+            @php
+                Session::forget('success');
+            @endphp
+        </div>
+
+        @endif
+        @if(Session::has('error'))
+        <div class="alert alert-danger alert-dismissible fade show">
+		<button type="button" class="close" data-dismiss="alert">&times;</button>
+            <strong>Error!</strong> {{ Session::get('error') }}
+            @php
+                Session::forget('error');
+            @endphp
+        </div>
+
+        @endif
+        	<?php $ctype = [
+				"Cable" => "Cable",
+				"Internet" => "Internet"
+			]; ?>
+	  {!! Form::open(['route' =>['customers.storecompetator'],'method'=>'post'])!!}
+	      @csrf
+	      	<div class="form-group col-md-3"> {!! Form::label('ctype', 'Connection Type *') !!}
+        {!! Form::select('contype',$ctype,null, array('class' => 'form-control','required'=>'required','placeholder'=>'Enter Connection Type')) !!} </div>
+      
+			<div class="form-group col-md-3"> {!! Form::label('name', 'Competator Name*') !!}
+        {!! Form::text('name',null, array('class' => 'form-control','required'=>'required','placeholder'=>'Enter Competator Name')) !!} </div>
+      
+      
+       {!! Form::submit('Submit', ['class' => 'btn btn-success']) !!} 
+      {!! Form::close() !!} 
+	  
+
+	</div>
+  </div>
+	
+		  
+@stop

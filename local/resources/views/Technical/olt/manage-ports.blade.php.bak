@@ -1,0 +1,167 @@
+@extends('layouts.admin')
+
+@section('content')
+    <!-- Page Heading -->
+    <div class="card shadow mb-4">
+	   @include('technical::topmenu')
+	<div class="card-header py-2">
+	  <div class="float-left"><h3 class="m-0 font-weight-bold text-primary">Manage OLT Ports</h3></div>
+	  
+	</div>
+	
+	
+	<div class="card-body table-responsive" style="padding:5px;">
+	  @if(Session::has('success'))
+        <div class="alert alert-success alert-dismissible fade show">
+		<button type="button" class="close" data-dismiss="alert">&times;</button>
+            <strong>Success!</strong> {{ Session::get('success') }}
+            @php
+                Session::forget('success');
+            @endphp
+        </div>
+
+		@endif
+		
+
+		<div class="card shadow mb-4">
+	<div class="card-header py-2">
+	  <div class="float-left"><h5 class="m-0 font-weight-bold text-primary">Assign OLT Port</h5></div>
+	  
+	</div>
+	
+	
+	<div class="card-body table-responsive">
+		{!! Form::open(['route' =>['olt.ports.store',$oltdetails->id],'method'=>'post'])!!}
+	      @csrf
+		<div class="row">
+			<div class="form-group col-md-3"> {!! Form::label('franchise_id', 'Franchise') !!}
+			{!! Form::select('franchise_id', $franchises, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Franchise --') ) !!} </div>
+			<div class="form-group col-md-3"> {!! Form::label('olt_port', 'OLT Ports') !!}
+			{!! Form::select('olt_port', $ports, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select OLT Ports --') ) !!} </div>
+			<div class="form-group col-md-3"><br> {!! Form::submit('Add Port', ['class' => 'btn btn-success']) !!}  </div>
+		</div>
+	  {!! Form::close() !!} 
+	</div></div>
+
+		
+		<div class="card shadow mb-4">
+	<div class="card-header py-2">
+	  <div class="float-left"><h5 class="m-0 font-weight-bold text-primary">OLT Ports</h5></div>
+	  
+	</div>
+	
+	
+	<div class="card-body table-responsive">
+	  <table class="table table-bordered table-condensed  table-striped" style="width:100%;">
+	  <tr class="table-warning">
+		<th>Actions</th>
+		<th>OLT Port</th>
+		<th>Franchise</th>
+		<th>Created Date</th>
+	  </tr>
+	@foreach ($oltports as $datarow)
+        <tr>
+		<td align="center"><div class="btn-group">
+                <button class="btn btn-primary btn-sm btn-demo-space py-0" data-toggle="dropdown"><i class="fas fa-bars"></i></button>
+                <ul class="dropdown-menu dropdown-default" role="menu">
+                    <li><a class="dropdown-item update-port" franchise_id="{{$datarow->franchise_id}}" olt_port="{{$datarow->olt_port}}" portId='{{$datarow->id}}' href="javascript:void(0);"><i class="fa fa-pencil-alt" aria-hidden="true"></i> Edit</a></li>
+                    <li class="divider"><hr class="py-0 my-0 mb-4"></li>
+                    <li><a class="dropdown-item" href="{{url('admin/olt/ports/delete/'.$datarow->id)}}" title='delete' onclick="return confirm('Are you sure to delete?')"><i class="fa fa-trash" aria-hidden="true"></i> Delete</a> </li>
+                </ul>
+            </div>
+		</td>
+		<td>{{ $datarow->olt_port }}</td>
+		<td>{{ $datarow->franchise_name }}</td>
+		<td>{{ date("d-M-Y h:i a",strtotime($datarow->created_at)) }}</td>
+		</tr>
+    @endforeach
+	</table>
+	</div></div>
+
+	</div>
+  </div>
+	
+<!-- Modal -->
+<div id="updatePortModel" class="modal fade" role="dialog" aria-labelleddy="myModalLabel" style="display:none;">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+          <h4 class="modal-title">Update Port</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>        
+      </div>
+      <div class="modal-body">
+        <!--Section: Block Content-->
+               {!! Form::open(['route' =>['olt.ports.store',$oltdetails->id],'method'=>'post', 'id'=>'update_port_form'])!!}
+	      @csrf
+                    <input type="hidden" name="id" id="portID" value="" />
+                    
+                    <div class="form-group">
+                        {!! Form::label('franchise_id', 'Franchise') !!}
+			{!! Form::select('franchise_id', $franchises, null,array('class' => 'form-control','id'=>'fid','required'=>'required','placeholder'=>'-- Select Franchise --') ) !!}
+                    </div>
+
+                    <div class="form-group">
+                        {!! Form::label('olt_port', 'OLT Ports') !!}
+			{!! Form::select('olt_port', $ports, null,array('class' => 'form-control','id'=>'op','required'=>'required','placeholder'=>'-- Select OLT Ports --') ) !!}
+                    </div>
+                    
+                   
+
+                    <div class="modal-footer">
+                        {!! Form::submit('Update', ['class' => 'btn btn-success', 'id'=>'update_port_btn', 'disabled'=>'true']) !!}
+       {!! Form::button('Cancel', ['class' => 'btn btn-danger','data-dismiss' => 'modal']) !!}
+                    </div>
+                
+      {!! Form::close() !!} 
+<!--Section: Block Content-->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>		
+<script type="text/javascript">
+        
+	$(document).ready(function() {
+        $('.update-port').on('click', function(){
+            var pid= $(this).attr('portId');
+            var fid= $(this).attr('franchise_id');
+            var oltport= $(this).attr('olt_port');
+            //var pageName = $(this).attr('pageName');
+            $('#op')
+         .append($("<option></option>")
+                    .attr("value", oltport)
+                    .text(oltport));
+            $('#portID').val(pid);
+            $('#fid').val(fid);
+            $('#op').val(oltport);
+            $('#updatePortModel').modal('show');
+        });
+        
+       $('#update_port_form').on('keyup blur click change',function(){
+          var isForm = $(this).validate({
+               /* rules : {
+                password : {
+                    minlength : 8
+                },
+                password_confirm : {
+                    minlength : 8,
+                    equalTo : "#new_pass"
+                }
+            }*/
+            }).checkForm();
+            if(isForm){
+                $('#update_port_btn').attr('disabled', false);
+            }else{
+                $('#update_port_btn').attr('disabled', true);
+            }
+            
+    });
+        });
+</script> 
+@stop
+       

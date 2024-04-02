@@ -1,0 +1,409 @@
+<?php 
+    $user = Auth::user();
+    $roles = $user->getRoleNames(); 
+    //echo $roles[0];//exit;
+    $layout='layouts.admin';
+    if($roles[0]=='branch' || $roles[0]=='franchise'){
+        //echo $roles[0];exit;
+        $layout='layouts.'.$roles[0];    
+    }
+ ?> 
+@extends($layout)
+
+@section('content')
+    <!-- Page Heading -->
+    <div class="card shadow mb-4">
+	   @include('technical.topmenu')
+	<div class="card-header py-2">
+	  <div class="float-left"><h3 class="m-0 font-weight-bold text-primary">Create DPD</h3></div>
+	  
+	</div>
+	
+	
+	<div class="card-body">
+	  @if(Session::has('flash_message'))
+			<div class="alert alert-success">{{ Session::get('flash_message') }}</div>
+		@endif
+		
+		@if($errors->any())
+	  <div class="alert alert-danger"> @foreach($errors->all() as $error)
+		<p>{{ $error }}</p>
+		@endforeach </div>
+	  @endif
+	  
+	   <?php
+	    $user = Auth::user();
+              $roles = $user->getRoleNames();
+              if($roles[0]=='superadmin')
+              {
+                  ?>
+	  
+	  {!! Form::open(['route' =>['dpd.store'],'method'=>'post'])!!}
+	      @csrf
+			
+			<div class="row">
+                            <?php if($roles[0]!='branch' && $roles[0]!='franchise'){ ?>
+				<div class="form-group col-md-3"> {!! Form::label('city', 'City') !!}
+						        {!! Form::select('city', $cities, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select City --') ) !!} </div>
+			<div class="form-group col-md-3"> {!! Form::label('distributor', 'Distributor') !!}
+        {!! Form::select('distributor', [], null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Distributor --') ) !!} </div>
+			<div class="form-group col-md-3"> {!! Form::label('branch', 'Branch') !!}
+        {!! Form::select('branch', [], null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Branch --') ) !!} </div>
+		
+		<?php } if( $roles[0]=='branch' || $roles[0]=='superadmin' ){ ?>
+		<div class="form-group col-md-3"> {!! Form::label('franchise', 'Franchise') !!}
+        {!! Form::select('franchise', $franchise, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Franchise --') ) !!} </div>
+		
+		
+                            <?php } ?>
+		<div class="form-group col-md-3"> {!! Form::label('fiber', 'Fiber') !!}
+        {!! Form::select('fiber', [], null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Fiber --') ) !!} </div>
+			
+			 <div class="form-group col-md-3"> {!! Form::label('Enclosure', 'Enclosure Serial Number') !!}
+        {!! Form::select('Enclosure', [], null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Enclosure --') ) !!} </div>
+	
+		
+		
+		<div class="form-group col-md-3"> {!! Form::label('long_lat', 'Latitude & Longitude') !!}
+        {!! Form::text('long_lat',null, array('class' => 'form-control','id'=>'map1','required'=>'required','placeholder'=>'Enter Latitude & Longitude')) !!} 
+        <a class="btn btn-sm btn-warning getMap" map_num='1'>Get</a></div>
+		
+		
+		</div>
+		
+		
+       {!! Form::submit('Submit', ['class' => 'btn btn-success']) !!} 
+      {!! Form::close() !!} 
+	  <?php } else { 	$user_id = Auth::user()->id; ?>
+	  
+	  {!! Form::open(['route' =>['dpd.store'],'method'=>'post'])!!}
+	      @csrf
+			
+			<div class="row">
+                           
+				<div class="form-group col-md-3"> {!! Form::label('city', 'City') !!}
+						      @php $userdetails1 = DB::table('slj_employees')->where('user_id', $user_id)->first(); @endphp
+                         <?php
+			    	$citygroup = array();
+			    	 
+          
+            if(!empty($userdetails1->city)){
+                
+								$citygroup = explode(",",$userdetails1->city);
+						
+								
+							
+            }
+            $size=count($citygroup);
+           // echo $size;
+            if($size==1)
+            {
+            ?>
+               @foreach($citygroup as $p)
+            @php $user = DB::table('slj_cities')->where('id', $p)->first(); @endphp;
+        <input type="text" value="{{$user->name }}" name="city2" id="city2" class="form-control" readonly>
+          <input type="hidden" value="{{ $p }}" name="city" id="city" class="form-control" required>
+            
+                @endforeach
+            
+            <?php
+            }
+            else
+            {
+            ?>
+            <select name="city" id="city" class="form-control" required>
+                <option value="">--Select City--</option>
+                 @foreach($citygroup as $p)
+            @php $user = DB::table('slj_cities')->where('id', $p)->first(); @endphp;
+               <option value="{{$p}}" selected>{{$user->name}}</option>
+                @endforeach
+            </select>
+            <?php } ?>	</div>		<div class="form-group col-md-3"> {!! Form::label('distributor', 'Distributor') !!}
+         @php $userdetails1 = DB::table('slj_employees')->where('user_id', $user_id)->first(); @endphp
+                         <?php
+			    	$distgroup = array();
+		 
+     
+            if(!empty($userdetails1->distributor)){
+			$distgroup = explode(",",$userdetails1->distributor);
+				$sizev=count($distgroup);
+				
+								
+							
+            }
+            ?>
+            <select name="distributor" id="distributor" class="form-control" required>
+                <?php
+                if($sizev<=1)
+                {
+                ?>
+                   @foreach($distgroup as $p)
+            @php $user = DB::table('slj_distributors')->where('id', $p)->first(); @endphp;
+               <option value="{{$p}}">{{$user->distributor_name}}</option>
+                @endforeach
+                  <?php } else { ?>
+                <option value="">--Select Distributor--</option>
+                 @foreach($distgroup as $p)
+            @php $user = DB::table('slj_distributors')->where('id', $p)->first(); @endphp;
+               <option value="{{$p}}">{{$user->distributor_name}}</option>
+                @endforeach
+                <?php } ?>
+            </select>
+        </div>
+			<div class="form-group col-md-3"> {!! Form::label('branch', 'Branch') !!}
+                                      @php $userdetails1 = DB::table('slj_employees')->where('user_id', $user_id)->first(); @endphp
+                         <?php
+			    	$branchesgroup = array();
+			    	 
+          
+            if(!empty($userdetails1->branch)){
+                
+								$branchesgroup = explode(",",$userdetails1->branch);
+						
+									$sizeb=count($branchesgroup);
+				
+							
+            }
+                ?>
+            
+            <select name="branch" id="branch" class="form-control" required>
+                  <?php
+                if($sizeb<=1)
+                {
+                ?>
+                 @foreach($branchesgroup as $p)
+            @php $user = DB::table('slj_branches')->where('id', $p)->first(); @endphp;
+               <option value="{{$p}}">{{$user->branch_name}}</option>
+                @endforeach
+                <?php } else { ?>
+                <option value="">--Select Branch--</option>
+                 @foreach($branchesgroup as $p)
+            @php $user = DB::table('slj_branches')->where('id', $p)->first(); @endphp;
+               <option value="{{$p}}">{{$user->branch_name}}</option>
+                @endforeach
+                <?php } ?>
+            </select>
+
+        </div>
+		
+	
+		<div class="form-group col-md-3"> {!! Form::label('franchise', 'Franchise') !!}
+                                  @php $userdetails1 = DB::table('slj_employees')->where('user_id', $user_id)->first(); @endphp
+                         <?php
+			    	$franchgroup = array();
+			    	 
+          
+            if(!empty($userdetails1->franch)){
+                
+								$franchgroup = explode(",",$userdetails1->franch);
+						
+								$sizev=count($franchgroup);
+							
+            }
+            ?>
+            
+            <select name="franchise" id="franchise" class="form-control" required>
+                <?php
+                if($sizev<=1)
+                {
+                    ?>
+                 @foreach($franchgroup as $p)
+            @php $user = DB::table('slj_franchises')->where('id', $p)->first(); @endphp;
+               <option value="{{$p}}" selected>{{$user->franchise_name}}</option>
+                @endforeach
+                ?>
+                <?php } else { ?>
+                <option value="">--Select Franchise--</option>
+                 @foreach($franchgroup as $p)
+            @php $user = DB::table('slj_franchises')->where('id', $p)->first(); @endphp;
+               <option value="{{$p}}">{{$user->franchise_name}}</option>
+                @endforeach
+                <?php } ?>
+            </select>
+
+        </div>
+
+
+                           
+		<div class="form-group col-md-3"> {!! Form::label('fiber', 'Fiber') !!}
+        {!! Form::select('fiber', [], null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Fiber --') ) !!} </div>
+			
+			 <div class="form-group col-md-3"> {!! Form::label('Enclosure', 'Enclosure Serial Number') !!}
+        {!! Form::select('Enclosure', [], null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Termination Box --') ) !!} </div>
+	
+		
+		
+		<div class="form-group col-md-3"> {!! Form::label('long_lat', 'Latitude & Longitude') !!}
+        {!! Form::text('long_lat',null, array('class' => 'form-control','id'=>'map1','required'=>'required','placeholder'=>'Enter Latitude & Longitude')) !!} 
+        <a class="btn btn-sm btn-warning getMap" map_num='1'>Get</a></div>
+		
+		
+		</div>
+		
+		
+       {!! Form::submit('Submit', ['class' => 'btn btn-success']) !!} 
+      {!! Form::close() !!} 
+	  
+	  <?php } ?>
+
+	</div>
+  </div>
+	
+		<script>
+	var x = document.getElementById("demo");
+
+	function getCurrentLocation() {
+		if (navigator.geolocation) {
+			navigator.geolocation.getCurrentPosition(showPosition);
+		} else { 
+			x.innerHTML = "Geolocation is not supported by this browser.";
+		}
+	}
+
+	function showPosition(position) 
+	{       
+		//document.getElementById("long_lat").value =  position.coords.latitude+","+ position.coords.longitude;
+                $('#map'+map_num).val(position.coords.latitude+","+ position.coords.longitude);
+	}
+
+$(document).ready(function() {
+	<?php
+	if($roles[0]=='franchise'){
+	echo("getFiber($franchise_id);");
+	}
+	if($roles[0]=='branch'){
+	}
+	?>
+ 
+       
+     
+
+        $('#city').on('change', function() {
+            var city = $(this).val();
+            if(city == '' || city <=0){
+            	$('#distributor').html("<option value=''>-- Select Distributor --</option>");
+				$('#branch').html("<option value=''>-- Select Branch --</option>");
+            	$('#franchise').html("<option value=''>-- Select Franchise --</option>");
+				$('#fiber').html("<option value=''>-- Select Fiber --</option>");
+            	return;
+            }
+            $.ajax({
+                url: "{{url('/admin/branches/citydistributors')}}/"+city,
+                type: "GET",
+                success:function(data) {
+                   $('#distributor').html(data);
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    alert(errorThrown);
+                }
+            });
+        });
+		
+		
+		$('#distributor').on('change', function() {
+            var distributor = $(this).val();
+            var city = $("#city").val();
+            if(distributor == '' || distributor <=0){
+            	$('#branch').html("<option value=''>-- Select Branch --</option>");
+				$('#franchise').html("<option value=''>-- Select Franchise --</option>");
+				$('#fiber').html("<option value=''>-- Select Fiber --</option>");
+            	return;
+            }
+            $.ajax({
+                url: "{{url('/admin/franchises/citydistributorbranches')}}/"+city+"/"+distributor,
+                type: "GET",
+                success:function(data) {
+                   $('#branch').html(data);
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    alert(errorThrown);
+                }
+            });
+        });
+function getFranchise(city, branch){
+if(branch == '' || branch <=0){
+            	$('#franchise').html("<option value=''>-- Select Franchise --</option>");
+				$('#fiber').html("<option value=''>-- Select Fiber --</option>");
+            	return;
+            }
+            $.ajax({
+                url: "{{url('/admin/customers/branch-franchises')}}/"+city+"/"+branch,
+                type: "GET",
+                success:function(data) {
+                   $('#franchise').html(data);
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    alert(errorThrown);
+                }
+            });
+            }
+        $('#branch').on('change', function() {
+            var city = $("#city").val();
+            var branch = $(this).val();
+            getFranchise(city, branch);
+        });
+
+		function getFiber(franchise){
+		if(franchise == '' || franchise <=0){
+                    	$('#fiber').html("<option value=''>-- Select Fiber --</option>");
+                    	return;
+                    }
+        			$.ajax({
+                        url: "{{url('/admin/fiber-laying/franchise-fibers')}}/"+franchise+"/dpd",
+                        type: "GET",
+                        success:function(data) {
+                           $('#fiber').html(data);
+                        },
+                        error: function(XMLHttpRequest, textStatus, errorThrown) {
+                            alert(errorThrown);
+                        }
+                    });
+		}
+		$('#franchise').on('change', function() {
+            var franchise = $(this).val();
+			getFiber(franchise);
+        });
+		
+		
+		$('.fiber_color').change(function() {
+			var colors = 0;
+			$('.fiber_color').each(function(){
+				if($(this).is(':checked')){
+					colors = colors + 1;
+				}	
+			});	
+			
+			if(colors > $('#fiber_core').val()){
+				$(this).prop("checked", 0);
+				alert('Reached Maximum Limit. Fiber Core Limit is '+$('#fiber_core').val());
+				return false;
+			}	
+			//alert(colors);  
+		});
+		
+		
+        //$('#city').val({{old('city')}}).trigger('change');
+        
+
+    
+
+    });
+</script>
+<script>
+       $('#fiber').on('change', function() {
+            var fiber = $(this).val();
+            
+               $.ajax({
+                url: "{{url('/admin/dpd/getenclosure')}}",
+                type: "GET",
+                success:function(data) {
+                        
+                  $('#Enclosure').html(data);
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    alert(errorThrown);
+                }
+            });
+        });
+</script>
+@stop

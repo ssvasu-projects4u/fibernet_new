@@ -1,0 +1,235 @@
+<?php
+
+namespace App\Http\Controllers\Technical;
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Auth;
+use DB;
+
+class EDFAController extends Controller
+{
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
+    /**
+     * Display a listing of the resource.
+     * @return Response
+     */
+    public function index()
+    {		
+        //check user permission for this page
+        $user = Auth::user();
+        $permissions = $user->getPermissionsViaRoles();
+
+        $permissionsdata = array();
+        foreach($permissions as $permission){
+            $permissionsdata[] =  $permission->name;   
+        }
+        if(count($permissionsdata) == 0 || !in_array('edfa',$permissionsdata)){
+            abort(403, "Unauthorized action. Access Denied You don't have permission to access.");
+        }
+        
+        $data = \App\EDFA::leftjoin('slj_franchises','slj_edfa.franchise', '=', 'slj_franchises.id')
+				->leftjoin('slj_distributors','slj_distributors.id', '=', 'slj_edfa.distributor')
+				->leftjoin('slj_branches','slj_branches.id', '=', 'slj_edfa.branch')
+                ->leftJoin('slj_cities','slj_cities.id', '=', 'slj_edfa.city')
+				->select('slj_edfa.*','slj_distributors.distributor_name','slj_franchises.franchise_name','slj_branches.branch_name','slj_cities.name as city_name')
+				->orderBy('slj_edfa.updated_at', 'desc')
+				->paginate(20);
+		
+		//echo "<pre>"; print_r($data); exit;
+		$employeedata=array();
+	  $id = \Auth::user()->id;
+      
+     $employeedata['employee_id']=$id;
+     $employeedata['action_name']="List EDFA";
+     \App\Employees_Logs::create($employeedata);
+      	 
+	 
+		
+		
+		return view('technical.edfa.index',['data'=>$data]);
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     * @return Response
+     */
+    public function create()
+    {
+        //check user permission for this page
+        $user = Auth::user();
+        $permissions = $user->getPermissionsViaRoles();
+
+        $permissionsdata = array();
+        foreach($permissions as $permission){
+            $permissionsdata[] =  $permission->name;   
+        }
+        if(count($permissionsdata) == 0 || !in_array('edfa',$permissionsdata)){
+            abort(403, "Unauthorized action. Access Denied You don't have permission to access.");
+        }
+
+        $roles = $user->getRoleNames();
+
+        $cities = \App\City::where('status','Y')->pluck('name', 'id');
+		
+		return view('technical.edfa.create',[
+          'cities'=>$cities, 'role'=>$roles['0']
+        ]);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     * @param Request $request
+     * @return Response
+     */
+    public function store(Request $request)
+    {
+        $validatedData = $request->validate([
+			'city' => 'required',
+			'branch' => 'required',
+			'distributor' => 'required',
+			'edfa_serial_number' => 'required',
+			'edfa_ports' => 'required',
+			'edfa_company' => 'required',
+			'edfa_model' => 'required'
+		]);
+
+		$input = request()->all();
+		$input['franchise'] = 0;
+		//echo "<pre>"; print_r($input); exit;
+
+		\App\EDFA::create($input);
+		
+				$employeedata=array();
+	  $id = \Auth::user()->id;
+       
+     $employeedata['employee_id']=$id;
+     $employeedata['action_name']="Create EDFA";
+      $employeedata['value_of_action']=$input['fiber'];
+    
+     \App\Employees_Logs::create($employeedata);
+       	 
+	 
+
+        return redirect('admin/edfa')->with('success', 'EDFA created successfully.');
+    }
+
+    /**
+     * Show the specified resource.
+     * @param int $id
+     * @return Response
+     */
+    public function show($id)
+    {
+        return view('technical.edfa.show');
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     * @param int $id
+     * @return Response
+     */
+    public function edit($id)
+    {
+        //check user permission for this page
+        $user = Auth::user();
+        $roles = $user->getRoleNames();
+
+        $permissions = $user->getPermissionsViaRoles();
+
+        $permissionsdata = array();
+        foreach($permissions as $permission){
+            $permissionsdata[] =  $permission->name;   
+        }
+
+        if(count($permissionsdata) == 0 || !in_array('edfa',$permissionsdata)){
+            abort(403, "Unauthorized action. Access Denied You don't have permission to access.");
+        }
+
+		$edfadetails = \App\EDFA::find($id);
+        $cities = \App\City::where('status','Y')->pluck('name', 'id');
+		$distributors = \App\Distributors::join('users','users.id', '=', 'slj_distributors.user_id')->where('city',$edfadetails->city)->where('users.status','Y')
+       ->pluck('distributor_name as name', 'slj_distributors.id as id');
+	   
+		$branches = \App\Branches::where('city',$edfadetails->city)->pluck('branch_name as name', 'id');
+//		$items = \App\Franchises::where('city',$edfadetails->city)->where('branch',$edfadetails->branch)
+// ->pluck('franchise_name as name', 'id');
+
+		return view('technical.edfa.edit',[
+            'cities'=>$cities,
+            'distributors'=>$distributors,
+            'branches'=>$branches,
+            'edfadetails'=>$edfadetails,
+            'role'=>$roles['0']
+        ]);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     * @param Request $request
+     * @param int $id
+     * @return Response
+     */
+    public function update(Request $request, $id)
+    {
+       $validatedData = $request->validate([
+			'branch' => 'required',
+			'edfa_serial_number' => 'required',
+			'edfa_ports' => 'required',
+			'edfa_company' => 'required',
+			'edfa_model' => 'required'
+		]);
+
+		$requestdata = $request->all(); 
+
+		$data['city'] = $requestdata['city'];
+		$data['distributor'] = $requestdata['distributor'];
+		$data['branch'] = $requestdata['branch'];
+		$data['edfa_serial_number'] = $requestdata['edfa_serial_number'];
+		$data['edfa_ports'] = $requestdata['edfa_ports'];
+		$data['edfa_company'] = $requestdata['edfa_company'];
+		$data['edfa_model'] = $requestdata['edfa_model'];
+		$data['franchise'] = 0;
+
+		//Update details
+		$edfa = \App\EDFA::find($id);
+		$edfa->update($data);
+
+		return redirect('admin/edfa')->with('success', 'EDFA details updated successfully.');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     * @param int $id
+     * @return Response
+     */
+    public function destroy($id)
+    {
+        //check user permission for this page
+        $user = Auth::user();
+        $permissions = $user->getPermissionsViaRoles();
+
+        $permissionsdata = array();
+        foreach($permissions as $permission){
+            $permissionsdata[] =  $permission->name;   
+        }
+        if(count($permissionsdata) == 0 || !in_array('edfa',$permissionsdata)){
+            abort(403, "Unauthorized action. Access Denied You don't have permission to access.");
+        }
+        
+        $customers = \App\Customers::where('olt',$id)->count();
+        $dps = \App\DP::where('olt_id',$id)->count();
+        
+        if($id > 0 && $customers == 0 && $dps == 0){
+            \App\OLT::destroy($id);
+             return redirect('admin/olt')->with('success', 'OLT deleted successfully.');
+        }else{
+            return redirect('admin/olt')->with('error', 'OLT cannot be deleted because of dependency');
+        }
+    }
+}

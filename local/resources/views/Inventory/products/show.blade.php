@@ -1,0 +1,104 @@
+@extends('layouts.admin')
+
+@section('content')
+    <!-- Page Heading -->
+    <div class="card shadow mb-4">
+	   @include('inventory.topmenu')
+	<div class="card-header py-2">
+	  <div class="float-left"><h3 class="m-0 font-weight-bold text-primary">View Stock Items</h3></div>
+	  
+	</div>
+	
+	
+	<div class="card-body" style="padding:5px;">
+	  @if(Session::has('success'))
+        <div class="alert alert-success alert-dismissible fade show">
+		<button type="button" class="close" data-dismiss="alert">&times;</button>
+            <strong>Success!</strong> {{ Session::get('success') }}
+            @php
+                Session::forget('success');
+            @endphp
+        </div>
+
+        @endif
+
+        @if(Session::has('error'))
+        <div class="alert alert-danger alert-dismissible fade show">
+		<button type="button" class="close" data-dismiss="alert">&times;</button>
+            <strong>Error!</strong> {{ Session::get('error') }}
+            @php
+                Session::forget('error');
+            @endphp
+        </div>
+
+		@endif
+		
+		<?php $ports = 0; $customers = array(); ?>
+
+		<div class="row" style="margin-bottom:10px;margin-top:5px;">
+			<div class="col-md-12">
+			<button type='button' class='btn btn-success'>Total  :<span class='badge'>{{count($data)}}</span></button>&nbsp; <button type='button' class='btn btn-primary'>Used  :<span class='badge'>{{ count($customers) }}</span></button> &nbsp; <button type='button' class='btn btn-warning'>Available :<span class='badge'>{{($ports - count($customers))}}</span></button>
+			</div>
+		</div>
+
+	  <div class="table-responsive">
+	  <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100" id="show">
+	  <tr class="table-warning">
+	  	<th width="25">Actions</th>
+		<th>Serial No</th>
+		<th>Barcode</th>
+		<th>Identification</th>
+		<th>Type</th>
+		<th>Manufacturer</th>
+        <th>Warranty Up To</th>
+		<th>Brand</th>
+		<th>Buy Price</th>
+		<th>Status</th>
+		<th>Availability</th>
+		<th>History</th>
+	  </tr>
+	@foreach ($data as $datarow)
+        <tr>
+        	<td align="center"><div class="btn-group">
+                <button class="btn btn-primary btn-sm btn-demo-space py-0" data-toggle="dropdown"><i class="fas fa-bars"></i></button>
+                <ul class="dropdown-menu dropdown-default" role="menu">
+                    <li><a class="dropdown-item" href="{{url('admin/inventory/products/edit/'.$datarow->id)}}"><i class="fa fa-pencil-alt" aria-hidden="true"></i> Edit</a></li>
+                    <li class="divider"><hr class="py-0 my-0 mb-4"></li>
+                    <li><a class="dropdown-item" href="{{url('admin/inventory/products/delete/'.$datarow->id)}}" title='delete' onclick="return confirm('Are you sure to delete?')"><i class="fa fa-trash" aria-hidden="true"></i> Delete</a> </li>
+                </ul>
+            </div>
+		</td>
+		<td>{{ ucfirst($datarow->serial_no) }}</td>
+		<td>{{ $datarow->barcode }}</td>
+		<td>{{ $datarow->identification }}</td>
+		<td>{{ $datarow->type }}</td>
+		<td>{{ $datarow->manufacturer }}</td>
+		<td>{{ $datarow->warranty_date != "" ? date("d-m-Y h:i:s a",strtotime($datarow->warranty_date)) : ""}}</td>
+		<td>{{ $datarow->brand }}</td>
+		<td>{{ $datarow->buy_price }}</td>
+		<td>
+			@if($datarow->status == 'Y')
+			<span class="badge badge-success">Active</span>
+			@elseif($datarow->status == 'N')
+			<span class="badge badge-warning">Inactive</span>
+			@elseif($datarow->status == 'D')
+			<span class="badge badge-secondary">Deleted</span>
+			@endif
+		</td>
+		<td>
+			<span class="badge badge-success">Available</span>
+		</td>	
+		<td>
+			<a href="{{url('admin/inventory/stocks/view-history/'.$datarow->id)}}" class="btn btn-sm btn-primary">View History</a>
+		</td>
+		
+		</tr>
+    @endforeach
+	</table>
+	</div>
+{{ $data->links() }}
+	</div>
+  </div>
+	
+		  
+@stop

@@ -1,0 +1,74 @@
+@extends('layouts.admin')
+
+@section('content')
+    <!-- Page Heading -->
+    <div class="card shadow mb-4">
+	   @include('inventory::topmenu')
+	<div class="card-header py-2">
+	  <div class="float-left"><h3 class="m-0 font-weight-bold text-primary">Create Warehouse</h3></div>
+	</div>
+	
+	<div class="card-body">
+	  @if(Session::has('flash_message'))
+			<div class="alert alert-success">{{ Session::get('flash_message') }}</div>
+		@endif
+		
+	  @if($errors->any())
+	  <div class="alert alert-danger"> @foreach($errors->all() as $error)
+		<p>{{ $error }}</p>
+		@endforeach 
+      </div>
+	  @endif
+	  
+	  
+	  {!! Form::open(['route' =>['warehouse.store'],'method'=>'post'])!!}
+	      @csrf
+			
+	      	<div class="row">
+			<div class="form-group col-md-4"> {!! Form::label('name', 'Warehouse Name*') !!}
+        {!! Form::text('name',null, array('class' => 'form-control','required'=>'required','placeholder'=>'Enter Warehouse Name')) !!} </div>
+
+		<div class="form-group col-md-4"> {!! Form::label('city', 'City*') !!}
+        {!! Form::select('city', $items, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select City --') ) !!} </div>
+
+        <div class="form-group col-md-4"> {!! Form::label('address', 'Warehouse Address') !!}
+        {!! Form::text('address',null, array('class' => 'form-control','placeholder'=>'Enter Warehouse Address')) !!} </div>
+        
+        <div class="form-group col-md-4"> {!! Form::label('long_lat', 'Latitude & Longitude') !!}
+        {!! Form::text('long_lat',null, array('class' => 'form-control','id'=>'map1','placeholder'=>'Enter Latitude & Longitude')) !!} 
+		<a class="btn btn-sm btn-warning getMap" map_num="1">Get</a>	
+        </div>
+		
+		
+        <div class="form-group col-md-8"> {!! Form::label('description', 'Notes/Description') !!}
+        {!! Form::text('description',null, array('class' => 'form-control','placeholder'=>'Enter Notes/Description')) !!} </div>
+
+
+	</div>
+	
+       {!! Form::submit('Submit', ['class' => 'btn btn-success']) !!} 
+      {!! Form::close() !!} 
+	  
+
+	</div>
+  </div>
+  
+  
+<script>
+	var x = document.getElementById("demo");
+
+	function getCurrentLocation() {
+		if (navigator.geolocation) {
+			navigator.geolocation.getCurrentPosition(showPosition);
+		} else { 
+			x.innerHTML = "Geolocation is not supported by this browser.";
+		}
+	}
+
+	function showPosition(position) 
+	{       
+		//document.getElementById("long_lat").value =  position.coords.latitude+","+ position.coords.longitude;
+                $('#map'+map_num).val(position.coords.latitude+","+ position.coords.longitude);
+	}
+</script>	  
+@stop

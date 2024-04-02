@@ -1,0 +1,526 @@
+<?php
+
+namespace App\Http\Controllers\Frontend;
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Hash;
+use Auth;
+use Artisan;
+use Illuminate\Support\Facades\Input;
+use App\Invoices;
+use Carbon\Carbon;
+
+class BranchCustomersController extends Controller
+{
+
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
+    /**
+     * Display a listing of the resource.
+     * @return Response
+     */
+    public function index()
+    {
+        $data = \App\Customers::join('users','slj_customers.user_id', '=', 'users.id')
+                ->leftJoin('slj_franchises','slj_customers.franchise', '=', 'slj_franchises.id')
+                ->leftJoin('slj_branches','slj_branches.id', '=', 'slj_customers.branch')
+                ->leftJoin('slj_cities','slj_cities.id', '=', 'slj_customers.city')
+                ->select('slj_customers.*','slj_franchises.franchise_name','slj_branches.branch_name','slj_cities.name as city_name','users.mobile','users.email','users.name')
+                ->where('slj_branches.user_id', '=', \Auth::user()->id)
+				->orderBy('slj_customers.id')
+                ->paginate(20);
+        return view('frontend::branch.customers.index',['data'=>$data]);
+    }
+
+    
+    /**
+     * Display a listing of the resource.
+     * @return Response
+     */
+    public function newCustomers()
+    {
+        $data = \App\Customers::join('users','slj_customers.user_id', '=', 'users.id')
+				->leftJoin('slj_franchises','slj_customers.franchise', '=', 'slj_franchises.id')
+                ->leftJoin('slj_branches','slj_branches.id', '=', 'slj_customers.branch')
+                ->leftJoin('slj_cities','slj_cities.id', '=', 'slj_customers.city')
+                ->select('slj_customers.*','slj_franchises.franchise_name','slj_branches.branch_name','slj_cities.name as city_name','users.mobile','users.email','users.name')
+                ->where('slj_customers.current_status','new')
+				->where('slj_branches.user_id', '=', \Auth::user()->id)
+                ->orderBy('slj_customers.id')
+                ->paginate(20);
+
+			//print_r($data);
+        //return view('customers::new',['data'=>$data,'cities'=>$cities]);
+
+		return view('frontend::branch.customers.new', [
+			'data' => $data->appends(Input::except('page')),
+		]);
+    }
+
+    /**
+     * Display a listing of the resource.
+     * @return Response
+     */
+    public function technicalCustomers()
+    {
+        $data = \App\Customers::join('users','slj_customers.user_id', '=', 'users.id')
+                ->leftJoin('slj_franchises','slj_customers.franchise', '=', 'slj_franchises.id')
+                ->leftJoin('slj_branches','slj_branches.id', '=', 'slj_customers.branch')
+                ->leftJoin('slj_cities','slj_cities.id', '=', 'slj_customers.city')
+                ->select('slj_customers.*','slj_franchises.franchise_name','slj_branches.branch_name','slj_cities.name as city_name','users.mobile','users.email','users.name')
+                ->where('slj_customers.current_status','=','technical')
+				->where('slj_branches.user_id', '=', \Auth::user()->id)
+				->orderBy('slj_customers.id')
+                ->paginate(15);
+
+        return view('frontend::branch.customers.technical',['data'=>$data]);
+    }
+
+    /**
+     * Display a listing of the resource.
+     * @return Response
+     */
+    public function activationCustomers()
+    {
+        $data = \App\Customers::join('users','slj_customers.user_id', '=', 'users.id')
+                ->leftJoin('slj_franchises','slj_customers.franchise', '=', 'slj_franchises.id')
+                ->leftJoin('slj_branches','slj_branches.id', '=', 'slj_customers.branch')
+                ->leftJoin('slj_cities','slj_cities.id', '=', 'slj_customers.city')
+                ->select('slj_customers.*','slj_franchises.franchise_name','slj_branches.branch_name','slj_cities.name as city_name','users.mobile','users.email','users.name')
+                ->where('slj_customers.current_status','=','activation')
+				->where('slj_branches.user_id', '=', \Auth::user()->id)
+                ->orderBy('slj_customers.id')
+                ->paginate(20);
+        return view('frontend::branch.customers.activation',['data'=>$data]);
+    }
+	
+	
+	/**
+     * Display a listing of the resource.
+     * @return Response
+     */
+    public function activeCustomers()
+    {
+        $data = \App\Customers::join('users','slj_customers.user_id', '=', 'users.id')
+                ->leftJoin('slj_franchises','slj_customers.franchise', '=', 'slj_franchises.id')
+                ->leftJoin('slj_branches','slj_branches.id', '=', 'slj_customers.branch')
+                ->leftJoin('slj_cities','slj_cities.id', '=', 'slj_customers.city')
+                ->select('slj_customers.*','slj_franchises.franchise_name','slj_branches.branch_name','slj_cities.name as city_name','users.mobile','users.email','users.name')
+                ->whereIn('slj_customers.current_status',['active','activated'])
+				->where('slj_branches.user_id', '=', \Auth::user()->id)
+                ->orderBy('slj_customers.id')
+                ->paginate(20);
+        return view('frontend::branch.customers.active',['data'=>$data]);
+    }
+	
+	/**
+     * Display a listing of the resource.
+     * @return Response
+     */
+    public function scheduleCustomers()
+    {
+        $data = \App\Customers::join('users','slj_customers.user_id', '=', 'users.id')
+                ->leftJoin('slj_franchises','slj_customers.franchise', '=', 'slj_franchises.id')
+                ->leftJoin('slj_branches','slj_branches.id', '=', 'slj_customers.branch')
+                ->leftJoin('slj_cities','slj_cities.id', '=', 'slj_customers.city')
+                ->select('slj_customers.*','slj_franchises.franchise_name','slj_branches.branch_name','slj_cities.name as city_name','users.mobile','users.email','users.name')
+                ->where('slj_customers.current_status','=','scheduled')
+				->where('slj_branches.user_id', '=', \Auth::user()->id)
+                ->orderBy('slj_customers.id')
+                ->paginate(20);
+        return view('frontend::branch.customers.schedule',['data'=>$data]);
+    }
+
+	/**
+     * Display a listing of the resource.
+     * @return Response
+     */
+    public function expiredCustomers()
+    {
+        $data = \App\Customers::join('users','slj_customers.user_id', '=', 'users.id')
+                ->leftJoin('slj_franchises','slj_customers.franchise', '=', 'slj_franchises.id')
+                ->leftJoin('slj_branches','slj_branches.id', '=', 'slj_customers.branch')
+                ->leftJoin('slj_cities','slj_cities.id', '=', 'slj_customers.city')
+                ->select('slj_customers.*','slj_franchises.franchise_name','slj_branches.branch_name','slj_cities.name as city_name','users.mobile','users.email','users.name')
+                ->where('slj_customers.current_status','=','expired')
+				->where('slj_branches.user_id', '=', \Auth::user()->id)
+				->orderBy('slj_customers.id')
+                ->paginate(20);
+        return view('frontend::branch.customers.expired',['data'=>$data]);
+    }
+    public function BranchPayments()
+    {
+         $data = \App\BranchPayments::select('branch_payments.*')
+            
+                ->orderBy('id', 'desc')->paginate(20);
+        return view('accounts::branch-paymnets',['data'=>$data]);
+     
+    }
+
+    /**
+     * Display a listing of the resource.
+     * @return Response
+     */
+    public function closedCustomers()
+    {
+        $data = \App\Customers::join('users','slj_customers.user_id', '=', 'users.id')
+                ->leftJoin('slj_franchises','slj_customers.franchise', '=', 'slj_franchises.id')
+                ->leftJoin('slj_branches','slj_branches.id', '=', 'slj_customers.branch')
+                ->leftJoin('slj_cities','slj_cities.id', '=', 'slj_customers.city')
+                ->select('slj_customers.*','slj_franchises.franchise_name','slj_branches.branch_name','slj_cities.name as city_name','users.mobile','users.email','users.name')
+                ->where('slj_customers.status','=','closed')
+				->where('slj_branches.user_id', '=', \Auth::user()->id)
+                ->orderBy('slj_customers.id')
+                ->paginate(20);
+        return view('frontend::branch.customers.closed',['data'=>$data]);
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     * @param int $id
+     * @return Response
+     */
+    public function addPayment()
+    {   $id = Auth::user()->id;
+        $customerdetails = \App\User::where('users.id','=',$id)
+                ->first();
+        $totalPaidAmount = \App\Branches::where('user_id','=',$id)->pluck('available_balance');
+                $totalPaidAmount = $totalPaidAmount[0];
+        //$totalPaidAmount = \App\PaymentDetails::where('user_id','=',$customerdetails->id)->where('payment_from','=',1)->where('payment_status','=','success')->sum('amount');
+
+			$package_amount = 0;
+			//To Avoid View Cache
+			$random_value = mt_rand(10000,10000000);
+			return view('frontend::branch.add-payment',['random_value'=>$random_value,'customerdetails'=>$customerdetails,'totalPaidAmount'=>$totalPaidAmount]);
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     * @param int $id
+     * @return Response
+     */
+    public function paymentResponse()
+    {
+        if(isset($_POST) && count($_POST)>0) {
+            $opt_data = array();
+			//echo "<pre>"; print_r($_POST); exit;
+			$status = $_POST["status"];
+			$firstname = $_POST["firstname"];
+			$lastname = $_POST["lastname"];
+            $amount = $_POST["amount"];
+			 $txnid = $_POST["txnid"];
+			$posted_hash = $_POST["hash"];
+			$key = $_POST["key"];
+			$productinfo = $_POST["productinfo"];
+			$email = $_POST["email"];
+			$mobile = $_POST["phone"];
+
+            $salt = env("SALT"); //Please change this value with live salt for production
+
+			if (isset($_POST["additionalCharges"])) 
+			{
+				$additionalCharges=$_POST["additionalCharges"];
+				$retHashSeq = $additionalCharges.'|'.$salt.'|'.$status.'|||||||||||'.$email.'|'.$firstname.'|'.$productinfo.'|'.$amount.'|'.$txnid.'|'.$key;
+			}else {	  
+				$retHashSeq = $salt.'|'.$status.'|||||||||||'.$email.'|'.$firstname.'|'.$productinfo.'|'.$amount.'|'.$txnid.'|'.$key;
+			//	$retHashSeq = $salt.'|'.$status.'|||||||||||'.$email.'|'.$firstname.'|'.$productinfo.'|'.$amount.'|'.$key;
+			
+			}
+			$hash = hash("sha512", $retHashSeq);
+
+			if ($hash != $posted_hash || $status !='success') {
+				$opt_data['payment_status'] = $status;
+				$opt_data['attempt_type'] = "Branch TOPUP";
+				// $opt_data['gateway'] = ;
+				// $opt_data['order_no'] = ""; 
+				// $opt_data['invoice_no'] = ;
+
+				// $opt_data['transaction_id'] = ;
+				$opt_data['user_name'] = $firstname . " " . $lastname;
+				// $opt_data['customer_name'] = ;
+				// $opt_data['franchise_name'] = ;
+                $branch_data = \App\Branches::where('user_id','=',$productinfo)->first();
+
+                $branch_name=$branch_data->branch_name;
+                $branchidnumber=$branch_data->id;
+				$opt_data['branch'] = $branch_name;
+				$opt_data['mobile'] = $mobile;
+				// $opt_data['package_name'] = ;
+				// $opt_data['sub_package'] = ;
+				// $opt_data['duration'] = ;
+				$opt_data['invoice_amount'] = $amount;
+				// $opt_data['paid_amount'] = ;
+				// $opt_data['bank_transaction_id'] = ;
+				// $opt_data['bank_name'] = ;
+				$opt_data['created_at'] = Carbon::now();
+                $opt_data['updated_at'] = Carbon::now();
+
+				//Txs
+				\App\OPT::create($opt_data);
+				
+				$txn_data = array();
+				$txn_data['txnid'] = $txnid;
+				
+				$txn_data['payment_mode'] = "Payment Gateway";
+				$txn_data['payment_type'] = "Deposit";
+				
+				$txn_data['payment_from'] = 1;
+				$txn_data['user_id'] = $id = \Auth::user()->id;
+				$txn_data['amount'] =$amount;
+				$txn_data['payment_message'] = $productinfo;
+				$txn_data['status'] = "Recheck & Attempted";
+                \App\Transactions::create($txn_data);
+                
+                $depositData1=array();
+                $depositData1['name']=$branch_name;
+                 $depositData1['deposit_type']="Payment Gateway";
+                $depositData1['deposit_amount']=$amount;
+                $depositData1['deposit_for']=2;
+                $depositData1['deposit_date']=Carbon::now();
+                
+                 $depositData1['payment_type']="Deposit";
+                $depositData1['franchise_branch_id']=$branchidnumber;
+                
+                
+                $depositdata = \App\Deposits::create($depositData1);
+                
+                
+				
+				return redirect('branch/dashboard')->with('error_message', "<h3>Invalid Transaction. Please try again </h3>");
+			} 
+			else
+			{
+			
+				$opt_data['payment_status'] = $status;
+				$opt_data['attempt_type'] = "Branch TOPUP";
+				$opt_data['gateway'] = $_POST['payment_source'];
+				$opt_data['transaction_id'] = $txnid;
+				$opt_data['user_name'] = $firstname . " " . $lastname;
+
+                $branch_data = \App\Branches::where('user_id','=',$productinfo)->first();
+
+                $branch_name=$branch_data->branch_name;
+				$opt_data['branch'] = $branch_name;
+				$opt_data['mobile'] = $mobile;
+				// $opt_data['package_name'] = ;
+				// $opt_data['sub_package'] = ;
+				// $opt_data['duration'] = ;
+				$opt_data['invoice_amount'] = $amount;
+				$opt_data['paid_amount'] = $amount;
+				// $opt_data['bank_transaction_id'] = ;
+				// $opt_data['bank_name'] = ;
+				$opt_data['created_at'] = Carbon::now();
+                $opt_data['updated_at'] = Carbon::now();
+
+				//Txs
+				$optdata = \App\OPT::create($opt_data);
+
+				//$paymentdetails = explode("__",$productinfo);
+				//$customer_id = $paymentdetails[1];
+				
+				//$customer = \App\User::find($customer_id);
+				//$customer_data = array();
+				//$customer_data['current_status'] = "technical";
+				//$customer->update($customer_data); //Update details
+				$id = Auth::user()->id;
+				$txn_data = array();
+				$txn_data['txnid'] = $txnid;
+				$txn_data['amount'] = $amount;
+				$txn_data['payment_source'] = $_POST['payment_source'];
+				$txn_data['payment_from'] = 2;
+				$txn_data['payment_message'] = $productinfo;
+				$txn_data['payment_status'] = $status;
+				$txn_data['user_id'] = $productinfo;
+                $txn_data['created_by'] = $productinfo;
+
+				//Txs
+				\App\PaymentDetails::create($txn_data);
+                // $branch_data = \App\Branches::where('user_id','=',$productinfo)->first();
+
+                $branch_name=$branch_data->branch_name;
+                $branch_id = $branch_data->id;
+
+                $depositData =array(
+                            'deposit_amount' => $amount,
+                            'deposit_type' => 'Payment Gateway',
+                            'deposit_date' => date('Y-m-d'),
+                            'franchise_branch_id' => $branch_id,
+                            'name'=>$branch_name,
+                            'deposit_for'=>2
+                    );
+
+                $depositdata = \App\Deposits::create($depositData);
+
+                $franchise_branch = \App\Branches::find($branch_id);
+                //print_r($franchise_branch);exit;
+                $data['credited_balance'] = $franchise_branch->credited_balance+$amount;
+                $data['available_balance'] = $data['credited_balance']-$franchise_branch->debited_balance;
+                $res=$franchise_branch->update($data); //Update details
+                $id = \Auth::user()->id;
+                $inwardFlowType = \App\Paymenttype::where('payment_flow_type', 'inward')
+                ->select("id")->firstOrFail()->id;
+            
+            //$newestCliente = \App\Transactions::orderBy('id', 'desc')->first(); // gets the whole row
+            $kc="success";
+             $maxtxtnid = \App\Transactions::where("status", "=", $kc)->max('manual_transid');
+
+                    //$maxtxnid = $newestCliente->manual_transid;
+                    
+            if(empty($maxtxtnid))
+                	$maxtxtnid=1;
+            else
+                    $maxtxtnid=intval($maxtxnid)+1;
+    
+
+                $txn_data = array();
+				$txn_data['txnid'] = $txnid;
+				$txn_data['amount'] = $amount;
+                $txn_data['payment_type'] = 'new';
+				// txns to slj system
+				$txn_data['payment_flow_type'] = $inwardFlowType;
+				// customer user id
+				$txn_data['user_id'] = $id;
+				// 3 - customer 
+				$txn_data['payment_from'] = 1;
+				$txn_data['payment_message'] = $productinfo;
+				//$txn_data['customer_id'] = $customer_id;
+				$txn_data['payment_mode'] = 'Payment Gateway';
+				$txn_data['status'] = $status;
+                $txn_data['payment_source']=$_POST['payment_source'];
+                $txn_data['manual_transid']=$maxtxtnid;
+                //Txs
+                $txnRecord = \App\Transactions::create($txn_data);
+                
+                // Start Branch Payments
+                    $branchpayData=array();
+//$branchpayData['']=
+                    $branchpayData['branch_id']=$branch_id;
+                    $branchpayData['branch_name']=$branch_name;
+                    $branchpayData['trans_id']=$txnid;
+                    $branchpayData['manual_transid']=$maxtxtnid;
+                    $branchpayData['pay_mode']="Payment Gateway";
+                    $branchpayData['pay_type']="Online Branch Deposit";
+                    $branchpayData['trans_date']=Carbon::now();
+                    $branchpayData['amount']=$amount;
+                    
+                
+                
+                // End Branch Payments
+                $invoiceData = [];
+                $invoiceData["invoice_type"] = "Deposit";
+                $invoiceData["payment_type"] = "Online Branch Deposit";
+
+                $invoiceData["created_to"] = 1;
+
+                $unpaid_invoices_sum = Invoices::where("franchise_branch_id",
+                  $branch_id
+                )->where("created_to", $invoiceData['created_to'])
+                    // ->where("paid", "=", 0)
+                    ->where("cancelled", "=", 0)
+                    ->where("status", "=", 1)
+                    ->sum("total_amount");
+
+                // sum of paid invoices
+                $paid_invoices_sum = Invoices::where("franchise_branch_id",
+                  $branch_id
+                )->where("created_to", $invoiceData['created_to'])
+                    ->where("paid", "=", 1)
+                    ->where("cancelled", "=", 0)
+                    ->where("status", "=", 1)
+                    ->sum("total_amount");
+
+                // sum of deleted invoices
+                $deleted_invoices_sum = Invoices::where("franchise_branch_id",
+                $branch_id
+                 )->where("created_to", $invoiceData['created_to'])
+                //   ->where("paid", "=", 1)
+                //   ->where("cancelled", "=", 0)
+                ->where("status", "=", 0)
+                ->sum("total_amount");
+
+                $cancelled_invoices_sum = Invoices::where("franchise_branch_id",
+                  $branch_id
+                )->where("created_to", $invoiceData['created_to'])
+                    // ->where("paid", "=", 1)
+                    ->where("cancelled", "=", 1)
+                    // ->where("status", "=", 1)
+                    ->sum("total_amount");
+
+                $depositdataOrderNumber = \App\Deposits::find($depositdata->id)->order_number;
+
+                $bill_number = Invoices::where("paid", "=", 1)->max('bill_number');
+
+                if ($bill_number == "" ) {
+                    $bill_number = 1;
+                } else {
+                    $today = Carbon::now();
+                    if ($today->month == 4 && $today->day == 1) {
+                        $bill_number = 1;
+                    } else {
+                        $bill_number++;
+                    }
+                }
+
+                $invoiceData["po_number"] = $depositdataOrderNumber;
+                $invoiceData["bill_number"] = $bill_number;
+
+                $invoiceData["txn_id"] = $txnRecord->id;
+                $invoiceData["payment_gateway_txn_id"] = $txnid;
+
+                $invoiceData["amount"] = $amount;
+                $invoiceData["total_amount"] = $amount;
+                $invoiceData["paid_amount"] = $amount;
+                $invoiceData["paid_date"] = Carbon::now();
+                $invoiceData["payment_date"] = Carbon::now();
+
+                // the logged in user
+                $invoiceData["created_by"] = $id;
+                // user who is impacting
+                $invoiceData["created_for"] = $id;
+                // create by role
+                // branch role is 1
+                $invoiceData["created_from"] = 1;
+                $invoiceData["franchise_branch_id"] = $branch_id;
+                // $franchise_branch 
+                $invoiceData["name"] = $franchise_branch->branch_name;
+                $invoiceData["address"] = $franchise_branch->office_address;
+
+                // $invoiceData["base_price"] = $amount;
+                $invoiceData["payment_flow_type"] = 'inward';
+                $invoiceData["ptype"] = 1;
+                // active
+                $invoiceData["status"] = 1;
+                $invoiceData["paid"] = 1;
+                $invoiceData["payment_date"] = Carbon::now();
+                $invoiceData["payment_mode"] = 'Online';
+                $invoiceData["current_balance"] =  floatval($unpaid_invoices_sum)  - (floatval($paid_invoices_sum) + floatval($deleted_invoices_sum) + floatval($cancelled_invoices_sum) + floatval($amount));
+
+                // paid invoice from branch
+                $invoiceResult = Invoices::create($invoiceData);
+
+                $optdata->invoice_no = $invoiceResult->invoice_number;
+                $optdata->order_no = $depositdataOrderNumber;
+                $optdata->save();
+                $branchpayData['balance']=$invoiceData["current_balance"];
+                \App\BranchPayments::create($branchpayData);
+                
+                
+               // return redirect('branch/dashboard')->with('success_message', "<h3> Your Transaction has been  <b>". $status ."</b>.</h3>"."<h4> Your Transaction ID for this transaction is <b>".$txnid."</b>.</h4>"."<h4>The payment of Rs. <b>" . $amount . "</b>.</h4>");
+               if($status=='failed')
+               return redirect('branch/dashboard')->with('success_message', "<h3> Your Transaction has been <b>'. $status .'</b>.</h3>"."<h4> Your Transaction ID for this transaction is <b>'.$txnid.'</b>.</h4>"."<h4> The payment of Rs. <b>' . $amount . '</b>.</h4>");
+                else
+               
+             return redirect('branch/dashboard')->with('success_message', "<h3> Your Transaction has been <b>'. $status .'</b>.</h3>"."<h4> Your Transaction ID for this transaction is <b>'.$txnid.'</b>.</h4>"."<h4> The payment of Rs. <b>' . $amount . '</b>.</h4>");
+
+			}
+		}else{
+			return redirect('branch/dashboard');
+		}
+		//return view('customers::payment-response',['status'=>$status,'firstname'=>$firstname,'amount'=>$amount,'txnid'=>$txnid,'posted_hash'=>$posted_hash,'key'=>$key,'productinfo'=>$productinfo,'email'=>$email,'salt'=>$salt]);
+    }
+}

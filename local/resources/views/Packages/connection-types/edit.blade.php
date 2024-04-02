@@ -1,0 +1,140 @@
+@extends('layouts.admin')
+
+@section('content')
+    <!-- Page Heading -->
+    <div class="card shadow mb-4">
+	   @include('packages.topmenu')
+	<div class="card-header py-3">
+	  <div class="float-left"><h3 class="m-0 font-weight-bold text-primary">Edit Connection Type</h3></div>
+	  
+	</div>
+	
+	
+	
+	<div class="card-body">
+	  @if(Session::has('flash_message'))
+			<div class="alert alert-success">{{ Session::get('flash_message') }}</div>
+		@endif
+		
+		@if($errors->any())
+	  <div class="alert alert-danger"> @foreach($errors->all() as $error)
+		<p>{{ $error }}</p>
+		@endforeach </div>
+	  @endif
+
+	  @if(Session::has('success'))
+        <div class="alert alert-success alert-dismissible fade show">
+		<button type="button" class="close" data-dismiss="alert">&times;</button>
+            <strong>Success!</strong> {{ Session::get('success') }}
+            @php
+                Session::forget('success');
+            @endphp
+        </div>
+
+        @endif
+	  
+	  
+	  {!! Form::model($connectiontypedetails, array('route' => array('connection-types.update', $connectiontypedetails->id),'method'=>'put')) !!}
+	      
+		<div class="row">
+	    	<div class="col-md-6">
+	    		
+			<div class="form-group col-md-12"> {!! Form::label('title', 'Connection Type') !!}
+		        {!! Form::text('title',null, array('class' => 'form-control','required'=>'required','placeholder'=>'Enter Connection Type')) !!} </div>
+		    
+			<div class="form-group col-md-12"> {!! Form::label('installation_amount', 'Installation Amount') !!}
+	        {!! Form::text('installation_amount',null, array('class' => 'form-control','placeholder'=>'Enter Installation Amount')) !!} </div>
+	        
+			<div class="form-group col-md-12 row_secure_deposite_amount"> {!! Form::label('olt_security_deposit', 'ONT Security Deposit') !!}
+	        {!! Form::text('olt_security_deposit',null, array('class' => 'form-control','placeholder'=>'Enter OLT Security Deposit')) !!} </div>
+	        
+			<div class="form-group col-md-12 row_setup_box_amount"> {!! Form::label('setupbox_amount', 'Setup Box Amount') !!}
+	        {!! Form::text('setupbox_amount',null, array('class' => 'form-control','placeholder'=>'Enter Setup Box Amount')) !!} </div>
+			
+			<div class="form-group col-md-12"> {!! Form::label('rental_amount', 'Rental Amount') !!}
+	        {!! Form::text('rental_amount',null, array('class' => 'form-control','placeholder'=>'Enter Rental Amount')) !!} </div>
+			
+			<div class="form-group col-md-12"> {!! Form::label('ont_security_deposit', 'ONT Androidbox Security Deposit') !!}
+	        {!! Form::text('ont_security_deposit',null, array('class' => 'form-control','placeholder'=>'Enter ONT Androidbox Security Deposit')) !!} </div>
+				
+			
+        	
+
+
+	    {!! Form::submit('Submit', ['class' => 'btn btn-success']) !!} 
+				
+
+
+
+	    	</div>
+	    	<div class="col-md-6">
+	    		&nbsp;
+
+	    	</div>
+	    </div>		
+				
+	    
+	    
+      {!! Form::close() !!} 
+
+	</div>
+  </div> 
+
+  <script>
+
+		$(document).ready(function(){ 
+
+			$('#package_type').change(function(ev){
+				if($(this).val() == "fall back plan"){
+					$(".expiry_date_burst").removeClass('d-none');
+				}else if($(this).val() == "data addon plan"){
+					$(".expiry_date_burst").addClass('d-none');
+				
+				}else{
+					$(".expiry_date_burst").removeClass('d-none');
+				}
+			});
+
+			$('#enable_brust').change(function(ev){
+				if($(this).val() == "yes"){
+					$(".burst_container").removeClass('d-none');
+				}else{
+					$(".burst_container ").addClass('d-none');
+				}
+			});
+
+			
+
+			$('#package_data_type').change(function(ev){
+				if($(this).val() == "FUP"){
+					$(".fup_container").removeClass('d-none');
+				}else{
+					$(".fup_container").addClass('d-none');
+				}
+			});
+			
+			
+			//Select Values
+			var package_type = $('#package_type').val();
+			$('#package_type').val(package_type).trigger('change');
+			
+			var enable_brust = $('#enable_brust').val();
+			$('#enable_brust').val(enable_brust).trigger('change');
+			
+			var package_data_type = $('#package_data_type').val();
+			$('#package_data_type').val(package_data_type).trigger('change');
+			
+
+
+			$('.total_gst').keyup(function(ev){
+				var total = $('#price').val() * 1;
+				var gst = $('#gst').val() / 100;
+				var gstprice = (total*gst);
+				var total_price = total+ gstprice;
+				var divobj = document.getElementById('total_amount');
+				divobj.value = total_price;
+			});
+			 
+		}); 
+	</script>
+@stop

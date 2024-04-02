@@ -1,0 +1,174 @@
+<?php
+
+namespace App\Http\Controllers\Packages;
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Routing\Controller;
+use DB;
+
+class BroadbandSubPackagesController extends Controller
+{
+
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
+	/**
+     * Display a listing of the resource.
+     * @return Response
+     */
+    public function index()
+    {	
+    	$data = \App\BroadbandSubPackages::leftJoin('slj_broadband_packages', 'slj_broadband_packages.id', '=', 'slj_broadband_subpackages.package')
+				->select('slj_broadband_subpackages.*','slj_broadband_packages.*','slj_broadband_subpackages.id as subpackageid','slj_broadband_subpackages.status as status')->orderBy('package_name')->paginate(20);
+		return view('packages.broadband-subpackages.index',['data'=>$data]);
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     * @return Response
+     */
+    public function create($id)
+    {
+        $broadbandpackagedetails = \App\BroadbandPackages::find($id);
+        $items = \App\BroadbandPackages::where('status','Y')->pluck('package_name as name', 'id');
+		
+		return view('packages.broadband-subpackages.create',['items'=>$items,'package'=>$id,'broadbandpackagedetails'=>$broadbandpackagedetails]);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     * @param Request $request
+     * @return Response
+     */
+    public function store(Request $request,$id)
+    {
+        $validatedData = $request->validate([
+			'package' => 'required',
+			'sub_plan_name' => 'required',
+			'price' => 'required',
+			'gst' => 'required',
+			'total_amount' => 'required',
+			'unit_type' => 'required',
+			'myFrame' => 'required',
+		]);
+		
+		
+		$input = request()->all();
+
+		$sub_plan = array();
+		$sub_plan['package'] = $input['package'];
+		$sub_plan['sub_plan_name'] = $input['sub_plan_name'];
+		$sub_plan['price'] = $input['price'];
+		$sub_plan['gst'] = $input['gst'];
+		$sub_plan['total'] = $input['total_amount'];
+		$sub_plan['unit_type'] = $input['unit_type'];
+		$sub_plan['time_unit'] = $input['myFrame'];
+		$sub_plan['distributor_share'] = $input['distributor_share'];
+		$sub_plan['package_selection'] = $input['package_selection'];
+		$sub_plan['franchise_share'] = $input['franchise_share'];
+		$sub_plan['status'] = $input['status'];
+		$sub_plan['short_description'] = $input['short_description'];
+		
+		//echo "<pre>"; print_r($sub_plan); exit;
+
+		\App\BroadbandSubPackages::create($sub_plan);
+		
+        return redirect('admin/broadband-packages/edit/'.$input['package']."#package_subplans")->with('success', 'Broadband Sub Package created successfully.');
+    }
+
+    /**
+     * Show the specified resource.
+     * @param int $id
+     * @return Response
+     */
+    public function show($id)
+    {
+        return view('packages.broadband.show');
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     * @param int $id
+     * @return Response
+     */
+    public function edit($id)
+    {
+        $broadbandsubpackagedetails = \App\BroadbandSubPackages::find($id);
+		$items = \App\BroadbandPackages::pluck('package_name as name', 'id');
+
+		$broadbandpackagedetails = \App\BroadbandPackages::find($broadbandsubpackagedetails->package);
+		
+		return view('packages.broadband-subpackages.edit',['items'=>$items, 'broadbandsubpackagedetails'=>$broadbandsubpackagedetails,'broadbandpackagedetails'=>$broadbandpackagedetails]);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     * @param Request $request
+     * @param int $id
+     * @return Response
+     */
+    public function update(Request $request, $id)
+    {
+       $validatedData = $request->validate([
+			'package' => 'required',
+			'sub_plan_name' => 'required',
+			'price' => 'required',
+			'gst' => 'required',
+			'total' => 'required',
+			'unit_type' => 'required',
+			'time_unit' => 'required',
+		]);
+
+
+        $input = request()->all();
+
+		$sub_plan = array();
+		$sub_plan['package'] = $input['package'];
+		$sub_plan['sub_plan_name'] = $input['sub_plan_name'];
+		$sub_plan['price'] = $input['price'];
+		$sub_plan['gst'] = $input['gst'];
+		$sub_plan['total'] = $input['total'];
+		$sub_plan['unit_type'] = $input['unit_type'];
+		$sub_plan['time_unit'] = $input['time_unit'];
+		$sub_plan['package_selection'] = $input['package_selection'];
+		$sub_plan['distributor_share'] = $input['distributor_share'];
+		$sub_plan['franchise_share'] = $input['franchise_share'];
+		$sub_plan['status'] = $input['status'];
+		$sub_plan['short_description'] = $input['short_description'];
+		
+		//echo "<pre>"; print_r($sub_plan); exit;
+
+		//\App\BroadbandSubPackages::create($sub_plan);
+
+		//Update details
+		$subpackage = \App\BroadbandSubPackages::find($id);
+		$subpackage->update($sub_plan);
+		
+        return redirect('admin/broadband-packages/edit/'.$input['package']."#package_subplans")->with('success', 'Broadband Sub Package updated successfully.');
+    }
+	
+	
+	/**
+     * Remove the specified resource from storage.
+     * @param int $id
+     * @return Response
+     */
+    public function destroy($id)
+    {
+        $customers = \App\Customers::where('sub_package',$id)->count();
+        
+        if($id > 0 && $customers == 0){
+            \App\BroadbandSubPackages::destroy($id);
+            
+            return redirect('admin/broadband-sub-packages')->with('success', 'Sub Package deleted successfully.');
+        }else{
+            return redirect('admin/broadband-sub-packages')->with('error', 'Sub Package cannot be deleted because of dependency');
+        }
+    }
+
+
+
+}

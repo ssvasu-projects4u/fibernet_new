@@ -1,0 +1,204 @@
+<?php
+
+namespace App\Http\Controllers\Administration;
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Routing\Controller;
+use Redirect;
+use Session;
+
+class PaymentsController extends Controller
+{
+	public function __construct()
+    {
+        $this->middleware('auth');
+	}
+
+    /**
+     * Display a listing of the resource.
+     * @return Response
+     */
+    public function inward()
+    {	
+        $data = \App\Transactions::leftJoin('slj_customers','slj_customers.id', '=', 'slj_txns.customer_id')
+                //->select('slj_customers.*','slj_franchises.franchise_name','slj_branches.branch_name','slj_cities.name as city_name','users.mobile','users.email','users.name')
+                ->leftJoin('users','slj_customers.user_id', '=', 'users.id')
+				->select('slj_txns.*','users.mobile','users.email','users.name')
+				->where('slj_txns.status','=','success')
+				->where('slj_txns.payment_type','=','new')
+				->orderBy('slj_txns.created_at','desc')
+                ->paginate(15);
+		
+		$data = array();
+		return view('administration::payment-accounts.inward',['data'=>$data]);
+    }
+	
+	/**
+     * Display a listing of the resource.
+     * @return Response
+     */
+    public function outward()
+    {	
+        $data = \App\Transactions::orderBy('id')->paginate(20);
+		
+		
+		 $data = array();
+		
+		return view('administration::payment-accounts.outward',['data'=>$data]);
+    }
+	
+	/**
+     * Display a listing of the resource.
+     * @return Response
+     */
+    public function gst()
+    {	
+        $data = \App\Transactions::orderBy('id')->paginate(20);
+		
+		
+		$data = array();
+		
+		return view('administration::payment-accounts.gst',['data'=>$data]);
+    }
+	
+	
+	/**
+     * Display a listing of the resource.
+     * @return Response
+     */
+    public function balancesheet()
+    {	
+        $data = \App\Transactions::orderBy('id')->paginate(20);
+		
+		
+		 $data = array();
+		
+		return view('administration::payment-accounts.balancesheet',['data'=>$data]);
+    }
+
+    /**
+     * Display a listing of the resource.
+     * @return Response
+     */
+    public function inwardCredits()
+    {
+        $inwardFlowTypeQuery = \App\Paymenttype::where('payment_flow_type', 'inward')
+        ->select("id")->first();
+        if (!$inwardFlowTypeQuery) {
+            Session::flash('error', "payment flow type inward required to access CREDITS");
+            return redirect('admin/accounts/paymenttype')->with('error', 'payment flow type inward required to access CREDITS');
+        } else if ($inwardFlowTypeQuery) {
+            $inwardFlowType = $inwardFlowTypeQuery->id;
+
+            $data = \App\Transactions::leftJoin('users','users.id', '=', 'slj_txns.user_id')
+            ->leftJoin('slj_customers','slj_txns.user_id', '=', 'slj_customers.user_id')
+            ->leftJoin('slj_invoices','slj_txns.id', '=', 'slj_invoices.txn_id')
+            ->select('slj_txns.*', 'slj_invoices.invoice_number', 'slj_invoices.name', 'slj_invoices.payment_gateway_txn_id', 'slj_invoices.payment_type as inpayment_type')
+                // ->select('slj_invoices.invoice_number', 'slj_invoices.name', 'slj_invoices.payment_type')
+                ->where('slj_txns.status','=','success')
+                ->where('slj_txns.payment_flow_type','=', $inwardFlowType)
+                ->orderBy('slj_txns.created_at','desc')
+                ->paginate(15);
+
+            return view('administration::payment-accounts.inward-credits',['data'=>$data]);                
+        }
+    }
+
+    /**
+     * Display a detail of the inward transaction detail.
+     * @return Response
+     */
+    public function inwardCreditsdetail($txnId, $payment_from)
+    {
+        if ($payment_from == 0) {
+            Session::flash('error', "payment from not found");
+            return Redirect::back()->withErrors("payment from not found");
+        }
+
+        // $inwardFlowTypeQuery = \App\Paymenttype::where('payment_flow_type', 'inward')
+        // ->select("id")->first();
+        // if (!$inwardFlowTypeQuery) {
+        //     Session::flash('error', "payment flow type inward required to access CREDITS");
+        //     return redirect('admin/accounts/paymenttype')->with('error', 'payment flow type inward required to access CREDITS');
+        // } else if ($inwardFlowTypeQuery) {
+        //     $inwardFlowType = $inwardFlowTypeQuery->id;
+
+
+            if ($payment_from == 1) {
+                $data = \App\Transactions::leftJoin('users','users.id', '=', 'slj_txns.user_id')
+                ->leftJoin('slj_franchises','users.id', '=', 'slj_franchises.user_id')
+                ->leftJoin('slj_branches','users.id', '=', 'slj_branches.user_id')
+                ->leftJoin('slj_cities','slj_branches.city', '=', 'slj_cities.id')
+                ->leftJoin('slj_distributors','slj_branches.distributor_id', '=', 'slj_distributors.id')
+                ->leftJoin('slj_invoices','slj_txns.id', '=', 'slj_invoices.txn_id')
+                ->select(
+                    'slj_franchises.franchise_name as franchise_name',
+                    'slj_franchises.franchise_id as franchise_id',
+                    'slj_branches.branch_name as branch_name',
+                    'slj_branches.branch_id as branch_id',
+                    'slj_cities.name as city_name',
+                    'slj_distributors.distributor_name as distributor_name',
+                    'slj_distributors.distributor_id as distributor_id',
+                    'users.mobile','users.email','users.name',
+                    'slj_txns.*','users.mobile','users.email','users.name',
+                    'slj_invoices.invoice_number', 'slj_invoices.name as user_name',
+                    'slj_invoices.payment_gateway_txn_id', 'slj_invoices.payment_type as inpayment_type'
+                )
+                ->where('slj_txns.id','=', $txnId )
+                ->first();
+            } else if ($payment_from == 2) {
+                $data = \App\Transactions::leftJoin('users','users.id', '=', 'slj_txns.user_id')
+                ->leftJoin('slj_franchises','users.id', '=', 'slj_franchises.user_id')
+                ->leftJoin('slj_branches','users.id', '=', 'slj_branches.user_id')
+                ->leftJoin('slj_cities','slj_franchises.city', '=', 'slj_cities.id')
+                ->leftJoin('slj_distributors','slj_franchises.distributor_id', '=', 'slj_distributors.id')
+                ->leftJoin('slj_invoices','slj_txns.id', '=', 'slj_invoices.txn_id')
+                ->select(
+                    'slj_franchises.franchise_name as franchise_name',
+                    'slj_franchises.franchise_id as franchise_id',
+                    'slj_branches.branch_name as branch_name',
+                    'slj_branches.branch_id as branch_id',
+                    'slj_cities.name as city_name',
+                    'slj_distributors.distributor_name as distributor_name',
+                    'slj_distributors.distributor_id as distributor_id',
+                    'users.mobile','users.email','users.name',
+                    'slj_txns.*','users.mobile','users.email','users.name',
+                    'slj_invoices.invoice_number', 'slj_invoices.name as user_name',
+                    'slj_invoices.payment_gateway_txn_id', 'slj_invoices.payment_type as inpayment_type'
+                )
+                ->where('slj_txns.id','=', $txnId )
+                ->first();            
+        } else if ($payment_from == 3) {
+        $data = \App\Transactions::leftJoin('slj_customers','slj_customers.id', '=', 'slj_txns.customer_id')
+        ->leftJoin('slj_franchises','slj_customers.franchise', '=', 'slj_franchises.id')
+        ->leftJoin('slj_branches','slj_customers.branch', '=', 'slj_branches.id')
+        ->leftJoin('slj_cities','slj_customers.city', '=', 'slj_cities.id')
+        ->leftJoin('slj_distributors','slj_customers.distributor', '=', 'slj_distributors.id')
+        ->leftJoin('slj_payment_type', 'slj_txns.payment_flow_type', '=', 'slj_payment_type.id')
+        ->leftJoin('users','slj_customers.user_id', '=', 'users.id')
+        ->leftJoin('slj_invoices','slj_txns.id', '=', 'slj_invoices.txn_id')
+        ->select('slj_customers.*',
+                'slj_franchises.franchise_name as franchise_name',
+                'slj_franchises.franchise_id as franchise_id',
+                'slj_branches.branch_name as branch_name',
+                'slj_branches.branch_id as branch_id',
+                'slj_cities.name as city_name',
+                'slj_distributors.distributor_name as distributor_name',
+                'slj_distributors.distributor_id as distributor_id',
+                'users.mobile','users.email','users.name',
+                'slj_txns.*','users.mobile','users.email','users.name',
+                'slj_invoices.invoice_number', 'slj_invoices.name as user_name',
+                'slj_invoices.payment_gateway_txn_id', 'slj_invoices.payment_type as inpayment_type'
+                )
+                ->where('slj_txns.id','=', $txnId )
+                // inward flow type
+                // ->where('slj_txns.payment_flow_type', '=', $inwardFlowType)
+                ->first();
+        }
+        // dd($data);
+        return view('administration::payment-accounts.inward-credits-details',['data'=>$data]);
+    //   }
+    }
+
+}

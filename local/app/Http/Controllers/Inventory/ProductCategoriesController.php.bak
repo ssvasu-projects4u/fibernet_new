@@ -1,0 +1,140 @@
+<?php
+
+namespace App\Http\Controllers\Inventory;
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Routing\Controller;
+use DB;
+
+class ProductCategoriesController extends Controller
+{
+
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
+    /**
+     * Display a listing of the resource.
+     * @return Response
+     */
+    public function index()
+    {	
+        $data = \App\ProductCategories::whereNull('parent')->orderBy('name')->paginate(20);
+		return view('inventory.product-categories.index',['data'=>$data]);
+    }
+	
+	/**
+     * Show the form for creating a new resource.
+     * @return Response
+     */
+    public function create()
+    {
+        $categories = \App\ProductCategories::where('status','Y')->whereNull('parent')->pluck('name', 'id');
+		return view('inventory.product-categories.create',['categories'=>$categories]);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     * @param Request $request
+     * @return Response
+     */
+    public function store(Request $request)
+    {
+        //
+		$validatedData = $request->validate([
+			'name' => 'required|unique:slj_product_categories'
+		]);
+		
+		$input = request()->all();
+        //$input['status'] = "Y";
+
+		\App\ProductCategories::create($input);
+
+        return redirect('admin/inventory/product-categories')->with('success', 'Product category created successfully.');
+    }
+
+    /**
+     * Show the specified resource.
+     * @param int $id
+     * @return Response
+     */
+    public function show($id)
+    {
+        return view('inventory::product-categories.show');
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     * @param int $id
+     * @return Response
+     */
+    public function edit($id)
+    {
+        $categories = \App\ProductCategories::where('status','Y')->whereNull('parent')->pluck('name', 'id');
+        $details = \App\ProductCategories::find($id);
+        
+        $subcategories = \App\ProductCategories::where('parent',$id)->orderBy('name')->paginate(20);
+		
+
+		return view('inventory::product-categories.edit',['details'=>$details,'categories'=>$categories,'subcategories'=>$subcategories]);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     * @param Request $request
+     * @param int $id
+     * @return Response
+     */
+    public function update(Request $request, $id)
+    {
+        $validatedData = $request->validate([
+			'name' => 'required|unique:slj_product_categories,name,'.$id
+		]);
+		
+		$requestdata = $request->all(); 
+		
+        $data['name'] = $requestdata['name'];
+        $data['parent'] = $requestdata['parent'];
+        $data['description'] = $requestdata['description'];
+        $data['status'] = $requestdata['status'];
+        $productcategory = \App\ProductCategories::find($id);
+		
+		//Update details
+		$productcategory->update($data);
+		
+		return redirect('admin/inventory/product-categories')->with('success', 'Product category updated successfully.');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     * @param int $id
+     * @return Response
+     */
+    public function destroy($id)
+    {
+        //$designations = \App\Designations::where('department',$id)->count();
+        //$employees = \App\Employees::where('department',$id)->count();
+        
+        //if($id > 0 && $designations == 0 && $employees == 0){
+            //\App\Departments::destroy($id);
+            // return redirect('admin/departments')->with('success', 'Department deleted successfully.');
+        //}else{
+            return redirect('admin/inventory/product-categories')->with('error', 'Product category cannot be deleted because of dependency');
+        //}
+    }
+
+    public function getSubCategories($catid)
+    {
+        $subcategories = \App\ProductCategories::where('parent',$catid)->where('status','Y')->select('id','name')->get();
+
+        $html = "<option value=''>-- Select Sub Category --</option>";
+        foreach($subcategories as $category){
+            $html.="<option value='".$category->id."'>".ucfirst($category->name)."</option>";
+        }
+
+        return $html;
+    }
+    
+}

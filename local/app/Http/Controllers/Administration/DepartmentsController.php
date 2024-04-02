@@ -1,0 +1,118 @@
+<?php
+
+namespace App\Http\Controllers\Administration;
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Routing\Controller;
+use DB;
+
+class DepartmentsController extends Controller
+{
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+    /**
+     * Display a listing of the resource.
+     * @return Response
+     */
+    public function index()
+    {	
+        $data = \App\Departments::where('status','Y')->orderBy('department')->paginate(20);
+		 return view('administration.departments.index',compact('data'));
+		//return view('administration::departments.index',['data'=>$data]);
+    }
+	
+	/**
+     * Show the form for creating a new resource.
+     * @return Response
+     */
+    public function create()
+    {
+        return view('administration.departments.create');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     * @param Request $request
+     * @return Response
+     */
+    public function store(Request $request)
+    {
+        //
+		$validatedData = $request->validate([
+			'department' => 'required|unique:slj_departments'
+		]);
+		
+		
+		$input = request()->all();
+        $input['status'] = "Y";
+
+		\App\Departments::create($input);
+
+        return redirect('admin/departments')->with('success', 'Department created successfully.');
+    }
+
+    /**
+     * Show the specified resource.
+     * @param int $id
+     * @return Response
+     */
+    public function show($id)
+    {
+        return view('administration.departments.show');
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     * @param int $id
+     * @return Response
+     */
+    public function edit($id)
+    {
+        $departmentdetails = \App\Departments::find($id);
+		return view('administration.departments.edit',['departmentdetails'=>$departmentdetails]);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     * @param Request $request
+     * @param int $id
+     * @return Response
+     */
+    public function update(Request $request, $id)
+    {
+        $validatedData = $request->validate([
+			'department' => 'required|unique:slj_departments,department,'.$id
+		]);
+		
+		$requestdata = $request->all(); 
+		
+		$data['department'] = $requestdata['department'];
+        $department = \App\Departments::find($id);
+		
+		//Update details
+		$department->update($data);
+		
+		return redirect('admin/departments')->with('success', 'Department updated successfully.');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     * @param int $id
+     * @return Response
+     */
+    public function destroy($id)
+    {
+        $designations = \App\Designations::where('department',$id)->count();
+        $employees = \App\Employees::where('department',$id)->count();
+        
+        if($id > 0 && $designations == 0 && $employees == 0){
+            \App\Departments::destroy($id);
+             return redirect('admin/departments')->with('success', 'Department deleted successfully.');
+        }else{
+            return redirect('admin/departments')->with('error', 'Department cannot be deleted because of dependency');
+        }
+    }
+}

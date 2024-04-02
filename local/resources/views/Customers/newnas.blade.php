@@ -1,0 +1,198 @@
+@extends('layouts.admin')
+
+@section('content')
+    <!-- Page Heading -->
+    <div class="card shadow mb-4">
+	  <!-- @include('administration.topmenu') -->
+	<div class="card-header py-2">
+	  <div class="float-left"><h3 class="m-0 font-weight-bold text-primary">Add Nas</h3></div>
+	  
+	</div>
+	
+	
+	<div class="card-body">
+	  @if(Session::has('flash_message'))
+			<div class="alert alert-success">{{ Session::get('flash_message') }}</div>
+		@endif
+		
+		@if($errors->any())
+	  <div class="alert alert-danger"> @foreach($errors->all() as $error)
+		<p>{{ $error }}</p>
+		@endforeach </div>
+	  @endif
+	  
+	  
+	  {!! Form::open(['route' =>['customers.ippoolstore'],'method'=>'post','id'=>'create_form'])!!}
+	      @csrf
+			
+				<div class="row">
+			
+			<div class="form-group col-md-3"> {!! Form::label('city', 'City*') !!}
+        {!! Form::select('city', $items, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select City --') ) !!} </div>
+		
+		<div class="form-group col-md-3"> {!! Form::label('distributor', 'Distributor*') !!}
+        {!! Form::select('distributor', [], null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Distributor --') ) !!} </div>
+		
+		<div class="form-group col-md-3"> {!! Form::label('branch', 'Branch*') !!}
+        {!! Form::select('branch', [], null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Branch --') ) !!} </div>
+
+			<div class="form-group col-md-3"> {!! Form::label('franchise', 'Franchise Name*') !!}
+        {!! Form::select('franchise',[],null, array('class' => 'form-control','required'=>'required','placeholder'=>'Enter Franchise Name')) !!} </div>
+       
+       	<?php $statuses = array('Y'=>'Active','N'=>'In Active'); ?>
+		<div class="form-group col-md-3"> {!! Form::label('status', 'Status') !!}
+		{!! Form::select('status', $statuses, null,array('class' => 'form-control') ) !!} </div>
+			
+		<?php $nastypes = array('Mikrotik'=>'Mikrotik','Cisco'=>'Cisco'); ?>
+		<div class="form-group col-md-3"> {!! Form::label('nastype', 'NAS Type*') !!}
+		{!! Form::select('nastype',$nastypes, null,array('class' => 'form-control') ) !!} </div>
+		
+      	
+		<div class="form-group col-md-3"> {!! Form::label('name', 'Name*') !!}
+        {!! Form::text('name',null, array('class' => 'form-control','required'=>'required','placeholder'=>'Enter Name')) !!} </div>
+        <div class="form-group col-md-3"> {!! Form::label('ipaddress', 'IP Address*') !!}
+        {!! Form::text('ipaddress',null, array('class' => 'form-control','required'=>'required','placeholder'=>'Enter IP Address')) !!} 
+        
+       	</div>
+       	<div class="form-group col-md-3"> {!! Form::label('sceret', 'Secret*') !!}
+        {!! Form::text('sceret',null, array('class' => 'form-control','required'=>'required','placeholder'=>'Enter IP Address')) !!} 
+        
+       	</div>
+       	<div class="form-group col-md-3"> {!! Form::label('account', 'Accounting Interval*') !!}
+        {!! Form::text('ipaddress',null, array('class' => 'form-control','required'=>'required','placeholder'=>'Enter IP Address')) !!} 
+        
+       	</div>
+       	 <div class="form-group col-md-3"> {!! Form::label('coaport', 'COA Port *') !!}
+        {!! Form::text('coaport',null, array('class' => 'form-control','required'=>'required','placeholder'=>'Enter IP Address')) !!} 
+        </div>
+        
+        <?php $dismethod = array('Onfly'=>'OnFly','Disconnect'=>'Disconnect'); ?>
+     	 <div class="form-group col-md-3"> {!! Form::label('coa', 'COA Use Method*') !!}
+        {!! Form::select('coa',$dismethod, null, array('class' => 'form-control','required'=>'required','placeholder'=>'Select Disconnect Method')) !!} 
+         </div>
+     
+       	</div>
+       		<div class="row">
+       	<?php $statuses = array('Y'=>'Active','N'=>'In Active'); ?>
+		<div class="form-group col-md-3"> {!! Form::label('mikroapi', 'Enable Mikrotik API') !!}
+		{!! Form::select('mikroapi', $statuses, null,array('class' => 'form-control','placeholder'=>'Select Status')) !!} </div>
+		
+		 <div class="form-group col-md-3"> {!! Form::label('mirtokapiuname', 'Mikrotik API Username') !!}
+        {!! Form::text('mirtokapiuname',null, array('class' => 'form-control','required'=>'required','placeholder'=>'Enter Mikrotik API Username')) !!} 
+        </div>
+          <div class="form-group col-md-3"> {!! Form::label('apipwd', 'Mikrotik API Password') !!}
+        {!! Form::text('apipwd',null, array('class' => 'form-control','required'=>'required','placeholder'=>'Enter API Password')) !!} 
+        </div>
+         <div class="form-group col-md-3"> {!! Form::label('apiport', 'API Port') !!}
+        {!! Form::text('apiport',null, array('class' => 'form-control','required'=>'required','placeholder'=>'Enter API Port')) !!} 
+        </div>
+        
+       		    </div>
+       		    
+     	<div class="row">
+       	 	<?php $statuses = array('Y'=>'Active','N'=>'In Active'); ?>
+		<div class="form-group col-md-3"> {!! Form::label('mikroapi', 'Enable SNMP') !!}
+		{!! Form::select('snmp', $statuses, null,array('class' => 'form-control','placeholder'=>'Select Status')) !!} </div>
+		
+       		    </div>
+       		    
+       		    	<div class="row">
+       	 	<?php $statuses = array('Y'=>'Active','N'=>'In Active'); ?>
+		<div class="form-group col-md-3"> {!! Form::label('mikroapi', 'Cluster Radius') !!}
+		{!! Form::select('snmp', $statuses, null,array('class' => 'form-control','placeholder'=>'Select Status')) !!}
+		</div>
+		
+		 <div class="form-group col-md-3"> {!! Form::label('clsradapi', 'Cluster Radius Ip') !!}
+        {!! Form::text('clsradapi',null, array('class' => 'form-control','required'=>'required','placeholder'=>'Enter Cluster RADIUS IP')) !!} 
+        </div>
+		
+       		    </div>
+       		    <div class="row">
+	<div class="form-group col-md-6"> {!! Form::label('description', 'Description') !!}
+        {!! Form::textarea('description',null, array('class' => 'form-control','rows'=>2,'placeholder'=>'Enter Description')) !!} </div>
+		</div>
+		
+   
+       {!! Form::submit('Submit', ['class' => 'btn btn-success', 'id'=>'create_form_btn', 'disabled'=>'true']) !!}
+       {!! Form::reset('Reset', ['class' => 'btn btn-danger']) !!}
+      {!! Form::close() !!} 
+	  
+
+	</div>
+  </div>
+
+<script type="text/javascript">
+        
+	$(document).ready(function() {
+        
+       
+            
+        $('#city').on('change', function() {
+            var city = $(this).val();
+            if(city === '' || city <=0){
+            	$('#distributor').html("<option value=''>-- Select Distributor --</option>");
+            	return;
+            }
+            $.ajax({
+                url: "{{url('/admin/branches/citydistributors')}}/"+city,
+                type: "GET",
+                success:function(data) {
+                   $('#distributor').html(data);
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    alert(errorThrown);
+                }
+            });
+        });
+
+        //$('#city').val({{old('city')}}).trigger('change');
+        
+    });
+</script>
+
+  <script type="text/javascript">
+	$(document).ready(function() {
+        $('#distributor').on('change', function() {
+            var distributor = $(this).val();
+            var city = $("#city").val();
+            if(distributor == '' || distributor <=0){
+            	$('#branch').html("<option value=''>-- Select Branch --</option>");
+            	return;
+            }
+            $.ajax({
+                url: "{{url('/admin/franchises/citydistributorbranches')}}/"+city+"/"+distributor,
+                type: "GET",
+                success:function(data) {
+                   $('#branch').html(data);
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    alert(errorThrown);
+                }
+            });
+        });
+         $('#branch').on('change', function() {
+            var city = $("#city").val();
+            var branch = $(this).val();
+            if(branch == '' || branch <=0){
+            	$('#franchise').html("<option value=''>-- Select Franchise --</option>");
+				return;
+            }
+            $.ajax({
+                url: "{{url('/admin/customers/branch-franchises')}}/"+city+"/"+branch,
+                type: "GET",
+                success:function(data) {
+                   $('#franchise').html(data);
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    alert(errorThrown);
+                }
+            });
+        });
+
+        //$('#city').val({{old('city')}}).trigger('change');
+        
+    });
+</script>
+
+
+@stop

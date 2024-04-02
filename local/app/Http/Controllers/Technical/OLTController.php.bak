@@ -1,0 +1,406 @@
+<?php
+
+namespace App\Http\Controllers\Technical;
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Auth;
+//use DB;
+
+class OLTController extends Controller
+{
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+    /**
+     * Display a listing of the resource.
+     * @return Response
+     */
+    public function index()
+    {		
+        //check user permission for this page
+        $user = Auth::user();
+        $permissions = $user->getPermissionsViaRoles();
+
+        $permissionsdata = array();
+        foreach($permissions as $permission){
+            $permissionsdata[] =  $permission->name;   
+        }
+        if(count($permissionsdata) == 0 || !in_array('olt',$permissionsdata)){
+            abort(403, "Unauthorized action. Access Denied You don't have permission to access.");
+        }
+        
+        $data = \App\OLT::leftjoin('slj_distributors','slj_distributors.id', '=', 'slj_olt.distributor')
+				->leftjoin('slj_branches','slj_branches.id', '=', 'slj_olt.branch')
+                ->leftJoin('slj_cities','slj_cities.id', '=', 'slj_olt.city')
+				->select('slj_olt.*','slj_distributors.distributor_name','slj_branches.branch_name','slj_cities.name as city_name')
+				->orderBy('slj_olt.id')
+				->paginate(20);
+		
+		//echo "<pre>"; print_r($data); exit;
+		$employeedata=array();
+	  $id = \Auth::user()->id;
+		 $employeedata['employee_id']=$id;
+     $employeedata['action_name']="OLT List";
+     \App\Employees_Logs::create($employeedata);
+      	 
+		
+		return view('technical.olt.index',['data'=>$data]);
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     * @return Response
+     */
+    public function create()
+    {
+        //check user permission for this page
+        $user = Auth::user();
+        $permissions = $user->getPermissionsViaRoles();
+
+        $permissionsdata = array();
+        foreach($permissions as $permission){
+            $permissionsdata[] =  $permission->name;   
+        }
+        if(count($permissionsdata) == 0 || !in_array('olt',$permissionsdata)){
+            abort(403, "Unauthorized action. Access Denied You don't have permission to access.");
+        }
+        
+        $cities = \App\City::where('status','Y')->pluck('name', 'id');
+        //$branches = \App\Branches::pluck('branch_name as name', 'id');
+		
+		return view('technical.olt.create',['cities'=>$cities]);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     * @param Request $request
+     * @return Response
+     */
+    public function store(Request $request)
+    {
+        /*
+        $validatedData = $request->validate([
+			'city' => 'required',
+			'distributor' => 'required',
+            'branch' => 'required',
+			'olt_serial_number' => 'required',
+			'olt_port' => 'required',
+			'company_name' => 'required',
+			'olt_ip_address' => 'required',
+			'username' => 'required',
+			'password' => 'required'
+		   
+		
+		
+		]);
+		  */     
+		
+		$input = request()->all();
+    $data=array();
+    $data['city']=$input['city'];
+    $data['distributor']=$input['distributor'];
+    $data['branch']=$input['branch'];
+   // $data['franch_id']=$input['franchise'];
+    $data['olt_serial_number']=$input['olt_serial_number'];
+     $data['olt_model']=$input['olt_Model'];
+     $data['olt_port']=$input['olt_port'];
+     $data['company_name']=$input['company_name'];
+     $data['olt_ip_address']=$input['olt_ip_address'];
+     $data['username']=$input['username'];
+     $data['password']=$input['password'];
+    // $data['vlan']=$input['vlan'];
+     
+		\App\OLT::create($data);
+
+$employeedata=array();
+	  $id = \Auth::user()->id;
+    
+     $employeedata['employee_id']=$id;
+     $employeedata['action_name']="Create OLT";
+     $employeedata['value_of_action']=$input['olt_serial_number'];
+     
+      \App\Employees_Logs::create($employeedata);
+	
+        return redirect('admin/olt')->with('success', 'OLT created successfully.');
+    }
+
+
+    /**
+     * Store a newly created resource in storage.
+     * @param Request $request
+     * @return Response
+     */
+    public function portsStore(Request $request,$id)
+    {
+        $validatedData = $request->validate([
+			'franchise_id' => 'required',
+			'olt_port' => 'required',
+        ]);
+
+
+		
+        $input = request()->all();
+        $input['olt_id'] = $id;
+        if(!isset($input['id'])){
+            \App\OLTPorts::create($input);
+            return redirect()->back()->with('success', 'OLT Port Assigned to Franchise Successfully.');
+            
+      $employeedata=array();
+	  $id = \Auth::user()->id;
+      
+     $employeedata['employee_id']=$id;
+     $employeedata['action_name']="OLT Port Assigning";
+     $employeedata['value_of_action']=$input['olt_port'];
+     \App\Employees_Logs::create($employeedata);
+      
+        }
+        else {
+            $olt = \App\OLTPorts::find($input['id']);
+            unset($input['id']);
+	    $olt->update($input);
+	    
+	     $employeedata=array();
+	  $id = \Auth::user()->id;
+      
+     $employeedata['employee_id']=$id;
+     $employeedata['action_name']="OLT Port Updating";
+     $employeedata['value_of_action']=$input['olt_id'];
+     \App\Employees_Logs::create($employeedata);
+     
+            return redirect()->back()->with('success', 'OLT Port Assigned to Franchise Updated Successfully.');
+        }
+		
+
+        
+    }
+    
+    public function portsDestroy($id)
+    {
+        
+           \App\OLTPorts::destroy($id);
+            return redirect()->back()->with('success', 'OLT Port Deleted Successfully.');
+        
+		
+
+        
+    }
+
+    /**
+     * Show the specified resource.
+     * @param int $id
+     * @return Response
+     */
+    public function show($id)
+    {
+        return view('technical.olt.show');
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     * @param int $id
+     * @return Response
+     */
+    public function edit($id)
+    {
+        //check user permission for this page
+        $user = Auth::user();
+        $permissions = $user->getPermissionsViaRoles();
+
+        $permissionsdata = array();
+        foreach($permissions as $permission){
+            $permissionsdata[] =  $permission->name;   
+        }
+        if(count($permissionsdata) == 0 || !in_array('olt',$permissionsdata)){
+            abort(403, "Unauthorized action. Access Denied You don't have permission to access.");
+        }
+        
+        $oltdetails = \App\OLT::find($id);
+		$cities = \App\City::where('status','Y')->pluck('name', 'id');
+		//$distributors = \App\Distributors::where('city',$oltdetails->city)->pluck('distributor_name as name', 'id');
+		
+		$distributors = \App\Distributors::join('users','users.id', '=', 'slj_distributors.user_id')->where('city',$oltdetails->city)->where('users.status','Y')
+       ->pluck('distributor_name as name', 'slj_distributors.id as id');
+		
+        $branches = \App\Branches::where('city',$oltdetails->city)->pluck('branch_name as name', 'id');
+        //$items = \App\Franchises::where('city',$oltdetails->city)->where('branch',$oltdetails->branch)->pluck('franchise_name as name', 'id');
+		
+		//print_r($distributors); exit;
+		
+		return view('technical.olt.edit',['cities'=>$cities,'distributors'=>$distributors,'branches'=>$branches, 'oltdetails'=>$oltdetails]); 
+		
+    }
+
+    /**
+     * Update the specified resource in storage.
+     * @param Request $request
+     * @param int $id
+     * @return Response
+     */
+    public function update(Request $request, $id)
+    {
+       $validatedData = $request->validate([
+			'city' => 'required',
+			'branch' => 'required',
+			'distributor' => 'required',
+			//'franchise_id' => 'required',
+			'olt_serial_number' => 'required',
+			'olt_port' => 'required',
+			'company_name' => 'required',
+			'olt_ip_address' => 'required',
+			'username' => 'required',
+			'password' => 'required',
+			'vlan' => 'required'
+		]);
+		
+		$requestdata = $request->all(); 
+
+		$data['city'] = $requestdata['city'];
+		$data['branch'] = $requestdata['branch'];
+		$data['distributor'] = $requestdata['distributor'];
+		//$data['franchise_id'] = $requestdata['franchise_id'];
+		$data['olt_serial_number'] = $requestdata['olt_serial_number'];
+		$data['olt_port'] = $requestdata['olt_port'];
+		$data['company_name'] = $requestdata['company_name'];
+		$data['olt_ip_address'] = $requestdata['olt_ip_address'];
+		$data['username'] = $requestdata['username'];
+		$data['password'] = $requestdata['password'];
+		$data['vlan'] = $requestdata['vlan'];
+		
+		//Update details
+		$olt = \App\OLT::find($id);
+		$olt->update($data);
+		
+		return redirect('admin/olt')->with('success', 'OLT details updated successfully.');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     * @param int $id
+     * @return Response
+     */
+    public function destroy($id)
+    {
+        //check user permission for this page
+        $user = Auth::user();
+        $permissions = $user->getPermissionsViaRoles();
+
+        $permissionsdata = array();
+        foreach($permissions as $permission){
+            $permissionsdata[] =  $permission->name;   
+        }
+        if(count($permissionsdata) == 0 || !in_array('olt',$permissionsdata)){
+            abort(403, "Unauthorized action. Access Denied You don't have permission to access.");
+        }
+        
+        $customers = \App\Customers::where('olt',$id)->count();
+        $dps = \App\DP::where('olt_id',$id)->count();
+        $fhcount = \App\FH::where('olt_id',$id)->count(); // added by DURGA
+        if($id > 0 && $customers == 0 && $dps == 0 && $fhcount == 0){
+            \App\OLT::destroy($id);
+             return redirect('admin/olt')->with('success', 'OLT deleted successfully.');
+        }else{
+            return redirect('admin/olt')->with('error', 'OLT cannot be deleted because of dependency');
+        }
+    }
+
+    public function oltPorts($olt_id)
+    {
+        $oltdetails = \App\OLT::where('id',$olt_id)->first();
+
+        $oltports = \App\OLTPorts::leftjoin('slj_franchises','slj_olt_ports.franchise_id', '=', 'slj_franchises.id')
+                    ->where('olt_id',$olt_id)->select('slj_olt_ports.*','slj_franchises.franchise_name')
+                    ->orderBy('slj_olt_ports.olt_port','asc')
+                    ->get();
+        
+        $franchises = \App\Franchises::where('branch',$oltdetails->branch)->pluck('franchise_name as name', 'id');          
+
+        $added_ports = array();
+        foreach($oltports as $oltport){
+            $added_ports[] = $oltport->olt_port;
+        }
+
+        //echo "<pre>"; print_r($added_ports); exit;
+
+        $ports = array();
+        for($cnt = 1; $cnt <= $oltdetails->olt_port; $cnt++){
+            if(!in_array($cnt,$added_ports)){
+                $ports[$cnt] = $cnt; 
+            }
+        }
+        
+
+        return view('technical.olt.manage-ports',['oltdetails'=>$oltdetails,'ports'=>$ports, 'oltports'=>$oltports,'franchises'=>$franchises]); 
+    }
+	
+	
+	public function getFranchiseOlts($franchise)
+    {
+        $franchiseolts = \App\OLTPorts::where('franchise_id',$franchise)->select('olt_id')->get();
+
+        $list_olt = array();
+        foreach($franchiseolts as $data){
+            $olt_id = $data->olt_id;
+            $list_olt[$olt_id] = $olt_id;
+        }
+
+        //echo "<pre>"; print_r($list_olt); exit;
+
+        $html = "<option value=''>-- Select OLT ID --</option>";
+        foreach($list_olt as $olt){
+            $html.="<option value='".$olt."'>".$olt."</option>";
+        }
+
+        return $html;
+    }
+
+    public function getOltDPs($olt_id)
+    {
+        $oltdps = \App\DP::where('olt_id',$olt_id)->select('id','generate_dp')->orderBy('generate_dp')->get();
+
+        $html = "<option value=''>-- Select DP --</option>";
+        foreach($oltdps as $dp){
+            $html.="<option value='".$dp->id."'>".$dp->generate_dp."</option>";
+        }
+
+        return $html;
+    }
+
+    public function getOltPorts($olt_id,$franchise_id)
+    {
+        $olt_data = \App\OLT::find($olt_id);
+
+        $dp_data = \App\DP::where('olt_id',$olt_id)->get();
+
+        //echo "<pre>"; print_r($olt_data); exit;
+
+        $olt_ports = \App\OLTPorts::where('olt_id',$olt_id)->where('franchise_id',$franchise_id)->orderBy('olt_port','asc')->get();
+        //echo "<pre>"; print_r($olt_ports); exit;
+        
+        $used_olt_port_numbers = array();
+        foreach($dp_data as $dp){
+            $used_olt_port_numbers[] =  $dp->olt_port_num;
+        }
+
+        $available_olt_ports = array();
+        foreach($olt_ports as $olt){
+            if(!in_array($olt->olt_port,$used_olt_port_numbers)){
+                $available_olt_ports[] =  $olt->olt_port;
+            }
+        }
+        
+        $available_olt_ports = array_unique($available_olt_ports);
+        
+     //   $html = "<option value='".$olt_id."'>".$olt_id."</option>";
+      $html = "<option value=''>--select port number--</option>";
+        
+        foreach($available_olt_ports as $port){
+            $html.="<option value='".$port."'>".$port."</option>";
+        }
+
+        return $html;
+    }
+		
+}

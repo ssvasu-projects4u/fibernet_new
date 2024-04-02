@@ -1,0 +1,36 @@
+@extends('layouts.admin')
+
+@section('content')
+    <!-- Page Heading -->
+    <div class="card shadow mb-4">
+	   @include('administration.topmenu')
+	<div class="card-header py-2">
+	  <div class="float-left"><h4 class="m-0 font-weight-bold text-primary">Create Department</h4></div>
+	  
+	</div>
+	
+	
+	<div class="card-body">
+	  
+	  
+		
+		@if($errors->any())
+		<div class="alert alert-danger"> @foreach($errors->all() as $error)
+		<p>{{ $error }}</p>
+		@endforeach </div>
+	  @endif
+	  {!! Form::open(['route' =>['departments.store'],'method'=>'post'])!!}
+	      @csrf
+			<div class="form-group"> {!! Form::label('department', 'Department Name*') !!}
+        {!! Form::text('department',null, array('class' => 'form-control','required'=>'required','placeholder'=>'Enter Department Name')) !!} </div>
+      
+      
+       {!! Form::submit('Submit', ['class' => 'btn btn-success']) !!} 
+      {!! Form::close() !!} 
+	  
+
+	</div>
+  </div>
+	
+		  
+@stop

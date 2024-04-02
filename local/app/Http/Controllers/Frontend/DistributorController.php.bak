@@ -1,0 +1,268 @@
+<?php
+
+namespace Modules\Frontend\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Input;
+use Auth;
+
+class DistributorController extends Controller
+{
+
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
+	public function login()
+    {
+        return view('frontend::distributor.login');
+    }
+	
+	/**
+		* Display a listing of the resource.
+     * @return Response
+     */
+    public function dashboard()
+    {
+        $id = Auth::user()->id; 
+        
+        $data = \App\Franchises::join('users','users.id', '=', 'slj_franchises.user_id')
+            ->select('users.first_name','users.last_name','users.email','users.mobile','slj_franchises.*','slj_franchises.id as franchiseid')
+            ->where('users.id',$id)
+            ->first();
+        
+		$complaints = \App\Complaints::leftjoin('slj_connection_types','slj_complaints.complaint_type', '=', 'slj_connection_types.id')
+				->leftjoin('slj_customers','slj_complaints.customerid', '=', 'slj_customers.id')
+				->leftjoin('users','slj_customers.user_id', '=', 'users.id')
+				->leftJoin('slj_distributors','slj_customers.distributor', '=', 'slj_distributors.id')
+				->leftJoin('slj_franchises','slj_customers.franchise', '=', 'slj_franchises.id')
+				->leftJoin('slj_branches','slj_customers.branch', '=', 'slj_branches.id')
+				->leftjoin('slj_complaint_types','slj_complaints.complaint_sub_type', '=', 'slj_complaint_types.id')
+				->select('slj_complaints.*','users.name','users.mobile','users.email','slj_franchises.franchise_name','slj_complaint_types.title as complaint_sub_type')
+				->where('slj_distributors.user_id', '=', $id)
+				->orderBy('id','desc')
+				->take(10)
+				->get();	
+		
+        return view('frontend::distributor.dashboard',['complaints'=>$complaints, 'data'=>$data]);
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     * @param int $id
+     * @return Response
+     */
+    public function profile()
+    {
+        $id = Auth::user()->id; 
+        //if($id <=0){return redirect('/');}
+
+        $userdetails = \App\User::find($id);
+
+
+        //echo "<pre>"; print_r($userroles); exit;
+
+        return view('frontend::distributor.profile',['userdetails'=>$userdetails]);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     * @param Request $request
+     * @param int $id
+     * @return Response
+     */
+    public function updateProfile (Request $request)
+    {
+        $id = Auth::user()->id; 
+        $validatedData = $request->validate([
+            'name' => 'required',
+            'email' => 'required|email|unique:users,email,'.$id,
+        ]);
+
+        $requestdata = $request->all(); 
+        $data['name'] = $requestdata['first_name']." ".$requestdata['last_name'];
+        $data['first_name'] = $requestdata['first_name'];
+		$data['last_name'] = $requestdata['last_name'];
+        $data['email'] = $requestdata['email'];
+        
+        //Update details
+        $user = \App\User::find($id);
+        $user->update($data);
+
+        return redirect('distributor/profile')->with('success', 'Profile details updated successfully.');
+    }
+	
+	
+	
+	
+
+
+    
+    /**
+     * Update the specified resource in storage.
+     * @param Request $request
+     * @return Response
+     */
+    public function updateChangePassword (Request $request)
+    {
+        $user_id = Auth::user()->id; 
+        $validatedData = $request->validate([
+            'oldpassword' => 'required',
+            'password' => 'required|confirmed|min:8',
+            'password_confirmation' => 'required',
+        ]);
+
+        $requestdata = $request->all(); 
+        //$data['oldpassword'] = $requestdata['oldpassword'];
+        
+        //Update details
+        
+        $current_password = Auth::User()->password;           
+        if(Hash::check($requestdata['oldpassword'], $current_password))
+        {           
+            $obj_user = \App\User::find($user_id);
+            $obj_user->password = Hash::make($requestdata['password']);;
+            $obj_user->save(); 
+            return redirect()->back()->with('success', 'Password updated successfully.');
+        }
+        else
+        {           
+            //return redirect('admin/changepassword')->withErrors('oldpassword.required', 'Failed - Invalid Old Password.');  
+            return redirect()->back()->with("error","Invalid old password.");
+        }    
+    }
+	
+	
+	
+	
+	
+	/**
+		* Display a listing of the resource.
+     * @return Response
+     */
+    public function allComplaints()
+    {
+        $user_id = Auth::user()->id; 
+		$distributor_details = \App\Distributors::where('user_id',$user_id)->first();
+		$distributor_id = $distributor_details->id;
+		
+		$data = \App\Complaints::leftjoin('slj_connection_types','slj_complaints.complaint_type', '=', 'slj_connection_types.id')
+				->leftjoin('slj_customers','slj_complaints.customerid', '=', 'slj_customers.id')
+				->leftjoin('users','slj_customers.user_id', '=', 'users.id')
+				->leftJoin('slj_franchises','slj_customers.franchise', '=', 'slj_franchises.id')
+                ->leftJoin('slj_branches','slj_branches.id', '=', 'slj_customers.branch')
+				->leftjoin('slj_complaint_types','slj_complaints.complaint_sub_type', '=', 'slj_complaint_types.id')
+				->select('slj_complaints.*','users.name','users.mobile','users.email','slj_franchises.franchise_name','slj_branches.branch_name','slj_complaint_types.title as complaint_sub_type')
+				->where('slj_customers.distributor', $distributor_id)
+				->orderBy('id','desc')
+				->paginate(20);
+        
+		return view('frontend::distributor.complaints.index',['data'=>$data]);
+    }
+	
+	/**
+     * Display a listing of the resource.
+     * @return Response
+     */
+    public function openComplaints()
+    {
+        $user_id = Auth::user()->id; 
+		$distributor_details = \App\Distributors::where('user_id',$user_id)->first();
+		$distributor_id = $distributor_details->id;
+		
+		$data = \App\Complaints::leftjoin('slj_connection_types','slj_complaints.complaint_type', '=', 'slj_connection_types.id')
+				->leftjoin('slj_customers','slj_complaints.customerid', '=', 'slj_customers.id')
+				->leftjoin('users','slj_customers.user_id', '=', 'users.id')
+				->leftJoin('slj_franchises','slj_customers.franchise', '=', 'slj_franchises.id')
+                ->leftJoin('slj_branches','slj_branches.id', '=', 'slj_customers.branch')
+				->leftjoin('slj_complaint_types','slj_complaints.complaint_sub_type', '=', 'slj_complaint_types.id')
+				->select('slj_complaints.*','users.name','users.mobile','users.email','slj_franchises.franchise_name','slj_branches.branch_name','slj_complaint_types.title as complaint_sub_type')
+				->where('slj_complaints.status', '=', 'open')
+				->where('slj_customers.distributor', $distributor_id)
+				->orderBy('id','desc')
+				->paginate(20);
+				
+		return view('frontend::distributor.complaints.open',['data'=>$data]);
+	}
+	
+	/**
+     * Display a listing of the resource.
+     * @return Response
+     */
+    public function inprogressComplaints()
+    {       
+		$user_id = Auth::user()->id; 
+		$distributor_details = \App\Distributors::where('user_id',$user_id)->first();
+		$distributor_id = $distributor_details->id;
+		
+		$data = \App\Complaints::leftjoin('slj_connection_types','slj_complaints.complaint_type', '=', 'slj_connection_types.id')
+				->leftjoin('slj_customers','slj_complaints.customerid', '=', 'slj_customers.id')
+				->leftjoin('users','slj_customers.user_id', '=', 'users.id')
+				->leftJoin('slj_franchises','slj_customers.franchise', '=', 'slj_franchises.id')
+                ->leftJoin('slj_branches','slj_branches.id', '=', 'slj_customers.branch')
+				->leftjoin('slj_complaint_types','slj_complaints.complaint_sub_type', '=', 'slj_complaint_types.id')
+				->select('slj_complaints.*','users.name','users.mobile','users.email','slj_franchises.franchise_name','slj_branches.branch_name','slj_complaint_types.title as complaint_sub_type')
+				->where('slj_complaints.status', '=', 'in progress')
+				->where('slj_customers.distributor', $distributor_id)
+				->orderBy('id','desc')
+				->paginate(20);
+				
+		return view('frontend::distributor.complaints.inprogress',['data'=>$data]);
+	}
+	
+	/**
+     * Display a listing of the resource.
+     * @return Response
+     */
+    public function resolvedComplaints()
+    {
+        $user_id = Auth::user()->id; 
+		$distributor_details = \App\Distributors::where('user_id',$user_id)->first();
+		$distributor_id = $distributor_details->id;
+		
+		$data = \App\Complaints::leftjoin('slj_connection_types','slj_complaints.complaint_type', '=', 'slj_connection_types.id')
+				->leftjoin('slj_customers','slj_complaints.customerid', '=', 'slj_customers.id')
+				->leftjoin('users','slj_customers.user_id', '=', 'users.id')
+				->leftJoin('slj_franchises','slj_customers.franchise', '=', 'slj_franchises.id')
+                ->leftJoin('slj_branches','slj_branches.id', '=', 'slj_customers.branch')
+				->leftjoin('slj_complaint_types','slj_complaints.complaint_sub_type', '=', 'slj_complaint_types.id')
+				->select('slj_complaints.*','users.name','users.mobile','users.email','slj_franchises.franchise_name','slj_branches.branch_name','slj_complaint_types.title as complaint_sub_type')
+				->where('slj_complaints.status', '=', 'resolved')
+				->where('slj_customers.distributor', $distributor_id)
+				->orderBy('id','desc')
+				->paginate(20);
+				
+		
+		return view('frontend::distributor.complaints.resolve',['data'=>$data]);
+    }
+	
+	/**
+     * Display a listing of the resource.
+     * @return Response
+     */
+    public function closedComplaints()
+    {
+        $user_id = Auth::user()->id; 
+		$distributor_details = \App\Distributors::where('user_id',$user_id)->first();
+		$distributor_id = $distributor_details->id;
+		
+		$data = \App\Complaints::leftjoin('slj_connection_types','slj_complaints.complaint_type', '=', 'slj_connection_types.id')
+				->leftjoin('slj_customers','slj_complaints.customerid', '=', 'slj_customers.id')
+				->leftjoin('users','slj_customers.user_id', '=', 'users.id')
+				->leftJoin('slj_franchises','slj_customers.franchise', '=', 'slj_franchises.id')
+                ->leftJoin('slj_branches','slj_branches.id', '=', 'slj_customers.branch')
+				->leftjoin('slj_complaint_types','slj_complaints.complaint_sub_type', '=', 'slj_complaint_types.id')
+				->select('slj_complaints.*','users.name','users.mobile','users.email','slj_franchises.franchise_name','slj_branches.branch_name','slj_complaint_types.title as complaint_sub_type')
+				->where('slj_complaints.status', '=', 'closed')
+				->where('slj_customers.distributor', $distributor_id)
+				->orderBy('id','desc')
+				->paginate(20);
+		
+        
+		return view('frontend::distributor.complaints.close',['data'=>$data]);
+    }	
+}

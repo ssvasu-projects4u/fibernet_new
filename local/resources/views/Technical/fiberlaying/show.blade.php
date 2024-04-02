@@ -1,0 +1,162 @@
+<?php
+$user = Auth::user();
+$roles = $user->getRoleNames();
+//echo $roles[0];//exit;
+$layout = 'layouts.admin';
+if ($roles[0] == 'branch' || $roles[0] == 'franchise') {
+    //echo $roles[0];exit;
+    $layout = 'layouts.' . $roles[0];
+}
+?> 
+@extends($layout)
+
+@section('content')
+<!-- Page Heading -->
+<div class="card shadow mb-4">
+    @include('technical.topmenu')
+    <div class="card-header py-2">
+        <div class="float-left"><h3 class="m-0 font-weight-bold text-primary">Fiber Laying</h3></div>
+
+    </div>
+
+    <div class="card-body">
+        @if(Session::has('flash_message'))
+        <div class="alert alert-success">{{ Session::get('flash_message') }}</div>
+        @endif
+
+        @if($errors->any())
+        <div class="alert alert-danger"> @foreach($errors->all() as $error)
+            <p>{{ $error }}</p>
+            @endforeach </div>
+        @endif
+
+        @csrf
+
+        <div class="row">
+        <div class="col">
+                                        <table class="table mbn tc-med-1 tc-bold-last tc-fs13-last">
+                                            <tbody>
+
+                                            <tr>
+                                                <td><span>City</span></td>
+                                                <td>{{ $city }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td><span>Branch</span></td>
+                                                <td>{{ $branch }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td><span>Fiber Name</span></td>
+                                                <td>{{ $fiberladdetails->fiber_name }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td><span>fiber_code</span></td>
+                                                <td>{{ $fiberladdetails->fiber_code }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td><span>Fiber Core</span></td>
+                                                <td>{{ $fiberladdetails->fiber_core }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td><span>Route description</span></td>
+                                                <td>{{ $fiberladdetails->route_description }}</td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="col">
+                                        <table class="table mbn tc-med-1 tc-bold-last tc-fs13-last">
+                                            <tbody>
+                                            <tr>
+                                                <td><span>Distributor</span></td>
+                                                <td>{{ $distributor }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td><span>Franchise</span></td>
+                                                <td>{{ $franchise }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td><span>Fiber Company Name</span></td>
+                                                <td>{{ $fiberladdetails->fiber_company_name }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td><span>Fiber Related To</span></td>
+                                                <td>{{ ucwords(str_replace("_", " ", $fiberladdetails->fiber_to)) }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td><span>Fiber Color</span></td>
+                                                <td>
+                                                <span> {{$fiberladdetails->fiber_color}} </span>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+</div>
+
+<hr/>
+            <div class="col-md-5 form-group fiber-reading-wrap">
+            <table class="table mbn tc-med-1 tc-bold-last tc-fs13-last">
+                <tbody>
+                    <tr>
+                        <td class="field-label">Fiber Start Reading</td>
+                        <td>{{ $fiberladdetails->fiber_starting_reading }}</td>
+                    <tr>
+                    <tr>
+                        <td class="field-label">Fiber Start Lat & Long</td>
+                        <td>{{ $fiberladdetails->fiber_starting_long_lat }}</td>
+                    </tr>
+                </tbody>
+            </table>
+            </div>
+
+            <div class="col-md-12 form-group poles-wrap">
+                <span  class="field-label">Poles  </span>
+                <table class="table" width="100%" id="dynamic_field" style="border: 1px solid #ccc">
+                    <thead>
+                        <tr class="bg-dark text-white">
+                            <th style="width:200px">Pole Series</th>
+                            <th style="width:300px">Lat & Longitude</th>
+                            <th style="width:300px">Loop meters</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pole_rows">      
+                        <?php foreach ($fiberlaying_poles as $pole) { ?>
+                            <tr>
+                                <td>
+                                    <span>{{$pole->pole_series}} </span>
+                                </td>
+                                <td>
+                                    <span>{{$pole->long_lat}} </span>
+                                </td>
+                                <td>
+                                    <span>{{$pole->loop_meters}} </span>
+                                </td>                                
+                            </tr>
+                        <?php } ?>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="col-md-5 form-group fiber-end-reading-wrap">
+            <table class="table mbn tc-med-1 tc-bold-last tc-fs13-last">
+                <tbody>
+                    <tr class="fiber-end-reading-wrap-bottom">
+                        <td class="field-label">Fiber End Reading</td>
+                        <td>{{ $fiberladdetails->fiber_ending_reading }}</td>
+                    </tr>
+                    <tr>
+                        <td class="field-label">Fiber End Lat & Long</td>
+                        <td>{{ $fiberladdetails->ending_long_lat }}</td>
+                    </tr>
+                    <tr>
+                        <td class="field-label">Fiber Laying Fiber Distance</td>
+                        <td><?php echo $fiberladdetails->fiber_laying_fiber_distance ? str_replace(".00","", $fiberladdetails->fiber_laying_fiber_distance) : "" ?></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<link href="{{asset('assets/css/technical.css')}}" rel="stylesheet">
+@stop

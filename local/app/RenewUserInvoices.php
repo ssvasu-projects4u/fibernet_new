@@ -1,0 +1,66 @@
+<?php
+
+namespace App;
+use Illuminate\Database\Eloquent\Model;
+
+class RenewUserInvoices extends Model
+{
+	protected $table = 'slj_renewuser_invoices';
+	protected $fillable = [
+		'invoice_number',
+		'txn_id',
+		'payment_gateway_txn_id',
+		'renew_order_number',
+		'renew_id',
+		'scheduled_datetime',
+		'city',
+		'distributor',
+		'branch',
+		'franchise',
+		'franchise_name',
+		'connection_type',
+		'from_date',
+		'end_date',
+		'amount',
+		'renewed_by',
+		'payment_mode',
+		'payment_details',
+		'payment_gateway',
+		'sub_package',
+		'package',
+		'payment_date',
+		'Invoice_date',
+		'base_price',
+		'paid_amount',
+		'current_balance',
+		'total_amount',
+		'billing_address',
+		'gst_number',
+		'phone',
+		'email',
+		'name',
+		'type',
+		'status',
+		'cancelled',
+		'paid',
+		'created_by',
+		'created_for',
+		'updated_by',
+		'invoice_type',
+		'payment_flow_type',
+		'created_to',
+		'created_from',
+		'discount_amount',
+		'invoice_comment',
+		'reference_number',
+		'paid_through',
+		'paid_date',
+		// 'payment_type',
+		'payment_pickup_date',
+		'cheque_status',
+		'bill_number',
+		'renew_date',
+		'balance',
+		'customer_id'
+    ];
+}

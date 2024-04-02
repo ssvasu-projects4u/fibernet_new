@@ -1,0 +1,58 @@
+@extends('layouts.admin')
+
+@section('content')
+    <!-- Page Heading -->
+    <div class="card shadow mb-4">
+	   <!--@include('inventory.topmenu')-->
+	<div class="card-header py-2">
+	  <div class="float-left"><h3 class="m-0 font-weight-bold text-primary">Logs</h3></div>
+	  
+	</div>
+	
+	
+	<div class="card-body" style="padding:5px;">
+	  @if(Session::has('error'))
+        <div class="alert alert-danger alert-dismissible fade show">
+		<button type="button" class="close" data-dismiss="alert">&times;</button>
+            <strong>Error!</strong> {{ Session::get('error') }}
+            @php
+                Session::forget('error');
+            @endphp
+        </div>
+
+        @endif
+        
+        @if(Session::has('success'))
+        <div class="alert alert-success alert-dismissible fade show">
+		<button type="button" class="close" data-dismiss="alert">&times;</button>
+            <strong>Success!</strong> {{ Session::get('success') }}
+            @php
+                Session::forget('success');
+            @endphp
+        </div>
+
+        @endif
+	  <table class="table table-bordered table-compact">
+	  <tr class="table-warning">
+		<th>User_Name</th>
+		<th>Action_Name</th>
+	
+		<th>Creation_Date</th>
+		
+	  </tr>
+	@foreach ($data as $datarow)
+        <tr>
+		
+		<td>{{ $datarow->email }}</td>	
+		<td>{{ $datarow->action_name }}</td>
+             
+		<td>{{ date('d-m-Y H:m:s a', strtotime($datarow->created_at)) }}</td>
+		</tr>
+    @endforeach
+	</table>
+{{ $data->links() }}
+	</div>
+  </div>
+	
+		  
+@stop

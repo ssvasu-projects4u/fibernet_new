@@ -1,0 +1,146 @@
+@extends('layouts.admin')
+
+@section('content')
+<?php use Modules\Complaints\Http\Controllers\ComplaintsController; ?>
+<!-- Page Heading -->
+<div class="card shadow mb-4">
+    @include('complaints.topmenu')
+    <div class="card-header py-2">
+        <div class="float-left"><h3 class="m-0 font-weight-bold text-primary">All Complaints</h3></div>
+
+    </div>
+
+
+    <div class="card-body" style="padding:5px;">
+        @if(Session::has('success'))
+        <div class="alert alert-success alert-dismissible fade show">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            <strong>Success!</strong> {{ Session::get('success') }}
+            @php
+            Session::forget('success');
+            @endphp
+        </div>
+
+        @endif
+        <div class="table-responsive">
+            <table class="table table-bordered table-condensed  table-striped" style="font-size:12px;">
+                <tr class="table-warning">
+                    <th>Actions</th>
+                    <th>Ticket No</th>
+                    <th>Complaint Time</th>
+                    <th>Priority</th>
+                    <th>Connection</th>
+                    <th>Complaint Type</th>
+                    <th>City</th>
+                    <th>Distributor</th>
+                    <th>Branch</th>
+                    <th>Franchise</th>
+                    <th>Customer Id</th>
+                    <th>Customer Name</th>
+                    <th>Mobile</th>
+                    <th>Call From</th>
+                    <th>Status</th>
+                </tr>
+                @forelse ($data as $datarow)
+                <tr>
+                    <td align="center">
+                        <div class="btn-group">
+                            <button class="btn btn-primary btn-sm btn-demo-space py-0" data-toggle="dropdown"><i class="fas fa-bars"></i></button>
+                            @canany([
+                              "edit-complaint",
+                              "delete-complaint"
+                            ])
+                            <ul class="dropdown-menu dropdown-default" role="menu">
+                                @can("edit-complaint")
+                                  <li><a class="dropdown-item" href="{{url('admin/complaints/edit/'.$datarow->id)}}"><i class="fa fa-pencil-alt" aria-hidden="true"></i> Edit</a></li>
+                                @endcan
+                                @can("delete-complaint") 
+                                <li class="divider">
+                                    <hr class="py-0 my-0 mb-4">
+                                </li>
+                                <li><a class="dropdown-item" href="{{url('admin/complaints/delete/'.$datarow->id)}}" title='delete' onclick="return confirm('Are you sure to delete?')"><i class="fa fa-trash" aria-hidden="true"></i> Delete</a></li>
+                                @endcan
+                            </ul>
+                            @endcanany
+                        </div>
+                    </td>
+                    <td>@can("edit-complaint")<a href="{{url('admin/complaints/edit/'.$datarow->id)}}"></a>@endcan {{ $datarow->complaint_slno }}</td>
+                    <td>{{ date("d-M-Y h:i:s a",strtotime($datarow->created_at)) }}</td>
+                    <td>{{ ucfirst($datarow->priority) }}</td>
+                    <td>{{ ucfirst($datarow->complaint_type) }}</td>
+                    <td>{{ $datarow->complaint_sub_type }}</td>
+                    <td>{{ $datarow->city_name }}</td>
+                    <td>{{ $datarow->distributor_name }}</td>
+                    <td>{{ $datarow->branch_name }}</td>
+                    <td>{{ $datarow->franchise_name }}</td>
+                    <td>{{ $datarow->customerid }}</td>
+                    <td>{{ $datarow->name }}</td>
+                    <td>{{ $datarow->mobile }}</td>
+                    <td>{{ $datarow->call_from }}</td>
+                    @if($datarow->status == 'open')
+                    <td align="center">
+                    @can("schedule-complaint")
+                        {{ ucfirst($datarow->status) }} <br>
+                        <label class="badge badge-danger" onclick="changeAssignStatus('{{$datarow->id}}','assignnow')" style="cursor: pointer;">Schedule Now <i class="fas fa-external-link-alt"></i></label>
+                    @endcan
+                    </td>
+                    @else
+                    <td align="center">
+                        {{ ucfirst($datarow->status) }}
+                    </td>
+                    @endif
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="15" align="center">No Complaints</td>
+                </tr>
+                @endforelse
+            </table>
+            {{ $data->links() }}
+        </div>
+
+        <div class="modal fade" tabindex="-1" role="dialog" id="asignModal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Expected Complaint Completion Time</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+
+                    </div>
+                    <div class="modal-body">
+
+                        {{ Form::open(array('route' => 'complaints.complaintstatusupdate','class' => 'form-horizontal')) }}
+                        <input type="hidden" name="id" id="complaint_id" value="">
+                        <div class="row">
+                            <?php $schedule_time_hours = range(0, 10); ?>
+                            <div class="form-group col-md-3"> {!! Form::label('schedule_time_hours', 'Hours') !!}
+                                {!! Form::select('schedule_time_hours', $schedule_time_hours, 2,array('class' => 'form-control') ) !!}
+                            </div>
+                            <?php $schedule_time_minutes = range(0, 59); ?>
+                            <div class="form-group col-md-3"> {!! Form::label('schedule_time_minutes', 'Minutes') !!}
+                                {!! Form::select('schedule_time_minutes', $schedule_time_minutes, null,array('class' => 'form-control') ) !!}
+                            </div>
+
+
+                        </div>
+                        {{ Form::token() }}
+                        <input value="Change to In Progress" class="btn btn-success pull-right float-right" type="submit">
+                        {{ Form::close() }}
+
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+<script>
+    function changeAssignStatus(id, value) {
+        $('#complaint_id').val(id);
+        $('#asignModal').modal('show');
+    }
+</script>
+@stop
