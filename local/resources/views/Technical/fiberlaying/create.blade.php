@@ -49,7 +49,9 @@
 						        {!! Form::select('city', $cities, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select City --') ) !!} </div>
 			<div class="form-group col-md-3"> {!! Form::label('distributor', 'Distributor') !!}
         {!! Form::select('distributor', [], null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Distributor --') ) !!} </div>
-			
+		<div class="form-group col-md-3"> {!! Form::label('sub_distributor', 'Sub Distributor*') !!}
+        {!! Form::select('sub_distributor', [], null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Sub Distributor --') ) !!} </div>
+
                             <div class="form-group col-md-3"> {!! Form::label('branch', 'Branch') !!}
         {!! Form::select('branch', [], null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Branch --') ) !!} </div>
                            
@@ -804,6 +806,25 @@ $user_id = Auth::user()->id;
            
             
        	});
+
+		   $('#distributor').on('change', function() {
+            var distributor = $(this).val();
+            var city = $("#city").val();
+            if(distributor == '' || distributor <=0){
+            	$('#distributor').html("<option value=''>-- Select Distributor --</option>");
+            	return;
+            }
+            $.ajax({
+                url: "{{url('/admin/branches/subdistributors')}}/"+city+"/"+distributor,
+                type: "GET",
+                success:function(data) {
+                   $('#sub_distributor').html(data);
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    alert(errorThrown);
+                }
+            });
+        });
 </script>
 
 
