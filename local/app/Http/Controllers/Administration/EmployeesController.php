@@ -1,4 +1,5 @@
 <?php
+//test
 
 namespace App\Http\Controllers\Administration;
 
@@ -677,7 +678,8 @@ class EmployeesController extends Controller
         $user = \App\User::find($employee->user_id);
 
         $data = array();
-        $data['status'] = "D";
+        $data['status'] = "N";
+        // $data['status'] = "D";
         $user->update($data);
         return redirect('admin/employees')->with('success', 'Employee deleted successfully.');
     }

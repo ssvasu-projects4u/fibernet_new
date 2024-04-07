@@ -19,7 +19,8 @@ class DepartmentsController extends Controller
      */
     public function index()
     {	
-        $data = \App\Departments::where('status','Y')->orderBy('department')->paginate(20);
+        $data = \App\Departments::orderBy('department')->paginate(20);
+        // $data = \App\Departments::where('status','Y')->orderBy('department')->paginate(20);
 		 return view('administration.departments.index',compact('data'));
 		//return view('administration::departments.index',['data'=>$data]);
     }
@@ -109,7 +110,14 @@ class DepartmentsController extends Controller
         $employees = \App\Employees::where('department',$id)->count();
         
         if($id > 0 && $designations == 0 && $employees == 0){
-            \App\Departments::destroy($id);
+            // \App\Departments::destroy($id);
+
+            $data['status'] = "N";
+            $department = \App\Departments::find($id);
+            
+            //Update details
+            $department->update($data);
+
              return redirect('admin/departments')->with('success', 'Department deleted successfully.');
         }else{
             return redirect('admin/departments')->with('error', 'Department cannot be deleted because of dependency');

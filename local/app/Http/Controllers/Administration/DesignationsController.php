@@ -20,7 +20,9 @@ class DesignationsController extends Controller
     public function index()
     {	
 	
-        $data = \App\Designations::join('slj_departments','slj_departments.id', '=', 'slj_designations.department')->select('slj_designations.id','slj_designations.designation','slj_designations.department as departmentid','slj_departments.department','slj_designations.status')->where('slj_designations.status','Y')->orderBy('designation')->paginate(20);
+        $data = \App\Designations::join('slj_departments','slj_departments.id', '=', 'slj_designations.department')->select('slj_designations.id','slj_designations.designation','slj_designations.department as departmentid','slj_departments.department','slj_designations.status')
+        // ->where('slj_designations.status','Y')
+        ->orderBy('designation')->paginate(20);
 
 		 return view('administration.designations.index',compact('data'));
 		//return view('administration::designations.index',['data'=>$data]);
@@ -118,7 +120,14 @@ class DesignationsController extends Controller
         $employees = \App\Employees::where('designation',$id)->count();
         
         if($id > 0 && $employees == 0){
-            \App\Designations::destroy($id);
+            // \App\Designations::destroy($id);
+
+            $data['status'] = "N";
+            $designation = \App\Designations::find($id);
+            
+            //Update details
+            $designation->update($data);
+
              return redirect('admin/designations')->with('success', 'Designation deleted successfully.');
         }else{
             return redirect('admin/designations')->with('error', 'Designation cannot be deleted because of dependency');
