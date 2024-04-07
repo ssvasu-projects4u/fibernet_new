@@ -14,5 +14,4 @@ class BankAccount extends Model
 		'branch',
 		'city'
     ];
-	
 }
