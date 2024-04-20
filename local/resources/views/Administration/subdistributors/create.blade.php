@@ -22,7 +22,7 @@
 	  @endif
 	  
 	  
-	  {!! Form::open(['route' =>['distributors.store'],'method'=>'post','id'=>'create_form'])!!}
+	  {!! Form::open(['route' =>['subdistributors.store'],'method'=>'post','id'=>'create_form'])!!}
 	      @csrf
 			
 	      	<div class="row">

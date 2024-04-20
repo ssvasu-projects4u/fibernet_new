@@ -5,7 +5,7 @@
     <div class="card shadow mb-4">
 	   @include('administration.topmenu')
 	<div class="card-header py-2">
-	  <div class="float-left"><h3 class="m-0 font-weight-bold text-primary">Distributors</h3></div>
+	  <div class="float-left"><h3 class="m-0 font-weight-bold text-primary">Sub Distributors</h3></div>
 	  
 	</div>
 	
