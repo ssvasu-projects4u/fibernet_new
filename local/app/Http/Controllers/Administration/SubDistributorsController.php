@@ -370,7 +370,7 @@ class SubDistributorsController extends Controller
         if(isset($data->distributor_id)){
             $distributorid = substr($data->distributor_id, -5); 
         }
-        $distributorid = "SLJDR".str_pad($subdistributorid + 1, 5, 0, STR_PAD_LEFT);   
+        $distributorid = "SLJDR".str_pad($distributorid + 1, 5, 0, STR_PAD_LEFT);   
         $input['subdistributor_id'] = $distributorid;
         $input['user_id'] = $userdata->id;
 
