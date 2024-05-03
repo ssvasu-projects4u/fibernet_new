@@ -56,9 +56,10 @@ class FHController extends Controller
         $data = \App\FH::leftjoin('slj_franchises','slj_fh.franchise', '=', 'slj_franchises.id')
 				->leftjoin('slj_fiber_laying','slj_fiber_laying.id', '=', 'slj_fh.fiber')
 				->leftjoin('slj_distributors','slj_distributors.id', '=', 'slj_fh.distributor')
+				->leftjoin('slj_subdistributors','slj_subdistributors.id', '=', 'slj_fh.subdistributor')
 				->leftjoin('slj_branches','slj_branches.id', '=', 'slj_fh.branch')
                 ->leftJoin('slj_cities','slj_cities.id', '=', 'slj_fh.city')
-				->select('slj_fh.*','slj_distributors.distributor_name','slj_fiber_laying.fiber_name','slj_franchises.franchise_name','slj_branches.branch_name','slj_cities.name as city_name')
+				->select('slj_fh.*','slj_distributors.distributor_name','slj_subdistributors.subdistributor_name','slj_fiber_laying.fiber_name','slj_franchises.franchise_name','slj_branches.branch_name','slj_cities.name as city_name')
 				->where($tbl, $operator, $id)->orderBy('slj_fh.id')
 				->paginate(20);
 	 $employeedata=array();
@@ -119,7 +120,7 @@ class FHController extends Controller
         $terminationbox=\App\ProductCategories::where('parent',$t)->pluck('name', 'id');
        
                                     $franchise_id = \App\Franchises::where('user_id',$id)->pluck('id');
-        return view('technical::fh.create',['cities'=>$cities,'franchise'=>$franchise_list, 'franchise_id'=>$franchise_id,'terminationbox'=>$terminationbox]);
+        return view('technical.fh.create',['cities'=>$cities,'franchise'=>$franchise_list, 'franchise_id'=>$franchise_id,'terminationbox'=>$terminationbox]);
  }
  else
  {
@@ -151,7 +152,8 @@ return view('technical.fh.create',['empdata'=>$empdata,'terminationbox'=>$termin
         $input = request()->all();
         $validation_list=array('city' => 'required',
 			'distributor' => 'required',
-                        'branch' => 'required',
+			'subdistributor' => 'required',
+             'branch' => 'required',
 			'franchise' => 'required',
 			'fiber' => 'required',
 			'olt_id' => 'required',
@@ -174,6 +176,7 @@ return view('technical.fh.create',['empdata'=>$empdata,'terminationbox'=>$termin
             $branch = \App\Branches::where('user_id',$id)->select('id','city','distributor_id')->first();
             $input['city']=$branch->city;
             $input['distributor']=$branch->distributor_id;
+			$input['subdistributor']=$branch->subdistributor_id;
             $input['branch']=$branch->id;
         }
         if($roles[0]=='franchise'){
@@ -186,9 +189,10 @@ return view('technical.fh.create',['empdata'=>$empdata,'terminationbox'=>$termin
 			'long_lat' => 'required',
 			'generate_fh_id' => 'required'
 		);
-            $franchise = \App\Franchises::where('user_id',$id)->select('id','city','distributor_id','branch')->first();
+            $franchise = \App\Franchises::where('user_id',$id)->select('id','city','distributor_id','subdistributor_id','branch')->first();
             $input['city']=$franchise->city;
             $input['distributor']=$franchise->distributor_id;
+			$input['subdistributor']=$franchise->subdistributor_id;
             $input['branch']=$franchise->branch;
             $input['franchise']=$franchise->id;
             //$input['termination_box']=$franchise->id;
@@ -259,6 +263,9 @@ return view('technical.fh.create',['empdata'=>$empdata,'terminationbox'=>$termin
 		$distributors = \App\Distributors::join('users','users.id', '=', 'slj_distributors.user_id')->where('city',$fhdetails->city)->where('users.status','Y')
        ->pluck('distributor_name as name', 'slj_distributors.id as id');
 	   
+	   $subdistributors = \App\SubDistributors::join('users','users.id', '=', 'slj_subdistributors.user_id')->where('city',$fhdetails->city)->where('users.status','Y')
+       ->pluck('subdistributor_name as name', 'slj_subdistributors.id as id');
+	   
 	    $franchisefibers = \App\FiberLaying::where('franchise',$fhdetails->franchise)->where('fiber_to','fh')->pluck('fiber_name as name','id');
 		
 		$fibercolors = \App\FiberLaying::where('id',$fhdetails->fiber)->select('fiber_color')->first();
@@ -312,7 +319,7 @@ $branch_id = null;
 if($roles[0]=='franchise'){
                                     $branch_id = \App\Franchises::where('user_id',$id)->pluck('branch');
                          }
-		return view('technical.fh.edit',['splitter_core_colors'=>$splitter_core_colors, 'cities'=>$cities,'fiber_colors'=>$fiber_colors,'dp_items'=>$dp_items,'distributors'=>$distributors,'branches'=>$branches,'items'=>$items, 'fhdetails'=>$fhdetails, 'franchisefibers'=>$franchisefibers,'olt_items'=>$olt_items]);
+		return view('technical.fh.edit',['splitter_core_colors'=>$splitter_core_colors, 'cities'=>$cities,'fiber_colors'=>$fiber_colors,'dp_items'=>$dp_items,'distributors'=>$distributors,'subdistributors'=>$subdistributors,'branches'=>$branches,'items'=>$items, 'fhdetails'=>$fhdetails, 'franchisefibers'=>$franchisefibers,'olt_items'=>$olt_items]);
     }
 
     /**
@@ -327,7 +334,8 @@ if($roles[0]=='franchise'){
         $roles = $user->getRoleNames();
         $validation_list=array('city' => 'required',
 			'distributor' => 'required',
-                        'branch' => 'required',
+			'subdistributor' => 'required',
+            'branch' => 'required',
 			'franchise' => 'required',
 			'fiber' => 'required',
 			'olt_id' => 'required',
@@ -369,6 +377,9 @@ if($roles[0]=='franchise'){
                 }
                 if(!empty($requestdata['distributor'])){
 		$data['distributor'] = $requestdata['distributor'];
+                }
+				  if(!empty($requestdata['subdistributor'])){
+		$data['subdistributor'] = $requestdata['subdistributor'];
                 }
                 if(!empty($requestdata['branch'])){
 		$data['branch'] = $requestdata['branch'];

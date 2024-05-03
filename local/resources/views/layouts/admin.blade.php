@@ -1343,6 +1343,20 @@ $technical_items = array(
                         @csrf
                         <input type="hidden" name="userID" id="userID" value="" />
                         <input type="hidden" name="pageName" id="pageName" value="" />
+						
+						 <div class="form-group">
+                           <label for="old_pass">old Password :</label>
+							 <!--<label for="oldpassword" class="col-form-label text-md-right">{{ __('Old Password') }}</label>-->
+                            <input class="form-control" type="password" class="form-control @error('oldpassword') is-invalid @enderror" name="oldpassword" id="oldpassword">
+                        @error('oldpassword')
+                    <span class="invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                    </span>
+                @enderror
+
+					   </div>
+						
+						
 
                         <div class="form-group">
                             <label for="new_pass">New Password :</label>

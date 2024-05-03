@@ -16,6 +16,7 @@ class SubDistributors extends Model
 		'long_lat',
 		'rent',
 		'user_id',
+		'subdistributor_id',
 		'distributor_id',
 		'area_description',
 		'bank_account',

@@ -33,9 +33,10 @@ class OLTController extends Controller
         }
         
         $data = \App\OLT::leftjoin('slj_distributors','slj_distributors.id', '=', 'slj_olt.distributor')
+				->leftjoin('slj_subdistributors','slj_subdistributors.id', '=', 'slj_olt.subdistributor')
 				->leftjoin('slj_branches','slj_branches.id', '=', 'slj_olt.branch')
                 ->leftJoin('slj_cities','slj_cities.id', '=', 'slj_olt.city')
-				->select('slj_olt.*','slj_distributors.distributor_name','slj_branches.branch_name','slj_cities.name as city_name')
+				->select('slj_olt.*','slj_distributors.distributor_name','slj_subdistributors.subdistributor_name','slj_branches.branch_name','slj_cities.name as city_name')
 				->orderBy('slj_olt.id')
 				->paginate(20);
 		
@@ -102,6 +103,7 @@ class OLTController extends Controller
     $data=array();
     $data['city']=$input['city'];
     $data['distributor']=$input['distributor'];
+	 $data['subdistributor']=$input['subdistributor'];
     $data['branch']=$input['branch'];
    // $data['franch_id']=$input['franchise'];
     $data['olt_serial_number']=$input['olt_serial_number'];
@@ -206,6 +208,7 @@ $employeedata=array();
     public function edit($id)
     {
         //check user permission for this page
+		
         $user = Auth::user();
         $permissions = $user->getPermissionsViaRoles();
 
@@ -223,13 +226,16 @@ $employeedata=array();
 		
 		$distributors = \App\Distributors::join('users','users.id', '=', 'slj_distributors.user_id')->where('city',$oltdetails->city)->where('users.status','Y')
        ->pluck('distributor_name as name', 'slj_distributors.id as id');
+	   
+	   	$subdistributors = \App\SubDistributors::join('users','users.id', '=', 'slj_subdistributors.user_id')->where('city',$oltdetails->city)->where('users.status','Y')
+       ->pluck('subdistributor_name as name', 'slj_subdistributors.id as id');
 		
         $branches = \App\Branches::where('city',$oltdetails->city)->pluck('branch_name as name', 'id');
         //$items = \App\Franchises::where('city',$oltdetails->city)->where('branch',$oltdetails->branch)->pluck('franchise_name as name', 'id');
 		
-		print_r($distributors); exit;
+		//print_r($distributors); exit;
 		
-		return view('technical.olt.edit',['cities'=>$cities,'distributors'=>$distributors,'branches'=>$branches, 'oltdetails'=>$oltdetails]); 
+		return view('technical.olt.edit',['cities'=>$cities,'distributors'=>$distributors,'subdistributors'=>$subdistributors,'branches'=>$branches, 'oltdetails'=>$oltdetails]); 
 		
     }
 
@@ -241,10 +247,12 @@ $employeedata=array();
      */
     public function update(Request $request, $id)
     {
+		
        $validatedData = $request->validate([
 			'city' => 'required',
 			'branch' => 'required',
 			'distributor' => 'required',
+			'subdistributor' => 'required',
 			//'franchise_id' => 'required',
 			'olt_serial_number' => 'required',
 			'olt_port' => 'required',
@@ -260,6 +268,7 @@ $employeedata=array();
 		$data['city'] = $requestdata['city'];
 		$data['branch'] = $requestdata['branch'];
 		$data['distributor'] = $requestdata['distributor'];
+		$data['subdistributor'] = $requestdata['subdistributor'];
 		//$data['franchise_id'] = $requestdata['franchise_id'];
 		$data['olt_serial_number'] = $requestdata['olt_serial_number'];
 		$data['olt_port'] = $requestdata['olt_port'];

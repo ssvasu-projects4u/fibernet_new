@@ -356,7 +356,8 @@ $user = Auth::user();
     {
           $validatedData = $request->validate([
             'city' => 'required',
-            'distributor' => 'required',
+           // 'distributor' => 'required',
+			//'subdistributor' => 'required',
             'branch' => 'required',
             'franchise' => 'required',
             'pool_name' => 'required',
@@ -649,6 +650,7 @@ $user = Auth::user();
     public function newCustomers()
     {
         $distributors = array();
+		 $subdistributors = array();
 		$branches = array();
 		$franchises = array();
 
@@ -656,6 +658,9 @@ $user = Auth::user();
 
 		if(isset($_GET['distributor'])){
 			$distributors = \App\Distributors::where('id',$_GET['distributor'])->pluck('distributor_name as name', 'id');
+		}
+			if(isset($_GET['subdistributor'])){
+			$subdistributors = \App\SubDistributors::where('id',$_GET['subdistributor'])->pluck('subdistributor_name as name', 'id');
 		}
 		if(isset($_GET['branch'])){
 			$branches = \App\Branches::where('id',$_GET['branch'])->pluck('branch_name as name', 'id');
@@ -680,6 +685,7 @@ $user = Auth::user();
 			'data' => $data->appends(Input::except('page')),
 			'cities'=>$cities,
 			'distributors'=>$distributors,
+			'subdistributors'=>$subdistributors,
 			'branches'=>$branches,
 			'franchises'=>$franchises,
 		]);

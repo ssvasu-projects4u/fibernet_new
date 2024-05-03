@@ -42,6 +42,9 @@
 						        {!! Form::select('city', $cities, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select City --') ) !!} </div>
 			<div class="form-group col-md-3"> {!! Form::label('distributor', 'Distributor') !!}
         {!! Form::select('distributor', $distributors, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Distributor --') ) !!} </div>
+		
+		<div class="form-group col-md-3"> {!! Form::label('subdistributor', 'Sub Distributor') !!}
+        {!! Form::select('subdistributor', $subdistributors, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Sub Distributor --') ) !!} </div>
 			
 			<div class="form-group col-md-3"> {!! Form::label('branch', 'Branch') !!}
         {!! Form::select('branch', $branches, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Branch --') ) !!} </div>

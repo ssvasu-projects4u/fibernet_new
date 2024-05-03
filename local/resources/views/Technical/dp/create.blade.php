@@ -47,6 +47,9 @@
 						        {!! Form::select('city', $cities, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select City --') ) !!} </div>
 			<div class="form-group col-md-3"> {!! Form::label('distributor', 'Distributor') !!}
         {!! Form::select('distributor', [], null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Distributor --') ) !!} </div>
+			
+		<div class="form-group col-md-3"> {!! Form::label('subdistributor', 'Sub Distributor') !!}
+        {!! Form::select('subdistributor', [], null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Sub Distributor --') ) !!} </div>
 			<div class="form-group col-md-3"> {!! Form::label('branch', 'Branch') !!}
         {!! Form::select('branch', [], null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Branch --') ) !!} </div>
 		
@@ -352,6 +355,7 @@
             var city = $(this).val();
             if(city == '' || city <=0){
             	$('#distributor').html("<option value=''>-- Select Distributor --</option>");
+				$('#subdistributor').html("<option value=''>-- Select Sub Distributor --</option>");
 				$('#branch').html("<option value=''>-- Select Branch --</option>");
             	$('#franchise').html("<option value=''>-- Select Franchise --</option>");
 				$('#fiber').html("<option value=''>-- Select Fiber --</option>");
@@ -370,8 +374,52 @@
             });
         });
 		
+		 $('#distributor').on('change', function() {
+            var distributor = $(this).val();  
+				
+            if(distributor == '' || distributor <=0){
+            	$('#subdistributor').html("<option value=''>-- Select Sub Distributor --</option>");
+				$('#branch').html("<option value=''>-- Select Branch --</option>");
+            	$('#franchise').html("<option value=''>-- Select Franchise --</option>");
+				$('#fiber').html("<option value=''>-- Select Fiber --</option>");
+				$('#olt_id').html("<option value=''>-- Select OLT ID --</option>");
+            	return;
+            }
+            $.ajax({
+                url: "{{url('/admin/branches/subdistributors')}}/"+distributor,
+                type: "GET",
+                success:function(data) {
+                   $('#subdistributor').html(data);
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    alert(errorThrown);
+                }
+            });
+        }); 
 		
-		$('#distributor').on('change', function() {
+		 $('#subdistributor').on('change', function() {
+            var subdistributor = $(this).val();  
+				
+            if(subdistributor == '' || subdistributor <=0){
+            	$('#branch').html("<option value=''>-- Select Branch --</option>");
+				$('#franchise').html("<option value=''>-- Select Franchise --</option>");
+				$('#fiber').html("<option value=''>-- Select Fiber --</option>");
+				$('#olt_id').html("<option value=''>-- Select OLT ID --</option>");
+            	return;
+            }
+            $.ajax({
+                url: "{{url('/admin/franchises/branches')}}/"+subdistributor,
+                type: "GET",
+                success:function(data) {
+                   $('#branch').html(data);
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    alert(errorThrown);
+                }
+            });
+        }); 
+		
+		/*$('#distributor').on('change', function() {
             var distributor = $(this).val();
             var city = $("#city").val();
             if(distributor == '' || distributor <=0){
@@ -391,7 +439,7 @@
                     alert(errorThrown);
                 }
             });
-        });
+        }); */
 function getFranchise(city, branch){
 if(branch == '' || branch <=0){
             	$('#franchise').html("<option value=''>-- Select Franchise --</option>");

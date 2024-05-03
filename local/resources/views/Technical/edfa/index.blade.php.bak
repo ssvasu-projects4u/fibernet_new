@@ -1,14 +1,4 @@
-<?php 
-    $user = Auth::user();
-    $roles = $user->getRoleNames(); 
-    //echo $roles[0];//exit;
-    $layout='layouts.admin';
-    if($roles[0]=='branch' || $roles[0]=='franchise'){
-        //echo $roles[0];exit;
-        $layout='layouts.'.$roles[0];    
-    }
- ?>
-@extends($layout)
+@extends('layouts.admin')
 
 @section('content')
     <!-- Page Heading -->

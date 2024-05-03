@@ -15,6 +15,7 @@ class Franchises extends Model
 		'branch',
 		'franchise_id',
 		'distributor_id',
+		'subdistributor_id',
 		'franchise_name',
 		'aadhar',
 		'landline',

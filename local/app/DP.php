@@ -13,6 +13,7 @@ class DP extends Model
         'city',
         'branch',
 		'distributor',
+		'subdistributor',
 		'franchise',
 		'olt_id',
 		'olt_port_num',

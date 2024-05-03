@@ -13,7 +13,7 @@ if ($roles[0] == 'branch' || $roles[0] == 'franchise') {
 @section('content')
 <!-- Page Heading -->
 <div class="card shadow mb-4">
-    @include('technical::topmenu')
+    @include('technical.topmenu')
     <div class="card-header py-2">
         <div class="float-left"><h3 class="m-0 font-weight-bold text-primary">Fiber Laying</h3></div>
 

@@ -3,7 +3,7 @@
 @section('content')
     <!-- Page Heading -->
     <div class="card shadow mb-4">
-	  <!-- @include('administration::topmenu') -->
+	  <!-- @include('administration.topmenu') -->
 	<div class="card-header py-2">
 	  <div class="float-left"><h3 class="m-0 font-weight-bold text-primary">Add Nas</h3></div>
 	  
@@ -152,7 +152,7 @@
 
   <script type="text/javascript">
 	$(document).ready(function() {
-        $('#distributor').on('change', function() {
+      /*  $('#distributor').on('change', function() {
             var distributor = $(this).val();
             var city = $("#city").val();
             if(distributor == '' || distributor <=0){
@@ -169,7 +169,48 @@
                     alert(errorThrown);
                 }
             });
-        });
+        }); */
+		
+		 $('#distributor').on('change', function() {
+            var distributor = $(this).val();  
+				
+            if(distributor == '' || distributor <=0){
+            	$('#subdistributor').html("<option value=''>-- Select Sub Distributor --</option>");
+				$('#branch').html("<option value=''>-- Select Branch --</option>");
+            
+            	return;
+            }
+            $.ajax({
+                url: "{{url('/admin/branches/subdistributors')}}/"+distributor,
+                type: "GET",
+                success:function(data) {
+                   $('#subdistributor').html(data);
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    alert(errorThrown);
+                }
+            });
+        }); 
+		
+		 $('#subdistributor').on('change', function() {
+            var subdistributor = $(this).val();  
+				
+            if(subdistributor == '' || subdistributor <=0){
+            	$('#branch').html("<option value=''>-- Select Branch --</option>");
+				
+            	return;
+            }
+            $.ajax({
+                url: "{{url('/admin/franchises/branches')}}/"+subdistributor,
+                type: "GET",
+                success:function(data) {
+                   $('#branch').html(data);
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    alert(errorThrown);
+                }
+            });
+        }); 
          $('#branch').on('change', function() {
             var city = $("#city").val();
             var branch = $(this).val();

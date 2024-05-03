@@ -13,6 +13,7 @@ class EDFA extends Model
         'city',
         'branch',
 		'distributor',
+		'subdistributor',
 		'franchise',
 		'edfa_serial_number',
 		'edfa_ports',

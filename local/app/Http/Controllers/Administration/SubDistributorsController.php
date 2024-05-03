@@ -326,6 +326,7 @@ class SubDistributorsController extends Controller
         $validatedData = $request->validate([
 			'name' => 'required',
             'subdistributor_name' => 'required',
+			//'distributor' => 'required',
 			'city' => 'required',
 			'office_address' => 'required',
 			//'long_lat' => 'required',
@@ -362,16 +363,17 @@ class SubDistributorsController extends Controller
 	
 
         //Generate Franchise Id
-        $data = \App\SubDistributors::select('distributor_id')->orderBy('distributor_id','desc')->first();
-        $distributorid = "00000";
+        $data = \App\SubDistributors::select('subdistributor_id')->orderBy('subdistributor_id','desc')->first();
+        $subdistributorid = "00000";
 
         //print_r($data); exit;    
 
-        if(isset($data->distributor_id)){
-            $distributorid = substr($data->distributor_id, -5); 
+        if(isset($data->subdistributor_id)){
+            $subdistributorid = substr($data->subdistributor_id, -5); 
         }
-        $distributorid = "SLJDR".str_pad($subdistributorid + 1, 5, 0, STR_PAD_LEFT);   
-        $input['subdistributor_id'] = $distributorid;
+        $subdistributorid = "SLJSDR".str_pad($subdistributorid + 1, 5, 0, STR_PAD_LEFT);   
+        $input['subdistributor_id'] = $subdistributorid; 
+		$input['distributor_id'] = $input['distributor'];
         $input['user_id'] = $userdata->id;
 
         //echo "<pre>"; printf($input); exit;
@@ -396,11 +398,17 @@ class SubDistributorsController extends Controller
      * @return Response
      */
     public function edit($id)
-    {
+	    {
+			
         $subdistributordetails = \App\SubDistributors::join('users','users.id', '=', 'slj_subdistributors.user_id')->where('slj_subdistributors.id',$id)->select('slj_subdistributors.*','users.name','users.mobile','users.email')->first();
+		//$distributors = \App\Distributors::where('city',$subdistributordetails->city)->where('status','Y')->pluck('distributor_name as name', 'id');
+		$distributors = \App\Distributors::join('users','users.id', '=', 'slj_distributors.user_id')->where('city',$subdistributordetails->city)->where('users.status','Y')
+       ->pluck('distributor_name as name', 'slj_distributors.id as id');
+
+		
 		$items = \App\City::where('status','Y')->pluck('name', 'id');
 		
-		return view('administration.subdistributors.edit',['items'=>$items, 'subdistributordetails'=>$subdistributordetails]); 
+		return view('administration.subdistributors.edit',['items'=>$items, 'subdistributordetails'=>$subdistributordetails,'distributors'=>$distributors]); 
     }
 
     /**
@@ -411,12 +419,13 @@ class SubDistributorsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $distributor = \App\Distributors::find($id);
-        $userid = $distributor->user_id;
+        $subdistributor = \App\SubDistributors::find($id);
+        $userid = $subdistributor->user_id;
 
         $validatedData = $request->validate([
 			'name' => 'required',
             'subdistributor_name' => 'required',
+			//'distributor' => 'required',
             'city' => 'required',
             'office_address' => 'required',
             //'long_lat' => 'required',
@@ -429,6 +438,7 @@ class SubDistributorsController extends Controller
 
         $data = array();
 		$data['subdistributor_name'] = $requestdata['subdistributor_name'];
+		$data['distributor_id'] = $requestdata['distributor'];
 		$data['city'] = $requestdata['city'];
 		$data['office_address'] = $requestdata['office_address'];
 		$data['long_lat'] = $requestdata['long_lat'];
@@ -442,7 +452,7 @@ class SubDistributorsController extends Controller
         $data['bank_name'] = $requestdata['bank_name'];
         
 		//Update details
-		$distributor->update($data);
+		$subdistributor->update($data);
 
         $user = \App\User::find($userid);
 
@@ -475,7 +485,14 @@ class SubDistributorsController extends Controller
         
         if($id > 0 && $branches == 0){
             $subdistributor = \App\SubDistributors::find($id);
-            \App\SubDistributors::destroy($id);
+          //  \App\SubDistributors::destroy($id);
+			  $data['status'] = "N";
+            $subDistributors = \App\SubDistributors::find($id);
+            
+            //Update details
+            $subDistributors->update($data);
+			
+			
             if($subdistributor->user_id > 0){
                 $user = \App\User::find($subdistributor->user_id);
                 \App\User::destroy($subdistributor->user_id); //remove user

@@ -32,6 +32,9 @@
 		
 		<div class="form-group col-md-3"> {!! Form::label('distributor', 'Distributor*') !!}
         {!! Form::select('distributor', [], null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Distributor --') ) !!} </div>
+		 
+		 <div class="form-group col-md-3"> {!! Form::label('subdistributor', 'sub Distributor') !!}
+        {!! Form::select('subdistributor', [], null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Sub Distributor --') ) !!} </div>
 		
 		<div class="form-group col-md-3"> {!! Form::label('branch', 'Branch*') !!}
         {!! Form::select('branch', [], null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Branch --') ) !!} </div>
@@ -152,7 +155,7 @@
 
   <script type="text/javascript">
 	$(document).ready(function() {
-        $('#distributor').on('change', function() {
+      /*  $('#distributor').on('change', function() {
             var distributor = $(this).val();
             var city = $("#city").val();
             if(distributor == '' || distributor <=0){
@@ -169,7 +172,48 @@
                     alert(errorThrown);
                 }
             });
-        });
+        }); */
+		
+		 $('#distributor').on('change', function() {
+            var distributor = $(this).val();  
+				
+            if(distributor == '' || distributor <=0){
+            	$('#subdistributor').html("<option value=''>-- Select Sub Distributor --</option>");
+				$('#branch').html("<option value=''>-- Select Branch --</option>");
+            
+            	return;
+            }
+            $.ajax({
+                url: "{{url('/admin/branches/subdistributors')}}/"+distributor,
+                type: "GET",
+                success:function(data) {
+                   $('#subdistributor').html(data);
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    alert(errorThrown);
+                }
+            });
+        }); 
+		
+		 $('#subdistributor').on('change', function() {
+            var subdistributor = $(this).val();  
+				
+            if(subdistributor == '' || subdistributor <=0){
+            	$('#branch').html("<option value=''>-- Select Branch --</option>");
+				
+            	return;
+            }
+            $.ajax({
+                url: "{{url('/admin/franchises/branches')}}/"+subdistributor,
+                type: "GET",
+                success:function(data) {
+                   $('#branch').html(data);
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    alert(errorThrown);
+                }
+            });
+        }); 
          $('#branch').on('change', function() {
             var city = $("#city").val();
             var branch = $(this).val();

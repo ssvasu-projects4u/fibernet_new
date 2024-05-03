@@ -46,6 +46,7 @@
 		<th>Actions</th>
 		<th>City</th>
 		<th>Distributor</th>
+		<th>Sub Distributor</th>
 		<th>Branch</th>
 		<th>Franchise</th>
 		<th>Fiber Name</th>
@@ -86,6 +87,7 @@
 		</td>
 		<td>{{ $datarow->city_name }}</td>
 		<td>{{ $datarow->distributor_name }}</td>
+		<td>{{ $datarow->subdistributor_name }}</td>
 		<td>{{ $datarow->branch_name }}</td>
 		<td>{{ $datarow->franchise_name }}</td>
 		<td>{{ $datarow->fiber_name }}</td>
@@ -131,6 +133,8 @@
 
   @php $user = DB::table('slj_distributors')->where('id', $datarow->distributor)->first(); @endphp
 		<td>{{ $user->distributor_name }}</td>
+		@php $user = DB::table('slj_subdistributors')->where('id', $datarow->subdistributor)->first(); @endphp
+		<td>{{ $user->subdistributor_name }}</td>
 		  @php $user = DB::table('slj_branches')->where('id', $datarow->branch)->first(); @endphp
 		<td>{{ $user->branch_name }}</td>
 	  @php $user = DB::table('slj_franchises')->where('id', $datarow->franchise)->first(); @endphp		

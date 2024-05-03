@@ -31,8 +31,8 @@
         <div class="form-group col-md-3"> {!! Form::label('distributor', 'Distributor*') !!}
         {!! Form::select('distributor', $distributors, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Distributor --') ) !!} </div>
 	
-		 <div class="form-group col-md-3"> {!! Form::label('sub_distributor', 'Sub Distributor*') !!}
-        {!! Form::select('sub_distributor', $distributors, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Sub Distributor --') ) !!} </div>
+		 <div class="form-group col-md-3"> {!! Form::label('subdistributor', 'Sub Distributor*') !!}
+        {!! Form::select('subdistributor', $distributors, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Sub Distributor --') ) !!} </div>
 		
         <div class="form-group col-md-3"> {!! Form::label('branch_name', 'Branch Name*') !!}
         {!! Form::text('branch_name',null, array('class' => 'form-control','required'=>'required','placeholder'=>'Enter Branch Name')) !!} </div>
@@ -60,6 +60,29 @@
 		</div>
 		</div>
 		
+		<div class="row">
+		<div class="col-md-12"><br><h5>Bank Details</h5><hr></div>
+		</div>
+		<div class="row">
+		<div class="form-group col-md-3"> {!! Form::label('bank_holder_name', 'Account Holder Name') !!}
+        {!! Form::text('bank_holder_name',null, array('class' => 'form-control','placeholder'=>'Enter Account Holder Name')) !!} </div>
+
+		<div class="form-group col-md-3"> {!! Form::label('bank_account', ' Account Number') !!}
+        {!! Form::text('bank_account',null, array('class' => 'form-control','placeholder'=>'Enter Account Number')) !!} </div>
+		
+    </div>
+    <div class="row">
+
+		<div class="form-group col-md-3"> {!! Form::label('bank_name', 'Bank Name') !!}
+        {!! Form::text('bank_name',null, array('class' => 'form-control','placeholder'=>'Enter Bank Name')) !!} </div>
+		
+		<div class="form-group col-md-3"> {!! Form::label('bank_branch_name', 'Bank Branch Name') !!}
+        {!! Form::text('bank_branch_name',null, array('class' => 'form-control','placeholder'=>'Enter Bank Branch Name')) !!} </div>
+		
+		<div class="form-group col-md-3"> {!! Form::label('ifsc_code', 'IFSC Code') !!}
+        {!! Form::text('ifsc_code',null, array('class' => 'form-control','placeholder'=>'Enter IFSC Code')) !!} </div>
+		
+		</div>
 		
        {!! Form::submit('Submit', ['class' => 'btn btn-success', 'id'=>'edit_form_btn', 'disabled'=>'true']) !!} 
       {!! Form::close() !!} 
@@ -116,6 +139,26 @@
 
         //$('#distributor').val({{old('city')}}).trigger('change');
         $('#distributor').val({{$branchdetails->distributor_id}});
+		
+		 $('#distributor').on('change', function() {
+            var distributor = $(this).val();  
+				
+            if(distributor == '' || distributor <=0){
+            	$('#subdistributor').html("<option value=''>-- Select Sub Distributor --</option>");
+            	return;
+            }
+            $.ajax({
+                url: "{{url('/admin/branches/subdistributors')}}/"+distributor,
+                type: "GET",
+                success:function(data) {
+                   $('#subdistributor').html(data);
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    alert(errorThrown);
+                }
+            });
+        }); 
+
         
     });
 </script>

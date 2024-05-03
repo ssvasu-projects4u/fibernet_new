@@ -21,6 +21,7 @@ class FiberLayingController extends Controller
     public function index(Request $request)
     {	
         $distributors = array();
+		$subdistributors = array();
 		$branches = array();
 		$franchises = array();
         
@@ -28,6 +29,9 @@ class FiberLayingController extends Controller
 
 		if(isset($_GET['distributor'])){
 			$distributors = \App\Distributors::where('id',$_GET['distributor'])->pluck('distributor_name as name', 'id');
+		}
+		if(isset($_GET['subdistributor'])){
+			$subdistributors = \App\SubDistributors::where('id',$_GET['subdistributor'])->pluck('subdistributor_name as name', 'id');
 		}
 		if(isset($_GET['branch'])){
 			$branches = \App\Branches::where('id',$_GET['branch'])->pluck('branch_name as name', 'id');
@@ -73,9 +77,10 @@ class FiberLayingController extends Controller
         $params = $request->all();
         $data = \App\FiberLaying::leftjoin('slj_franchises','slj_fiber_laying.franchise', '=', 'slj_franchises.id')
 				->leftjoin('slj_distributors','slj_distributors.id', '=', 'slj_fiber_laying.distributor')
+				->leftjoin('slj_subdistributors','slj_subdistributors.id', '=', 'slj_fiber_laying.subdistributor')
 				->leftjoin('slj_branches','slj_branches.id', '=', 'slj_fiber_laying.branch')
 				->leftJoin('slj_cities','slj_cities.id', '=', 'slj_fiber_laying.city')
-				->select('slj_fiber_laying.*','slj_distributors.distributor_name','slj_franchises.franchise_name','slj_branches.branch_name','slj_cities.name as city_name')
+				->select('slj_fiber_laying.*','slj_distributors.distributor_name','slj_subdistributors.subdistributor_name','slj_franchises.franchise_name','slj_branches.branch_name','slj_cities.name as city_name')
                 ->where($tbl, $operator, $id)->orderBy('slj_fiber_laying.id')
                 ->filter($params)
                 ->paginate(20);
@@ -92,6 +97,7 @@ class FiberLayingController extends Controller
             'data'=>$data, 
 			'cities'=>$cities,
 			'distributors'=>$distributors,
+			'subdistributors'=>$subdistributors,
 			'branches'=>$branches,
 			'franchises'=>$franchises,
             'role' => $roles[0]
@@ -177,9 +183,10 @@ class FiberLayingController extends Controller
 			'fiber_code' => 'required',
 			'fiber_core' => 'required'
 		);
-            $branch = \App\Branches::where('user_id',$id)->select('id','city','distributor_id')->first();
+            $branch = \App\Branches::where('user_id',$id)->select('id','city','distributor_id','subdistributor_id')->first();
             $input['city']=$branch->city;
             $input['distributor']=$branch->distributor_id;
+			 $input['subdistributor']=$branch->subdistributor_id;
             $input['branch']=$branch->id;
         }
         if($roles[0]=='franchise'){
@@ -191,9 +198,10 @@ class FiberLayingController extends Controller
 			'fiber_core' => 'required'
 		);
 	
-            $franchise = \App\Franchises::where('user_id',$id)->select('id','city','distributor_id','branch')->first();
+            $franchise = \App\Franchises::where('user_id',$id)->select('id','city','distributor_id','branch','subdistributor_id')->first();
             $input['city']=$franchise->city;
             $input['distributor']=$franchise->distributor_id;
+			$input['subdistributor']=$franchise->subdistributor_id;
             $input['branch']=$franchise->branch;
             $input['franchise']=$franchise->id;
         }
@@ -333,6 +341,7 @@ class FiberLayingController extends Controller
 		$city = \App\City::findOrFail($fiberladdetails->city)->name;
 
         $distributor = \App\Distributors::findOrFail($fiberladdetails->distributor)->distributor_name;
+		$subdistributor = \App\SubDistributors::findOrFail($fiberladdetails->subdistributor)->subdistributor_name;
 
 		$branch = \App\Branches::findOrFail($fiberladdetails->branch)->branch_name;
 		$franchise = \App\Franchises::findOrFail($fiberladdetails->franchise)->franchise_name;
@@ -343,6 +352,7 @@ class FiberLayingController extends Controller
             'fiberlaying_poles'=>$fiberlaying_poles,
             'city'=>$city,
             'distributor'=>$distributor,
+			'subdistributor'=>$subdistributor,
             'branch'=>$branch,
             'franchise'=>$franchise,
             'fiberladdetails'=>$fiberladdetails
@@ -374,6 +384,9 @@ class FiberLayingController extends Controller
 		$distributors = \App\Distributors::join('users','users.id', '=', 'slj_distributors.user_id')->where('city',$fiberladdetails->city)->where('users.status','Y')
        ->pluck('distributor_name as name', 'slj_distributors.id as id');
 	   
+	   $subdistributors = \App\SubDistributors::join('users','users.id', '=', 'slj_subdistributors.user_id')->where('city',$fiberladdetails->city)->where('users.status','Y')
+       ->pluck('subdistributor_name as name', 'slj_subdistributors.id as id');
+	   
 		
 		$branches = \App\Branches::where('city',$fiberladdetails->city)->pluck('branch_name as name', 'id');
 		$items = \App\Franchises::where('branch',$fiberladdetails->branch)->pluck('franchise_name as name', 'id');
@@ -382,7 +395,7 @@ class FiberLayingController extends Controller
 		$fiberlaying_poles = \App\Poles::where('fiber_id',$id)->get();
 		
 		
-		return view('technical.fiberlaying.edit',['fiberlaying_poles'=>$fiberlaying_poles,'cities'=>$cities,'distributors'=>$distributors,'branches'=>$branches,'items'=>$items, 'fiberladdetails'=>$fiberladdetails]);
+		return view('technical.fiberlaying.edit',['fiberlaying_poles'=>$fiberlaying_poles,'cities'=>$cities,'distributors'=>$distributors,'subdistributors'=>$subdistributors,'branches'=>$branches,'items'=>$items, 'fiberladdetails'=>$fiberladdetails]);
     }
 
     /**

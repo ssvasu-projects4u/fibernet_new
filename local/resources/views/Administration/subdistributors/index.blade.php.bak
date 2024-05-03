@@ -5,7 +5,7 @@
     <div class="card shadow mb-4">
 	   @include('administration.topmenu')
 	<div class="card-header py-2">
-	  <div class="float-left"><h3 class="m-0 font-weight-bold text-primary">Distributors</h3></div>
+	  <div class="float-left"><h3 class="m-0 font-weight-bold text-primary">Sub Distributors</h3></div>
 	  
 	</div>
 	
@@ -34,8 +34,7 @@
         @endif
 	  <table class="table table-bordered">
 	  <tr class="table-warning">
-	  	<th>Actions</th>	
-		<th>Distributor Name</th>
+	  	<th>Actions</th>
 		<th>Sub Distributor Name</th>
 		<th>City</th>
 		<th>Office Address</th>
@@ -51,8 +50,10 @@
     
   	   if($roles[0]=="superadmin")
           {
+			
               ?>
 	@foreach ($data as $datarow)
+	 
         <tr>
         <td align="center">
 			<div class="btn-group">
@@ -67,11 +68,11 @@
         )
         <ul class="dropdown-menu dropdown-default" role="menu">
 					@can("edit-distributor")
-						<li><a class="dropdown-item" href="{{url('admin/distributors/edit/'.$datarow->id)}}"><i class="fa fa-pencil-alt" aria-hidden="true"></i> Edit</a></li>
+						<li><a class="dropdown-item" href="{{url('admin/subdistributors/edit/'.$datarow->id)}}"><i class="fa fa-pencil-alt" aria-hidden="true"></i> Edit</a></li>
           @endcan
           @can("delete-distributor")
 						<li class="divider"><hr class="py-0 my-0 mb-4"></li>
-						<li><a class="dropdown-item" href="{{url('admin/distributors/delete/'.$datarow->id)}}" onclick="return confirm('Are you sure to delete?')"><i class="fa fa-trash" aria-hidden="true"></i> Delete</a></li>
+						<li><a class="dropdown-item" href="{{url('admin/subdistributors/delete/'.$datarow->id)}}" onclick="return confirm('Are you sure to delete?')"><i class="fa fa-trash" aria-hidden="true"></i> Delete</a></li>
           @endcan
           @can("change-password-distributor")
 						<li class="divider"><hr class="py-0 my-0 mb-4"></li>
@@ -92,7 +93,7 @@
         @endcanany
       </div>
 		</td>	
-		<td>@can("edit-distributor") <a href="{{url('admin/distributors/edit/'.$datarow->id)}}" title='edit'><i class="fa fa-pencil-alt" aria-hidden="true"></i> </a>@endcan {{ $datarow->distributor_name }}</td>
+		<td>@can("edit-distributor") <a href="{{url('admin/subdistributors/edit/'.$datarow->id)}}" title='edit'><i class="fa fa-pencil-alt" aria-hidden="true"></i> </a>@endcan {{  $datarow->subdistributor_name }}</td>
 		<td>{{ $datarow->subdistributor_name }}</td>
 		<td>{{ $datarow->city_name }}</td>
 		<td>{{ $datarow->office_address }}</td>
@@ -140,16 +141,17 @@
         @endcanany
       </div>
 		</td>	
-		 @php $distdet = DB::table('slj_distributors')->where('id', $datarow)->first();
-         $city = DB::table('slj_cities')->where('id', $distdet->city)->first();
-         $userdet = DB::table('users')->select('email','mobile','status')->where('id', $distdet->user_id)->first();
+		 @php $sdistdet = DB::table('slj_subdistributors')->where('id', $datarow)->first();
+         $city = DB::table('slj_cities')->where('id', $sdistdet->city)->first();
+         $userdet = DB::table('users')->select('email','mobile','status')->where('id', $sdistdet->user_id)->first();
+		 $distdet = DB::table('slj_distributors')->select('distributor_name')->where('id', $sdistdet->distributor_id)->first();
 		
 		
 		 @endphp
-		<td>@can("edit-distributor") <a href="{{url('admin/distributors/edit/'.$datarow)}}" title='edit'><i class="fa fa-pencil-alt" aria-hidden="true"></i> </a>@endcan {{ $distdet->distributor_name }}</td>
-		<td>{{ $distdet->distributor_name }}</td>
+		<td>@can("edit-distributor") <a href="{{url('admin/subdistributors/edit/'.$datarow)}}" title='edit'><i class="fa fa-pencil-alt" aria-hidden="true"></i> </a>@endcan {{ $distdet->distributor_name }}</td>
+		<!--<td>{{ $sdistdet->subdistributor_name }}</td>-->
 		<td>{{ $city->name }}</td>
-		<td>{{ $distdet->office_address }}</td>
+		<td>{{ $sdistdet->office_address }}</td>
 		<td>{{ $userdet->mobile }}</td>
 		<td>{{ $userdet->email }}</td>
 		<td>

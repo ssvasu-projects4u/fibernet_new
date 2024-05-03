@@ -12,6 +12,7 @@ class FiberLaying extends Model
 	protected $fillable = [
         'city',
 		'distributor',
+		'subdistributor',
         'branch',
 		'franchise',
 		'fiber_to',

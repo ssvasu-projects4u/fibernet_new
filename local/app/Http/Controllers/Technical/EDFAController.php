@@ -93,6 +93,7 @@ class EDFAController extends Controller
 			'city' => 'required',
 			'branch' => 'required',
 			'distributor' => 'required',
+			'subdistributor' => 'required',
 			'edfa_serial_number' => 'required',
 			'edfa_ports' => 'required',
 			'edfa_company' => 'required',
@@ -110,7 +111,7 @@ class EDFAController extends Controller
        
      $employeedata['employee_id']=$id;
      $employeedata['action_name']="Create EDFA";
-      $employeedata['value_of_action']=$input['fiber'];
+    //  $employeedata['value_of_action']=$input['fiber'];
     
      \App\Employees_Logs::create($employeedata);
        	 
@@ -155,6 +156,9 @@ class EDFAController extends Controller
         $cities = \App\City::where('status','Y')->pluck('name', 'id');
 		$distributors = \App\Distributors::join('users','users.id', '=', 'slj_distributors.user_id')->where('city',$edfadetails->city)->where('users.status','Y')
        ->pluck('distributor_name as name', 'slj_distributors.id as id');
+	 
+   	 $subdistributors = \App\SubDistributors::join('users','users.id', '=', 'slj_subdistributors.user_id')->where('city',$edfadetails->city)->where('users.status','Y')
+       ->pluck('subdistributor_name as name', 'slj_subdistributors.id as id');
 	   
 		$branches = \App\Branches::where('city',$edfadetails->city)->pluck('branch_name as name', 'id');
 //		$items = \App\Franchises::where('city',$edfadetails->city)->where('branch',$edfadetails->branch)
@@ -163,6 +167,7 @@ class EDFAController extends Controller
 		return view('technical.edfa.edit',[
             'cities'=>$cities,
             'distributors'=>$distributors,
+			'subdistributors'=>$subdistributors,
             'branches'=>$branches,
             'edfadetails'=>$edfadetails,
             'role'=>$roles['0']
@@ -189,6 +194,7 @@ class EDFAController extends Controller
 
 		$data['city'] = $requestdata['city'];
 		$data['distributor'] = $requestdata['distributor'];
+		$data['subdistributor'] = $requestdata['subdistributor'];
 		$data['branch'] = $requestdata['branch'];
 		$data['edfa_serial_number'] = $requestdata['edfa_serial_number'];
 		$data['edfa_ports'] = $requestdata['edfa_ports'];

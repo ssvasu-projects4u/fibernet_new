@@ -11,6 +11,27 @@
 
 
 	<div class="card-body" style="padding:5px;">
+		  @if(Session::has('InvalidLogin'))
+        <div class="alert alert-danger alert-dismissible fade show">
+		<button type="button" class="close" data-dismiss="alert">&times;</button>
+            <strong>Error!</strong> {{ Session::get('InvalidLogin') }}
+            @php
+                Session::forget('InvalidLogin');
+            @endphp
+        </div>
+
+        @endif
+        
+        @if(Session::has('success'))
+        <div class="alert alert-success alert-dismissible fade show">
+		<button type="button" class="close" data-dismiss="alert">&times;</button>
+            <strong>Success!</strong> {{ Session::get('success') }}
+            @php
+                Session::forget('success');
+            @endphp
+        </div>
+
+        @endif
 	  <table class="table table-bordered">
 	  <tr class="table-warning">
 		<th>Actions</th>

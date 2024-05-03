@@ -326,6 +326,7 @@ class SubDistributorsController extends Controller
         $validatedData = $request->validate([
 			'name' => 'required',
             'subdistributor_name' => 'required',
+			'distributor' => 'required',
 			'city' => 'required',
 			'office_address' => 'required',
 			//'long_lat' => 'required',
@@ -351,7 +352,7 @@ class SubDistributorsController extends Controller
         //echo "<pre>";print_r($userdata->id); exit;
 
         //Assign Role
-        $userdata->assignRole('distributor');
+        $userdata->assignRole('subdistributor');
         
         $employeedata=array();
 	    $id = \Auth::user()->id;
@@ -362,22 +363,23 @@ class SubDistributorsController extends Controller
 	
 
         //Generate Franchise Id
-        $data = \App\Distributors::select('distributor_id')->orderBy('distributor_id','desc')->first();
-        $distributorid = "00000";
+        $data = \App\SubDistributors::select('subdistributor_id')->orderBy('subdistributor_id','desc')->first();
+        $subdistributorid = "00000";
 
         //print_r($data); exit;    
 
-        if(isset($data->distributor_id)){
-            $distributorid = substr($data->distributor_id, -5); 
+        if(isset($data->subdistributor_id)){
+            $subdistributorid = substr($data->subdistributor_id, -5); 
         }
-        $distributorid = "SLJDR".str_pad($distributorid + 1, 5, 0, STR_PAD_LEFT);   
-        $input['distributor_id'] = $distributorid;
+        $subdistributorid = "SLJSDR".str_pad($subdistributorid + 1, 5, 0, STR_PAD_LEFT);   
+        $input['subdistributor_id'] = $subdistributorid; 
+		$input['distributor_id'] = $input['distributor'];
         $input['user_id'] = $userdata->id;
 
         //echo "<pre>"; printf($input); exit;
-        \App\Distributors::create($input);
+        \App\SubDistributors::create($input);
 
-        return redirect('admin/distributors')->with('success', 'Distributor created successfully.');
+        return redirect('admin/subdistributors')->with('success', 'Sub Distributor created successfully.');
     }
 
     /**
@@ -387,7 +389,7 @@ class SubDistributorsController extends Controller
      */
     public function show($id)
     {
-        return view('administration.distributors.show');
+        return view('administration.subdistributors.show');
     }
 
     /**
@@ -396,11 +398,17 @@ class SubDistributorsController extends Controller
      * @return Response
      */
     public function edit($id)
-    {
-        $distributordetails = \App\Distributors::join('users','users.id', '=', 'slj_distributors.user_id')->where('slj_distributors.id',$id)->select('slj_distributors.*','users.name','users.mobile','users.email')->first();
+	    {
+			
+        $subdistributordetails = \App\SubDistributors::join('users','users.id', '=', 'slj_subdistributors.user_id')->where('slj_subdistributors.id',$id)->select('slj_subdistributors.*','users.name','users.mobile','users.email')->first();
+		//$distributors = \App\Distributors::where('city',$subdistributordetails->city)->where('status','Y')->pluck('distributor_name as name', 'id');
+		$distributors = \App\Distributors::join('users','users.id', '=', 'slj_distributors.user_id')->where('city',$subdistributordetails->city)->where('users.status','Y')
+       ->pluck('distributor_name as name', 'slj_distributors.id as id');
+
+		
 		$items = \App\City::where('status','Y')->pluck('name', 'id');
 		
-		return view('administration.distributors.edit',['items'=>$items, 'distributordetails'=>$distributordetails]); 
+		return view('administration.subdistributors.edit',['items'=>$items, 'subdistributordetails'=>$subdistributordetails,'distributors'=>$distributors]); 
     }
 
     /**
@@ -411,12 +419,13 @@ class SubDistributorsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $distributor = \App\Distributors::find($id);
-        $userid = $distributor->user_id;
+        $subdistributor = \App\SubDistributors::find($id);
+        $userid = $subdistributor->user_id;
 
         $validatedData = $request->validate([
 			'name' => 'required',
-            'distributor_name' => 'required',
+            'subdistributor_name' => 'required',
+			'distributor' => 'required',
             'city' => 'required',
             'office_address' => 'required',
             //'long_lat' => 'required',
@@ -428,7 +437,8 @@ class SubDistributorsController extends Controller
 		$requestdata = $request->all(); 
 
         $data = array();
-		$data['distributor_name'] = $requestdata['distributor_name'];
+		$data['subdistributor_name'] = $requestdata['subdistributor_name'];
+		$data['distributor_id'] = $requestdata['distributor'];
 		$data['city'] = $requestdata['city'];
 		$data['office_address'] = $requestdata['office_address'];
 		$data['long_lat'] = $requestdata['long_lat'];
@@ -442,7 +452,7 @@ class SubDistributorsController extends Controller
         $data['bank_name'] = $requestdata['bank_name'];
         
 		//Update details
-		$distributor->update($data);
+		$subdistributor->update($data);
 
         $user = \App\User::find($userid);
 
@@ -457,11 +467,11 @@ class SubDistributorsController extends Controller
 	    $id = \Auth::user()->id;
       
        $employeedata['employee_id']=$id;
-       $employeedata['action_name']=$requestdata['name']."Distributor Was Updated";
+       $employeedata['action_name']=$requestdata['name']."Sub Distributor Was Updated";
        \App\Employees_Logs::create($employeedata);
 	
 		
-		return redirect('admin/distributors')->with('success', 'Distributor details updated successfully.');
+		return redirect('admin/subdistributors')->with('success', 'Sub Distributor details updated successfully.');
     }
 
     /**
@@ -471,14 +481,21 @@ class SubDistributorsController extends Controller
      */
     public function destroy($id)
     {
-        $branches = \App\Branches::where('distributor_id',$id)->count();
+        $branches = \App\Branches::where('subdistributor_id',$id)->count();
         
         if($id > 0 && $branches == 0){
-            $distributor = \App\Distributors::find($id);
-            \App\Distributors::destroy($id);
-            if($distributor->user_id > 0){
-                $user = \App\User::find($distributor->user_id);
-                \App\User::destroy($distributor->user_id); //remove user
+            $subdistributor = \App\SubDistributors::find($id);
+          //  \App\SubDistributors::destroy($id);
+			  $data['status'] = "N";
+            $subDistributors = \App\SubDistributors::find($id);
+            
+            //Update details
+            $subDistributors->update($data);
+			
+			
+            if($subdistributor->user_id > 0){
+                $user = \App\User::find($subdistributor->user_id);
+                \App\User::destroy($subdistributor->user_id); //remove user
                 
                 if(!empty($user->roles->first()) && count($user->roles->first())>0){
                     $user->removeRole($user->roles->first()); //remove role from user
@@ -489,9 +506,9 @@ class SubDistributorsController extends Controller
                 }
             }
 
-            return redirect('admin/distributors')->with('success', 'Distributor deleted successfully.');
+            return redirect('admin/subdistributors')->with('success', 'SubDistributor deleted successfully.');
         }else{
-            return redirect('admin/distributors')->with('error', 'Distributor cannot be deleted because of dependency');
+            return redirect('admin/subdistributors')->with('error', 'SubDistributor cannot be deleted because of dependency');
         }
     }
 

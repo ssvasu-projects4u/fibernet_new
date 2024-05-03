@@ -59,9 +59,10 @@ class DPDController extends Controller
         $data = \App\DPD::leftjoin('slj_franchises','slj_dpd.franchise', '=', 'slj_franchises.id')
 				->leftjoin('slj_fiber_laying','slj_fiber_laying.id', '=', 'slj_dpd.fiber')
 				->leftjoin('slj_distributors','slj_distributors.id', '=', 'slj_dpd.distributor')
+				->leftjoin('slj_subdistributors','slj_subdistributors.id', '=', 'slj_dpd.subdistributor')
 				->leftjoin('slj_branches','slj_branches.id', '=', 'slj_dpd.branch')
                 ->leftJoin('slj_cities','slj_cities.id', '=', 'slj_dpd.city')
-				->select('slj_dpd.*','slj_distributors.distributor_name','slj_fiber_laying.fiber_name','slj_franchises.franchise_name','slj_branches.branch_name','slj_cities.name as city_name')
+				->select('slj_dpd.*','slj_distributors.distributor_name','slj_subdistributors.subdistributor_name','slj_fiber_laying.fiber_name','slj_franchises.franchise_name','slj_branches.branch_name','slj_cities.name as city_name')
 				->where($tbl, $operator, $id)->orderBy('slj_dpd.id')
 				->paginate(20);
         }
@@ -73,8 +74,9 @@ class DPDController extends Controller
             
            $data = \App\DPD::leftjoin('slj_fiber_laying','slj_fiber_laying.id', '=', 'slj_dpd.fiber')
 				->leftjoin('slj_distributors','slj_distributors.id', '=', 'slj_dpd.distributor')
+				->leftjoin('slj_subdistributors','slj_subdistributors.id', '=', 'slj_dpd.subdistributor')
                 ->leftJoin('slj_cities','slj_cities.id', '=', 'slj_dpd.city')
-				->select('slj_dpd.*','slj_distributors.distributor_name','slj_fiber_laying.fiber_name','slj_cities.name as city_name')
+				->select('slj_dpd.*','slj_distributors.distributor_name','slj_subdistributors.subdistributor_name','slj_fiber_laying.fiber_name','slj_cities.name as city_name')
 				->where('slj_dpd.city','=','slj_cities.id')->orderBy('slj_dpd.id')
 				->paginate(20);
             
@@ -173,6 +175,7 @@ class DPDController extends Controller
             $branch = \App\Branches::where('user_id',$id)->select('id','city','distributor_id')->first();
             $input['city']=$branch->city;
             $input['distributor']=$branch->distributor_id;
+			 $input['subdistributor']=$branch->subdistributor_id;
             $input['branch']=$branch->id;
         }
         if($roles[0]=='franchise'){
@@ -183,6 +186,7 @@ class DPDController extends Controller
             $franchise = \App\Franchises::where('user_id',$id)->select('id','city','distributor_id','branch')->first();
             $input['city']=$franchise->city;
             $input['distributor']=$franchise->distributor_id;
+			 $input['subdistributor']=$franchise->subdistributor_id;
             $input['branch']=$franchise->branch;
             $input['franchise']=$franchise->id;
         }
@@ -251,11 +255,14 @@ class DPDController extends Controller
 		
 		$distributors = \App\Distributors::join('users','users.id', '=', 'slj_distributors.user_id')->where('city',$dpddetails->city)->where('users.status','Y')
        ->pluck('distributor_name as name', 'slj_distributors.id as id');
+	 
+    	 $subdistributors = \App\SubDistributors::join('users','users.id', '=', 'slj_subdistributors.user_id')->where('city',$dpddetails->city)->where('users.status','Y')
+       ->pluck('subdistributor_name as name', 'slj_subdistributors.id as id');
 	   
 	   $franchisefibers = \App\FiberLaying::where('franchise',$dpddetails->franchise)->where('fiber_to','dpd')->pluck('fiber_name as name','id');
 	   
 		
-		return view('technical.dpd.edit',['cities'=>$cities,'distributors'=>$distributors,'branches'=>$branches,'items'=>$items, 'dpddetails'=>$dpddetails, 'franchisefibers'=>$franchisefibers]); 
+		return view('technical.dpd.edit',['cities'=>$cities,'distributors'=>$distributors,'subdistributors'=>$subdistributors,'branches'=>$branches,'items'=>$items, 'dpddetails'=>$dpddetails, 'franchisefibers'=>$franchisefibers]); 
 		
     }
 
@@ -271,7 +278,8 @@ class DPDController extends Controller
         $roles = $user->getRoleNames();
         $validation_list=array('city' => 'required',
 			'distributor' => 'required',
-                        'branch' => 'required',
+			'subdistributor' => 'required',
+             'branch' => 'required',
 			'franchise' => 'required',
 			'fiber' => 'required',
 			'long_lat' => 'required'
@@ -299,6 +307,9 @@ class DPDController extends Controller
                 }
                 if(!empty($requestdata['distributor'])){
 		$data['distributor'] = $requestdata['distributor'];
+                }
+				  if(!empty($requestdata['subdistributor'])){
+		$data['subdistributor'] = $requestdata['subdistributor'];
                 }
                 if(!empty($requestdata['branch'])){
 		$data['branch'] = $requestdata['branch'];

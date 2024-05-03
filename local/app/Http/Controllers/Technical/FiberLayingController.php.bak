@@ -1,0 +1,686 @@
+<?php
+
+namespace App\Http\Controllers\Technical;
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Auth;
+use DB;
+
+class FiberLayingController extends Controller
+{
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+    /**
+     * Display a listing of the resource.
+     * @return Response
+     */
+    public function index(Request $request)
+    {	
+        $distributors = array();
+		$subdistributors = array();
+		$branches = array();
+		$franchises = array();
+        
+		$cities = \App\City::where('status','Y')->pluck('name', 'id');
+
+		if(isset($_GET['distributor'])){
+			$distributors = \App\Distributors::where('id',$_GET['distributor'])->pluck('distributor_name as name', 'id');
+		}
+		if(isset($_GET['subdistributor'])){
+			$subdistributors = \App\SubDistributors::where('id',$_GET['subdistributor'])->pluck('subdistributor_name as name', 'id');
+		}
+		if(isset($_GET['branch'])){
+			$branches = \App\Branches::where('id',$_GET['branch'])->pluck('branch_name as name', 'id');
+		}
+		if(isset($_GET['franchise'])){
+			$franchises = \App\Franchises::where('id',$_GET['franchise'])->pluck('franchise_name as name', 'id');
+		}
+
+        //check user permission for this page
+        $user = Auth::user();
+        $permissions = $user->getPermissionsViaRoles();
+        //print_r($permissions);exit;
+        $permissionsdata = array();
+
+        foreach($permissions as $permission){
+            $permissionsdata[] =  $permission->name;   
+        }
+
+        if(count($permissionsdata) == 0 || !in_array('fiber-laying',$permissionsdata)){
+            abort(403, "Unauthorized action. Access Denied You don't have permission to access.");
+        }
+
+        $id = \Auth::user()->id;
+        $roles = $user->getRoleNames(); 
+
+        if($roles[0]=='branch'){
+            $tbl='slj_branches.user_id';   
+            $operator='=';
+            $branch = \App\Branches::where('user_id', $user->id)->select('city', 'id')->first();
+            $franchises = \App\Franchises::join('users','users.id', '=', 'slj_franchises.user_id')
+            ->where('city',$branch->city)->where('branch',$branch->id)->where('users.status','Y')
+            ->pluck('franchise_name as name', 'slj_franchises.id as id');
+        }
+        elseif($roles[0]=='franchise'){
+            $tbl='slj_franchises.user_id';
+            $operator='=';
+        }
+        else{
+            $tbl='slj_fiber_laying.id';
+            $id=0;
+            $operator='!=';
+        }
+        $params = $request->all();
+        $data = \App\FiberLaying::leftjoin('slj_franchises','slj_fiber_laying.franchise', '=', 'slj_franchises.id')
+				->leftjoin('slj_distributors','slj_distributors.id', '=', 'slj_fiber_laying.distributor')
+				->leftjoin('slj_subdistributors','slj_subdistributors.id', '=', 'slj_fiber_laying.subdistributor')
+				->leftjoin('slj_branches','slj_branches.id', '=', 'slj_fiber_laying.branch')
+				->leftJoin('slj_cities','slj_cities.id', '=', 'slj_fiber_laying.city')
+				->select('slj_fiber_laying.*','slj_distributors.distributor_name','slj_subdistributors.subdistributor_name','slj_franchises.franchise_name','slj_branches.branch_name','slj_cities.name as city_name')
+                ->where($tbl, $operator, $id)->orderBy('slj_fiber_laying.id')
+                ->filter($params)
+                ->paginate(20);
+
+            		$employeedata=array();
+	  $id = \Auth::user()->id;
+       
+     $employeedata['employee_id']=$id;
+     $employeedata['action_name']="List FiberLaying";
+     \App\Employees_Logs::create($employeedata);
+       	
+
+        return view('technical.fiberlaying.index',[
+            'data'=>$data, 
+			'cities'=>$cities,
+			'distributors'=>$distributors,
+			'subdistributors'=>$subdistributors,
+			'branches'=>$branches,
+			'franchises'=>$franchises,
+            'role' => $roles[0]
+        ]);
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     * @return Response
+     *   public function CreateFiber()
+    {
+        
+        return view('technical::fiberlaying.create-fiberlaying',['cities'=>$cities,'franchise'=>$franchise_list]);
+    }
+     */
+     
+    public function create()
+    {
+        //check user permission for this page
+        $user = Auth::user();
+        $permissions = $user->getPermissionsViaRoles();
+
+        $permissionsdata = array();
+        foreach($permissions as $permission){
+            $permissionsdata[] =  $permission->name;   
+        }
+        if(count($permissionsdata) == 0 || !in_array('fiber-laying',$permissionsdata)){
+            abort(403, "Unauthorized action. Access Denied You don't have permission to access.");
+        }
+        $uid = \Auth::user()->id;
+        $userdetails=array();
+        $roles = $user->getRoleNames(); 
+        $franchise_list=array();
+        if($roles[0]=='branch'){
+            $tbl='slj_branches.user_id'; 
+            $column='slj_branches.id';
+            $ids = \App\Branches::join('users','users.id', '=', $tbl)->where('users.id',$id)->pluck($column, $column);
+        
+            $franchise_list = \App\Franchises::whereIn('branch',$ids)->pluck('franchise_name', 'id');
+        }
+        
+        $cities = \App\City::where('status','Y')->pluck('name', 'id');
+        
+        if($roles[0]=='superadmin')
+         $fiber_company_names=\App\StockProducts::where('status','available')->WhereNotNull('length')->pluck('manufacturer','manufacturer');
+       else
+        $fiber_company_names=\App\StockProducts::where('current_user_id',$uid)->where('employee_status','available')->pluck('manufacturer','manufacturer');
+        
+       $userdetails = \App\Employees::select('branch')
+              ->where('user_id',$uid)->first();
+		
+		return view('technical.fiberlaying.create',['cities'=>$cities,'franchise'=>$franchise_list,'fiber_company_names'=>$fiber_company_names,'userdeails'=>$userdetails]);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     * @param Request $request
+     * @return Response
+     */
+    public function store(Request $request)
+    {  
+        $user = Auth::user();
+        $roles = $user->getRoleNames(); 
+        $id = \Auth::user()->id;
+        $input = request()->all();
+        $validation_list=array('branch' => 'required',
+			'franchise' => 'required',
+			'fiber_to' => 'required',
+			'fiber_name' => 'required',
+		
+			'fiber_core' => 'required',
+			'fiber_color'=>'required'
+		);
+		 if(!$request->validate($validation_list))
+		 {
+		     return back()->withErrors($result)->withInput($request->all())->with('error', __('Something Wrong'));
+		 }
+        if($roles[0]=='branch'){
+            $validation_list=array('franchise' => 'required',
+			'fiber_to' => 'required',
+			'fiber_name' => 'required',
+                        'fiber_company_name' => 'required',
+			'fiber_code' => 'required',
+			'fiber_core' => 'required'
+		);
+            $branch = \App\Branches::where('user_id',$id)->select('id','city','distributor_id','subdistributor_id')->first();
+            $input['city']=$branch->city;
+            $input['distributor']=$branch->distributor_id;
+			 $input['subdistributor']=$branch->subdistributor_id;
+            $input['branch']=$branch->id;
+        }
+        if($roles[0]=='franchise'){
+            $validation_list=array(
+			'fiber_to' => 'required',
+			'fiber_name' => 'required',
+			'fiber_company_name' => 'required',
+			'fiber_code' => 'required',
+			'fiber_core' => 'required'
+		);
+	
+            $franchise = \App\Franchises::where('user_id',$id)->select('id','city','distributor_id','branch','subdistributor_id')->first();
+            $input['city']=$franchise->city;
+            $input['distributor']=$franchise->distributor_id;
+			$input['subdistributor']=$franchise->subdistributor_id;
+            $input['branch']=$franchise->branch;
+            $input['franchise']=$franchise->id;
+        }
+        	else
+		{
+		    if(!empty($input['franchise']))
+		    $input['franchise']=$input['franchise'];
+		    if(!empty($input['fiber_code']))
+		    {
+		     $input['fiber_code']=$input['fiber_code'];
+		     $drumnumber=$input['fiber_code'];
+		    }
+		    else
+		    {
+		      $input['fiber_code']=$input['fiber_code1'];
+		        $drumnumber=$input['fiber_code1'];
+		    }
+		      	if(!empty($input['fiber_company_name']))
+		    $input['fiber_company_name']=$input['fiber_company_name'];
+		    else
+		     $input['fiber_company_name']=$input['fiber_company_name1'];
+		     
+		         	if(!empty($input['fiber_starting_reading']))
+		         	{
+		    $input['start_reading']=$input['fiber_starting_reading'];
+		         	}
+		    else
+		    {
+		     $input['start_reading']=$input['fiber_starting_reading1'];
+		     
+		    }
+		     
+		     	if(!empty($input['fiber_ending_reading']))
+		     	{
+		    $input['end_reading']=$input['fiber_ending_reading'];
+		    
+		     	}
+		    else
+		    {
+		     $input['end_reading']=$input['fiber_ending_reading1'];
+		      
+		    }
+		    
+		}
+		$fibercode_id=$input['fibercode_id'];
+		
+        $validatedData = $request->validate($validation_list);
+		
+		     
+		 $stockfiber=array();
+		
+		$input['fiber_color'] = implode(',',$input['fiber_color']);
+		
+        //echo "<pre>"; print_r($input); exit;
+        if(!empty($input['fiber_starting_reading']))
+        {
+        if ($input['fiber_starting_reading'] > $input['fiber_ending_reading']) {
+            $input['fiber_laying_fiber_distance'] = $input['fiber_starting_reading'] - $input['fiber_ending_reading'];
+            $input['fiber_starting_reading']=$input['fiber_starting_reading'];
+            $input['fiber_ending_reading']=$input['fiber_ending_reading'];
+            
+        }
+        else {
+            $input['fiber_laying_fiber_distance'] = $input['fiber_ending_reading'] - $input['fiber_starting_reading'];
+        }
+        }
+          if(!empty($input['fiber_starting_reading1']))
+        {
+        if ($input['fiber_starting_reading1'] > $input['fiber_ending_reading1']) {
+            $input['fiber_laying_fiber_distance'] = $input['fiber_starting_reading1'] - $input['fiber_ending_reading1'];
+              $stockfiber['dummy_startreading']=$input['fiber_ending_reading1'] + 1;
+              $stval=intval($input['fiber_startreading_value']);
+              $endval=intval($input['fiber_endreading_value']);
+              $stockfiber['dummy_endreading']=min($stval,$endval);
+              $input['fiber_starting_reading']=$input['fiber_starting_reading1'];
+              $input['fiber_ending_reading']=$input['fiber_ending_reading1'];
+            
+        }
+        else {
+            $input['fiber_laying_fiber_distance'] = $input['fiber_ending_reading1'] - $input['fiber_starting_reading1'];
+             $stockfiber['dummy_startreading']=intval($input['fiber_ending_reading1']+1);
+             $stval=intval($input['fiber_startreading_value']);
+              $endval=intval($input['fiber_endreading_value']);
+             $stockfiber['dummy_endreading']=max($stval,$endval);
+                   $input['fiber_starting_reading']=$input['fiber_starting_reading1'];
+            $input['fiber_ending_reading']=$input['fiber_ending_reading1'];
+            
+        }
+        }
+           
+		 $input['user_id']=$id;
+		   
+			//$poledata = \App\StockProducts::where('drum_number',$drumnumber);
+			$poledata = \App\StockProducts::where('id',$fibercode_id);
+			
+			$poledata->update($stockfiber);
+		
+                
+		$fiberlaying = \App\FiberLaying::create($input);
+		$fiberlaying_id = $fiberlaying->id;
+
+		foreach ($input['pole_series'] as $key => $value) {
+			$poleinput = array();
+			$poleinput['fiber_id'] = $fiberlaying_id;
+			$poleinput['pole_series'] = $value;
+			if(isset($input['loop_meters_num'][$key])){
+				$poleinput['loop_meters'] = $input['loop_meters_num'][$key];
+			}
+			if(isset($input['pole_long_lat'][$key])){
+				$poleinput['long_lat'] = $input['pole_long_lat'][$key];
+			}
+
+			\App\Poles::create($poleinput);
+		}
+        
+        $employeedata=array();
+	 
+    
+     $employeedata['employee_id']=$id;
+     $employeedata['action_name']="Create FiberLaying ";
+     $employeedata['value_of_action']=$input['fiber_name'];
+     
+      \App\Employees_Logs::create($employeedata);
+	 
+
+        return redirect('admin/fiber-laying')->with('success', 'Fiber Laying created successfully.');
+    }
+
+    /**
+     * Show the specified resource.
+     * @param int $id
+     * @return Response
+     */
+    public function show($id)
+    {
+        $fiberladdetails = \App\FiberLaying::findOrFail($id);
+		$city = \App\City::findOrFail($fiberladdetails->city)->name;
+
+        $distributor = \App\Distributors::findOrFail($fiberladdetails->distributor)->distributor_name;
+		$subdistributor = \App\SubDistributors::findOrFail($fiberladdetails->subdistributor)->subdistributor_name;
+
+		$branch = \App\Branches::findOrFail($fiberladdetails->branch)->branch_name;
+		$franchise = \App\Franchises::findOrFail($fiberladdetails->franchise)->franchise_name;
+
+		$fiberlaying_poles = \App\Poles::where('fiber_id',$id)->get();
+
+        return view('technical.fiberlaying.show', [
+            'fiberlaying_poles'=>$fiberlaying_poles,
+            'city'=>$city,
+            'distributor'=>$distributor,
+			'subdistributor'=>$subdistributor,
+            'branch'=>$branch,
+            'franchise'=>$franchise,
+            'fiberladdetails'=>$fiberladdetails
+        ]);
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     * @param int $id
+     * @return Response
+     */
+    public function edit($id)
+    {
+        //check user permission for this page
+        $user = Auth::user();
+        $permissions = $user->getPermissionsViaRoles();
+
+        $permissionsdata = array();
+        foreach($permissions as $permission){
+            $permissionsdata[] =  $permission->name;   
+        }
+        if(count($permissionsdata) == 0 || !in_array('fiber-laying',$permissionsdata)){
+            abort(403, "Unauthorized action. Access Denied You don't have permission to access.");
+        }
+        
+        $fiberladdetails = \App\FiberLaying::find($id);
+		$cities = \App\City::where('status','Y')->pluck('name', 'id');
+		
+		$distributors = \App\Distributors::join('users','users.id', '=', 'slj_distributors.user_id')->where('city',$fiberladdetails->city)->where('users.status','Y')
+       ->pluck('distributor_name as name', 'slj_distributors.id as id');
+	   
+		
+		$branches = \App\Branches::where('city',$fiberladdetails->city)->pluck('branch_name as name', 'id');
+		$items = \App\Franchises::where('branch',$fiberladdetails->branch)->pluck('franchise_name as name', 'id');
+
+		
+		$fiberlaying_poles = \App\Poles::where('fiber_id',$id)->get();
+		
+		
+		return view('technical.fiberlaying.edit',['fiberlaying_poles'=>$fiberlaying_poles,'cities'=>$cities,'distributors'=>$distributors,'branches'=>$branches,'items'=>$items, 'fiberladdetails'=>$fiberladdetails]);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     * @param Request $request
+     * @param int $id
+     * @return Response
+     */
+    public function update(Request $request, $id)
+    {
+        $user = Auth::user();
+        $roles = $user->getRoleNames(); 
+        $validation_list=array('branch' => 'required',
+			'franchise' => 'required',
+			'fiber_to' => 'required',
+			'fiber_name' => 'required',
+			'fiber_company_name' => 'required',
+			'fiber_code' => 'required',
+			'fiber_core' => 'required'
+		);
+        if($roles[0]=='branch'){
+            $validation_list=array('franchise' => 'required',
+			'fiber_to' => 'required',
+			'fiber_name' => 'required',
+                        'fiber_company_name' => 'required',
+			'fiber_code' => 'required',
+			'fiber_core' => 'required'
+		);
+        }
+        if($roles[0]=='franchise'){
+            $validation_list=array(
+			'fiber_to' => 'required',
+			'fiber_name' => 'required',
+			'fiber_company_name' => 'required',
+			'fiber_code' => 'required',
+			'fiber_core' => 'required'
+		);
+        }
+        $validatedData = $request->validate($validation_list);
+       
+		
+		$requestdata = $request->all(); 
+
+		//dd($requestdata);
+                if(!empty($requestdata['city'])){
+                $data['city'] = $requestdata['city'];
+                }
+                if(!empty($requestdata['branch'])){
+		$data['branch'] = $requestdata['branch'];
+                }
+		if(!empty($requestdata['franchise'])){
+		$data['franchise'] = $requestdata['franchise'];
+                }
+		$data['fiber_to'] = $requestdata['fiber_to'];
+		$data['fiber_name'] = $requestdata['fiber_name'];
+		
+		$data['fiber_color'] = implode(',',$requestdata['fiber_color']);
+		
+		$data['fiber_company_name'] = $requestdata['fiber_company_name'];
+		$data['fiber_code'] = $requestdata['fiber_code'];
+		$data['fiber_core'] = $requestdata['fiber_core'];
+		$data['route_description'] = $requestdata['route_description'];
+
+		$data['fiber_starting_reading'] = $requestdata['fiber_starting_reading'];
+		$data['fiber_starting_long_lat'] = $requestdata['fiber_starting_long_lat'];
+		$data['fiber_ending_reading'] = $requestdata['fiber_ending_reading'];
+		$data['ending_long_lat'] = $requestdata['ending_long_lat'];
+        if ($data['fiber_starting_reading'] > $data['fiber_ending_reading']) {
+            $data['fiber_laying_fiber_distance'] = $data['fiber_starting_reading'] - $data['fiber_ending_reading'];
+        }
+        else {
+            $data['fiber_laying_fiber_distance'] = $data['fiber_ending_reading'] - $data['fiber_starting_reading'];
+        }		
+		//Update details
+		$fiberlaying = \App\FiberLaying::find($id);
+		$fiberlaying->update($data);
+
+		//Update Old Data
+		foreach($requestdata['pole_id'] as $poleid){
+			$poledata = array();
+			$poledata['pole_series'] = $requestdata['pole_series'][$poleid];
+			$poledata['long_lat'] = $requestdata['pole_long_lat'][$poleid];
+			$poledata['loop_meters'] = $requestdata['loop_meters_num'][$poleid];
+			
+			$pole = \App\Poles::find($poleid);
+			$pole->update($poledata);
+		}
+
+		//Insert New Data
+		foreach($requestdata['pole_series'] as $poleid=>$pole_series){
+			
+			if(!in_array($poleid,$requestdata['pole_id'])){
+				$poledata = array();
+				$poledata['fiber_id'] = $id;
+				$poledata['pole_series'] = $requestdata['pole_series'][$poleid];
+				$poledata['long_lat'] = $requestdata['pole_long_lat'][$poleid];
+				$poledata['loop_meters'] = $requestdata['loop_meters_num'][$poleid];
+				\App\Poles::create($poledata);
+			}
+		}
+
+
+
+		//Insert new poll data
+
+		
+		return redirect('admin/fiber-laying')->with('success', 'Fiber Laying details updated successfully.');
+    }
+	
+	
+	
+	/**
+     * Show the form for editing the specified resource.
+     * @param int $id
+     * @return Response
+     */
+    public function pollsReadings($id)
+    {
+        $fiberladdetails = \App\FiberLaying::find($id);
+		$items = \App\Franchises::pluck('franchise_name as name', 'id');
+		$branches = \App\Branches::pluck('branch_name as name', 'id');
+		
+		$poles = \App\Poles::where('fiber_id',$id)->get();
+		
+		return view('technical.fiberlaying.pollsreadings',['poles'=>$poles,'branches'=>$branches,'items'=>$items, 'fiberladdetails'=>$fiberladdetails]);
+    }
+	
+	
+	public function getFranchiseFibers($franchise,$type)
+    {
+        $franchisefibers = \App\FiberLaying::where('franchise',$franchise)->where('fiber_to',$type)
+        ->select('id','fiber_name')->get();
+
+    $fiberdata=\App\DP::where('franchise',$franchise)->get();
+        
+         $used_fiber = array();
+        foreach($fiberdata as $fb){
+            $used_fiber[] =  $fb->fiber;
+        }
+
+        $used_fiber = array_unique($used_fiber);
+
+        
+
+        $html = "<option value=''>-- Select Fiber --</option>";
+        foreach($franchisefibers as $fiber){
+               if(!in_array($fiber->id,$used_fiber))
+                    {
+            $html.="<option value='".$fiber->id."'>".$fiber->fiber_name."</option>";
+                    }
+        }
+
+        return $html;
+    }
+	
+	public function getFiberColors($fiber)
+    {
+        $fiberlaying = \App\FiberLaying::where('id',$fiber)->select('fiber_color')->first();
+		
+        $colors = explode(",",$fiberlaying->fiber_color);
+        
+        $fh_data = \App\FH::where('fiber',$fiber)->get();
+        $used_fiber_colors = array();
+        foreach($fh_data as $fh){
+            $used_fiber_colors[] =  $fh->fiber_color;
+        }
+
+        $used_fiber_colors = array_unique($used_fiber_colors);
+		
+		$html = "<option value=''>-- Select Fiber Color --</option>";
+        foreach($colors as $color){
+            if(!in_array($color,$used_fiber_colors)){
+                $html.="<option value='".$color."'>".ucfirst($color)."</option>";
+            }
+        }
+        return $html;
+    }
+	
+		public function getDpFiberColors($fiber)
+    {
+        $fiberlaying = \App\FiberLaying::where('id',$fiber)->select('fiber_color')->first();
+		
+        $colors = explode(",",$fiberlaying->fiber_color);
+        
+        $fh_data = \App\DP::where('fiber',$fiber)->get();
+        $used_fiber_colors = array();
+        foreach($fh_data as $fh){
+            $used_fiber_colors[] =  $fh->fiber_color;
+        }
+
+        $used_fiber_colors = array_unique($used_fiber_colors);
+		
+		$html = "<option value=''>-- Select Fiber Color --</option>";
+        foreach($colors as $color){
+            if(!in_array($color,$used_fiber_colors)){
+                $html.="<option value='".$color."'>".ucfirst($color)."</option>";
+            }
+        }
+        return $html;
+    }
+	
+	
+	
+	/**
+     * Update the specified resource in storage.
+     * @param Request $request
+     * @param int $id
+     * @return Response
+     */
+    public function updatePollsReadings(Request $request, $id)
+    {
+        $requestdata = $request->all(); 
+		
+		$data['fiber_starting_reading'] = $requestdata['fiber_starting_reading'];
+		$data['fiber_starting_long_lat'] = $requestdata['fiber_starting_long_lat'];
+		$data['fiber_ending_reading'] = $requestdata['fiber_ending_reading'];
+		$data['ending_long_lat'] = $requestdata['ending_long_lat'];
+		
+		//Update details
+		$fiberlaying = \App\FiberLaying::find($id);
+		$fiberlaying->update($data);
+		
+		return redirect('technical/fiber-laying/polls-readings/'.$id)->with('success', 'Fiber Readings details updated successfully.');
+    }
+	
+	
+	/**
+     * Store a newly created resource in storage.
+     * @param Request $request
+     * @return Response
+     */
+    public function fiberPollReaddingsStore (Request $request,$id)
+    {
+        $input = request()->all();
+		$input['fiber_id'] = $id;
+
+		\App\Poles::create($input);
+
+        return redirect('admin/fiber-laying/polls-readings/'.$id)->with('success', 'Poll details added successfully.');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     * @param int $id
+     * @return Response
+     */
+    public function destroy($id)
+    {
+        //check user permission for this page
+        $user = Auth::user();
+        $permissions = $user->getPermissionsViaRoles();
+
+        $permissionsdata = array();
+        foreach($permissions as $permission){
+            $permissionsdata[] =  $permission->name;   
+        }
+        if(count($permissionsdata) == 0 || !in_array('fiber-laying',$permissionsdata)){
+            abort(403, "Unauthorized action. Access Denied You don't have permission to access.");
+        }
+        
+        $dps = \App\DP::where('fiber',$id)->count(); // added by Durga
+        
+        if($id > 0 && $dps == 0){
+            \App\FiberLaying::destroy($id);
+             return redirect('admin/fiber-laying')->with('success', 'Fiber details deleted successfully.');
+        }else{
+            return redirect('admin/fiber-laying')->with('error', 'Fiber details cannot be deleted because of dependency');
+        }
+    }
+	
+	/**
+     * Remove the specified resource from storage.
+     * @param int $id
+     * @return Response
+     */
+    public function fiberPollReaddingsDestroy($id)
+    {
+        $poledetails = \App\Poles::where('id',$id)->first();
+        $fiber_id = $poledetails->fiber_id;
+        if($id > 0){
+            \App\Poles::destroy($id);
+             return redirect('admin/fiber-laying/edit/'.$fiber_id)->with('success', 'Fiber Pole details deleted successfully.');
+        }else{
+            return redirect('admin/fiber-laying/edit/'.$fiber_id)->with('error', 'Fiber Pole details cannot be deleted');
+        }
+    }
+	
+	
+	
+	
+}

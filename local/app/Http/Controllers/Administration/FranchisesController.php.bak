@@ -1,5 +1,5 @@
 <?php
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Administration;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -75,6 +75,7 @@ class FranchisesController extends Controller
         $validatedData = $request->validate([
 			'city' => 'required',
 			'distributor' => 'required',
+			'subdistributor' => 'required',
 			'branch' => 'required',
 			'franchise_name' => 'required',
 			'email' => 'required|email|unique:users',
@@ -134,7 +135,8 @@ class FranchisesController extends Controller
 		$franchiseid = "SLJFR".str_pad($franchiseid + 1, 5, 0, STR_PAD_LEFT);	
 		$input['franchise_id'] = $franchiseid;
 		$input['user_id'] = $userdata->id;
-		$input['distributor_id'] = $input['distributor'];
+		$input['distributor_id'] = $input['distributor'];		
+		 $input['subdistributor_id'] = $input['subdistributor'];
     	$input['vlan'] = $input['vlan'];
 		\App\Franchises::create($input);
 
@@ -162,6 +164,7 @@ class FranchisesController extends Controller
 		$items = \App\City::where('status','Y')->pluck('name', 'id');
 		
 		$distributors = \App\Distributors::join('users','users.id', '=', 'slj_distributors.user_id')->where('users.status','Y')->where('city',$franchisedetails->city)->pluck('distributor_name as name', 'slj_distributors.id');
+		$subdistributors = \App\SubDistributors::join('users','users.id', '=', 'slj_subdistributors.user_id')->where('users.status','Y')->where('subdistributor_id',$franchisedetails->subdistributor_id)->pluck('subdistributor_name as name', 'slj_subdistributors.id');
 
 		$branches = \App\Branches::join('users','users.id', '=', 'slj_branches.user_id')->where('users.status','Y')->where('city',$franchisedetails->city)->where('distributor_id',$franchisedetails->distributor_id)->pluck('branch_name as name', 'slj_branches.id');
 
@@ -169,7 +172,7 @@ class FranchisesController extends Controller
       // \App\Employees_Logs::create($employeedata);
 	  
 		
-		return view('administration.franchises.edit',['distributors'=>$distributors,'branches'=>$branches,'items'=>$items, 'franchisedetails'=>$franchisedetails]); 
+		return view('administration.franchises.edit',['distributors'=>$distributors,'subdistributors'=>$subdistributors,'branches'=>$branches,'items'=>$items, 'franchisedetails'=>$franchisedetails]); 
     }
 
     /**
@@ -184,6 +187,7 @@ class FranchisesController extends Controller
         $validatedData = $request->validate([
 			'city' => 'required',
 			'distributor' => 'required',
+			'subdistributor' => 'required',
 			'branch' => 'required',
 			'franchise_name' => 'required',
 			'email' => 'required|unique:users,email,'.$franchise->user_id,
@@ -251,7 +255,7 @@ class FranchisesController extends Controller
      * @param int $id
      * @return Response
      */
-    public function change_password(Request $request)
+   /* public function change_password(Request $request)
     {
         
         $validatedData = $request->validate([
@@ -269,7 +273,42 @@ class FranchisesController extends Controller
                 $user->update($data);
 		
 		return redirect('admin/'.$requestdata['pageName'])->with('success', 'Password updated successfully.');
+    } */
+	
+	 public function change_password(Request $request)
+    {
+        
+         $user_id = Auth::user()->id; 
+        $validatedData = $request->validate([
+            'oldpassword' => 'required',
+            'password' => 'required|confirmed|min:8',
+			'password_confirmation' => 'required',
+        ]);
+
+        $requestdata = $request->all(); 
+        //$data['oldpassword'] = $requestdata['oldpassword'];
+        
+        //Update details
+        
+        $current_password = Auth::User()->password;   
+		
+		 if(Hash::check($requestdata['oldpassword'], $current_password))
+        {           
+            $obj_user = \App\User::find($user_id);
+            $obj_user->password = Hash::make($requestdata['password']);;
+            $obj_user->save(); 
+           // return redirect()->back()->with('success', 'Password updated successfully.');
+			return redirect('admin/'.$requestdata['pageName'])->with('success', 'Password updated successfully.');
+        }
+        else
+        {           
+            //return redirect('admin/changepassword')->withErrors('oldpassword.required', 'Failed - Invalid Old Password.'); 
+			
+            return redirect()->back()->with("error","Invalid old password.");
+        }
     }
+	
+	
 
     /**
      * Remove the specified resource from storage.
@@ -285,7 +324,13 @@ class FranchisesController extends Controller
             $franchise = \App\Franchises::find($id);
             $user = \App\User::find($franchise->user_id);
             
-            \App\Franchises::destroy($id);
+          //  \App\Franchises::destroy($id);
+			  $data['status'] = "N";
+            $franchises = \App\Franchises::find($id);
+            
+            //Update details
+            $franchises->update($data);
+			
             if($franchise->user_id > 0){
                 $user = \App\User::find($franchise->user_id);
                 \App\User::destroy($franchise->user_id); //remove user
@@ -415,6 +460,133 @@ class FranchisesController extends Controller
         $html = "<option value=''>-- Select Branch --</option>";
         foreach($citybranches as $branch){
 			$html.="<option value='".$branch->id."'>".$branch->branch_name."</option>";
+        }
+
+        return $html;
+    }
+	
+	 public function getCityDistributorSubdistributor($city,$distributor)
+    {
+        $id = \Auth::user()->id;
+        $roles = \Auth::user()->getRoleNames(); 
+        $ids=array();
+        
+        if($roles[0]=='branch'){
+            $tbl='slj_branches.user_id'; 
+            $column='slj_branches.id';
+            $ids = \App\Branches::join('users','users.id', '=', $tbl)->where('users.id',$id)->pluck($column, $column);
+            
+        }
+        if($roles[0]=='franchise'){
+            $tbl='slj_franchises.user_id';
+            $column='slj_franchises.branch';
+            $ids = \App\Franchises::join('users','users.id', '=', $tbl)->where('users.id',$id)->pluck($column, $column);
+        }
+       
+        if($ids){
+            
+            $distributors = \App\Branches::join('users','users.id', '=', 'slj_branches.user_id')->where('city',$city)->where('distributor_id',$distributor)->whereIn('slj_branches.id',$ids)->where('users.status','Y')->select('slj_branches.id','branch_name')->get();
+        }
+        $branchdetails=array();
+        if($roles[0]=='superadmin')
+        {
+               $distributors = \App\Branches::join('users','users.id', '=', 'slj_branches.user_id')->where('city',$city)->where('distributor_id',$distributor)->where('users.status','Y')->select('slj_branches.id','branch_name')->get();
+        }
+        else
+        {
+            $branchdetails = \App\Employees::select('branch')->where('user_id',$id)->first();
+            $branchgroup = explode(",",$branchdetails->branch);
+            $distributors = \App\Branches::select('slj_branches.id','branch_name')->whereIn('slj_branches.id',$branchgroup)->get();
+   		}
+
+                
+							
+								
+					    
+           
+            
+
+        $html = "<option value=''>-- Select distributor --</option>";
+        foreach($distributors as $distributor){
+			$html.="<option value='".$distributor->id."'>".$distributor->distributor_name."</option>";
+        }
+
+        return $html;
+    }
+	
+	 public function getCitySubdistributorBranches($city,$subdistributor)
+    {
+        $id = \Auth::user()->id;
+        $roles = \Auth::user()->getRoleNames(); 
+        $ids=array();
+        
+        if($roles[0]=='branch'){
+            $tbl='slj_branches.user_id'; 
+            $column='slj_branches.id';
+            $ids = \App\Branches::join('users','users.id', '=', $tbl)->where('users.id',$id)->pluck($column, $column);
+            
+        }
+        if($roles[0]=='franchise'){
+            $tbl='slj_franchises.user_id';
+            $column='slj_franchises.branch';
+            $ids = \App\Franchises::join('users','users.id', '=', $tbl)->where('users.id',$id)->pluck($column, $column);
+        }
+       
+        if($ids){
+            
+            $subdistributors = \App\Branches::join('users','users.id', '=', 'slj_branches.user_id')->where('subdistributor_id',$subdistributor)->whereIn('slj_branches.id',$ids)->where('users.status','Y')->select('slj_branches.id','branch_name')->get();
+        }
+        $branchdetails=array();
+        if($roles[0]=='superadmin')
+        {
+               $subdistributors = \App\Branches::join('users','users.id', '=', 'slj_branches.user_id'->where('subdistributor_id',$subdistributor)->where('users.status','Y')->select('slj_branches.id','branch_name')->get();
+        }
+        else
+        {
+            $branchdetails = \App\Employees::select('branch')->where('user_id',$id)->first();
+            $branchgroup = explode(",",$branchdetails->branch);
+            $subdistributors = \App\Branches::select('slj_branches.id','branch_name')->whereIn('slj_branches.id',$branchgroup)->get();
+   		}
+
+        $html = "<option value=''>-- Select Branch --</option>";
+        foreach($subdistributors as $subdistributor){
+			$html.="<option value='".$subdistributor->id."'>".$subdistributor->subdistributors_name."</option>";
+        }
+
+        return $html;
+    }
+	
+	 public function getSubDistributorsBranches($subdistributor)
+    {
+        //$user = Auth::user();
+        $id = \Auth::user()->id;
+        $roles = \Auth::user()->getRoleNames(); 
+        // dd($roles[0]);
+        $ids=array();
+        if($roles[0]=='branch'){
+            $tbl='slj_branches.user_id'; 
+            $column='slj_branches.id';
+            $ids = \App\Branches::join('users','users.id', '=', $tbl)->where('users.id',$id)->pluck($column, $column);
+            
+        }
+        elseif($roles[0]=='franchise'){
+            $tbl='slj_franchises.user_id';
+            $column='slj_franchises.branch';
+            $ids = \App\Franchises::join('users','users.id', '=', $tbl)->where('users.id',$id)->pluck($column, $column);
+        }
+        if($ids){ 
+            $branches = \App\Branches::join('users','users.id', '=', 'slj_branches.user_id')->where('subdistributor_id',$subdistributor)->whereIn('slj_branches.id',$ids)->where('users.status','Y')
+        ->select('slj_branches.id','branch_name')->get();
+        }
+        else{ 
+            $branches = \App\Branches::join('users','users.id', '=', 'slj_branches.user_id')->where('subdistributor_id',$subdistributor)->where('users.status','Y')
+        ->select('slj_branches.id','branch_name')->get();
+        }
+        
+
+        $html = "<option value=''>-- Select Branches --</option>";
+        foreach($branches as $bran){
+            $html.="<option value='".$bran->id."'>".$bran->branch_name."</option>";
         }
 
         return $html;

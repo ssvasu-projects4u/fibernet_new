@@ -36,7 +36,7 @@
 	  <tr class="table-warning">
 	  	<th>Actions</th>	
 		<th>Distributor Name</th>
-		<th>Sub Distributor Name</th>
+		<!--<th>Sub Distributor Name</th>-->
 		<th>City</th>
 		<th>Office Address</th>
 		<th>Mobile</th>
@@ -93,7 +93,7 @@
       </div>
 		</td>	
 		<td>@can("edit-distributor") <a href="{{url('admin/distributors/edit/'.$datarow->id)}}" title='edit'><i class="fa fa-pencil-alt" aria-hidden="true"></i> </a>@endcan {{ $datarow->distributor_name }}</td>
-		<td>{{ $datarow->subdistributor_name }}</td>
+		<!--<td>{{ $datarow->subdistributor_name }}</td>-->
 		<td>{{ $datarow->city_name }}</td>
 		<td>{{ $datarow->office_address }}</td>
 		<td>{{ $datarow->mobile }}</td>
@@ -147,7 +147,7 @@
 		
 		 @endphp
 		<td>@can("edit-distributor") <a href="{{url('admin/distributors/edit/'.$datarow)}}" title='edit'><i class="fa fa-pencil-alt" aria-hidden="true"></i> </a>@endcan {{ $distdet->distributor_name }}</td>
-		<td>{{ $distdet->distributor_name }}</td>
+		<td>{{ $distdet->subdistributor_name }}</td>
 		<td>{{ $city->name }}</td>
 		<td>{{ $distdet->office_address }}</td>
 		<td>{{ $userdet->mobile }}</td>

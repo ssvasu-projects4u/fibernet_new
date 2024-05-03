@@ -356,7 +356,8 @@ $user = Auth::user();
     {
           $validatedData = $request->validate([
             'city' => 'required',
-            'distributor' => 'required',
+           // 'distributor' => 'required',
+			//'subdistributor' => 'required',
             'branch' => 'required',
             'franchise' => 'required',
             'pool_name' => 'required',
@@ -3109,7 +3110,7 @@ $subpackdetails = \App\BroadbandSubPackages::select('sub_plan_name','total')->wh
            $competatordetails =  \App\Competator::where('id',$id)->select('slj_competators.*')
                 ->first();
         
-        return view('customers::editcompetators',['competatordetails'=>$competatordetails]);
+        return view('customers.editcompetators',['competatordetails'=>$competatordetails]);
 
 
      }
@@ -3118,7 +3119,7 @@ $subpackdetails = \App\BroadbandSubPackages::select('sub_plan_name','total')->wh
            $prospectdetails =  \App\Prospect::where('id',$id)->select('prospect.*')
                 ->first();
         
-        return view('customers::editprospect',['prospectdetails'=>$prospectdetails]);
+        return view('customers.editprospect',['prospectdetails'=>$prospectdetails]);
 
 
      }
@@ -3126,7 +3127,7 @@ $subpackdetails = \App\BroadbandSubPackages::select('sub_plan_name','total')->wh
           public function updatecompetator(Request $request,$id)
      {
           
-        return view('customers::competator');
+        return view('customers.competator');
 
 
      }
@@ -3190,7 +3191,7 @@ $subpackdetails = \App\BroadbandSubPackages::select('sub_plan_name','total')->wh
 
 
 
-        return view('customers::edit',['combopackages'=>$combopackages,'franchise_list'=>$franchise_list, 'combosubpackages'=>$combosubpackages, 'cabledata'=>$cabledata, 'cabledatabytype'=>$cabledatabytype,'iptvdatabytype'=>$iptvdatabytype,'distributors'=>$distributors,'branches'=>$branches,'franchises'=>$franchises,'cities'=>$cities,'packages'=>$packages,'subpackages'=>$subpackages,'customerdetails'=>$customerdetails,'olt'=>$olt,'dp'=>$dp,'fh'=>$fh,]);
+        return view('customers.edit',['combopackages'=>$combopackages,'franchise_list'=>$franchise_list, 'combosubpackages'=>$combosubpackages, 'cabledata'=>$cabledata, 'cabledatabytype'=>$cabledatabytype,'iptvdatabytype'=>$iptvdatabytype,'distributors'=>$distributors,'branches'=>$branches,'franchises'=>$franchises,'cities'=>$cities,'packages'=>$packages,'subpackages'=>$subpackages,'customerdetails'=>$customerdetails,'olt'=>$olt,'dp'=>$dp,'fh'=>$fh,]);
       //  return view('customers::edit');
 
     }
@@ -3511,7 +3512,7 @@ $subpackdetails = \App\BroadbandSubPackages::select('sub_plan_name','total')->wh
                 ->orderBy('slj_customers.id')
                 ->paginate(20);
        
-          return view('customers::reqdiscon',['data'=>$data]);
+          return view('customers.reqdiscon',['data'=>$data]);
   
         
         
@@ -3546,7 +3547,7 @@ $subpackdetails = \App\BroadbandSubPackages::select('sub_plan_name','total')->wh
      $cusname=$cusdata1->name;
         
         
-return view('customers::pickupequipment',['stockontdata'=>$stockontdata,'stockstbdata'=>$stockstbdata,'empdata'=>$empdata,'cusname'=>$cusname,'contype'=>$contype,'cusdata1'=>$cusdata1,'customerid'=>$customerid]);
+return view('customers.pickupequipment',['stockontdata'=>$stockontdata,'stockstbdata'=>$stockstbdata,'empdata'=>$empdata,'cusname'=>$cusname,'contype'=>$contype,'cusdata1'=>$cusdata1,'customerid'=>$customerid]);
    
     
         
@@ -3587,7 +3588,7 @@ return view('customers::pickupequipment',['stockontdata'=>$stockontdata,'stockst
                     $ipnumber=($query->copies)+2;
                     */
 		
-        return view('customers::add-technical',['dp'=>$dp,'dp1'=>$dp1,'fh'=>$fh,'fh_port'=>$fh_port,'olt'=>$olt,'customerdetails'=>$customerdetails,'franchisedetails'=>$franchisedetails,'ipdetails'=>$ipdetails]);
+        return view('customers.add-technical',['dp'=>$dp,'dp1'=>$dp1,'fh'=>$fh,'fh_port'=>$fh_port,'olt'=>$olt,'customerdetails'=>$customerdetails,'franchisedetails'=>$franchisedetails,'ipdetails'=>$ipdetails]);
     }
     
     /**
@@ -3700,7 +3701,7 @@ return view('customers::pickupequipment',['stockontdata'=>$stockontdata,'stockst
                 
       
 
-        return view('customers::user-activate',['customerdetails'=>$customerdetails]);
+        return view('customers.user-activate',['customerdetails'=>$customerdetails]);
     }
 
     /**
@@ -4135,7 +4136,7 @@ public function destroynotintrested($id)
      $employeedata['action_name']="Customer Information";
      \App\Employees_Logs::create($employeedata);
      
-        return view('customers::view-general-info',[
+        return view('customers.view-general-info',[
           'data'=>$data,
           'viewtype' => $viewtype,
           'breadcrumbs' => $breadcrumbs
@@ -4236,7 +4237,7 @@ public function destroynotintrested($id)
 
         //$cableallacart = \App\CablePackages::where('type','allacart')->select('channels_description as name', 'id')->get();
 
-        return view('customers::customer-details-edit',[
+        return view('customers.customer-details-edit',[
             'combopackages'=>$combopackages,
             'franchise_list'=>$franchise_list, 
             'combosubpackages'=>$combosubpackages, 

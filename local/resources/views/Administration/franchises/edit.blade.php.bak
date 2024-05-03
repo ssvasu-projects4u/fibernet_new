@@ -124,6 +124,26 @@
                 }
             });
         });
+		
+		 $('#distributor').on('change', function() {
+            var distributor = $(this).val();  
+				
+            if(distributor == '' || distributor <=0){
+            	$('#subdistributor').html("<option value=''>-- Select Sub Distributor --</option>");
+            	return;
+            }
+            $.ajax({
+                url: "{{url('/admin/branches/subdistributors')}}/"+distributor,
+                type: "GET",
+                success:function(data) {
+                   $('#subdistributor').html(data);
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    alert(errorThrown);
+                }
+            });
+        }); 
+
 
         //$('#city').val({{old('city')}}).trigger('change');
         

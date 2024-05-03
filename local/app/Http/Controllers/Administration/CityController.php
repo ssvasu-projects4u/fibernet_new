@@ -19,7 +19,8 @@ class CityController extends Controller
      */
     public function index()
     {	
-        $data = \App\City::where('status','Y')->orderBy('name')->paginate(20);
+       // $data = \App\City::where('status','Y')->orderBy('name')->paginate(20);
+		 $data = \App\City::orderBy('name')->paginate(20);
 		 return view('administration.cities.index',compact('data'));
 		//return view('administration::cities.index',['data'=>$data]);
     }
@@ -109,7 +110,12 @@ class CityController extends Controller
         $distributors = \App\Distributors::where('city',$id)->count();
         $customers = \App\Customers::where('city',$id)->count();
         if($id > 0 && $distributors == 0 && $customers == 0){
-            \App\City::destroy($id);
+           // \App\City::destroy($id);
+		     $data['status'] = "N";
+            $city = \App\City::find($id);
+            
+            //Update details
+            $city->update($data);
              return redirect('admin/city')->with('success', 'City deleted successfully.');
         }else{
             return redirect('admin/city')->with('error', 'City cannot be deleted because of dependency');

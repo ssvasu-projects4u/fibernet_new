@@ -49,6 +49,7 @@
 		<th>Actions</th>
 		<th>City</th>
 		<th>Distributor</th>
+		<th>Sub Distributor</th>
 		<th>Branch</th>
 		<th>OLT Serial No</th>
 		<th>OLT Port</th>
@@ -86,6 +87,7 @@
 		</td>
 		<td>{{ $datarow->city_name }}</td>
 		<td>{{ $datarow->distributor_name }}</td>
+		<td>{{ $datarow->subdistributor_name }}</td>
 		<td>{{ $datarow->branch_name }}</td>
 		<td>{{ $datarow->olt_serial_number }}</td>
 		<td>{{ $datarow->olt_port }}</td>

@@ -34,7 +34,7 @@
         {!! Form::select('distributor', $distributors, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Distributor --') ) !!} </div>
 		
 		<div class="form-group col-md-3"> {!! Form::label('subdistributor', 'Sub Distributor*') !!}
-        {!! Form::select('subdistributor', $distributors, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Sub Distributor --') ) !!} </div>
+        {!! Form::select('subdistributor', $subdistributors, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Sub Distributor --') ) !!} </div>
 		
 		<div class="form-group col-md-3"> {!! Form::label('branch', 'Branch*') !!}
         {!! Form::select('branch', $branches, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Branch --') ) !!} </div>
@@ -124,7 +124,29 @@
                 }
             });
         });
+		
+		 $('#distributor').on('change', function() {
+            var distributor = $(this).val();  
+				
+            if(distributor == '' || distributor <=0){
+            	$('#subdistributor').html("<option value=''>-- Select Sub Distributor --</option>");
+            	return;
+            }
+            $.ajax({
+                url: "{{url('/admin/branches/subdistributors')}}/"+distributor,
+                type: "GET",
+                success:function(data) {
+                   $('#subdistributor').html(data);
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    alert(errorThrown);
+                }
+            });
+        }); 
 
+		  $('#distributor').val({{$franchisedetails->distributor_id}});
+		  $('#subdistributor').val({{$franchisedetails->subdistributor_id}});
+          $('#branch').val({{$franchisedetails->branch}});
         //$('#city').val({{old('city')}}).trigger('change');
         
     });

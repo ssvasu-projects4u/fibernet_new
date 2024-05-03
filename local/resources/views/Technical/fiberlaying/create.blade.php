@@ -49,10 +49,11 @@
 						        {!! Form::select('city', $cities, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select City --') ) !!} </div>
 			<div class="form-group col-md-3"> {!! Form::label('distributor', 'Distributor') !!}
         {!! Form::select('distributor', [], null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Distributor --') ) !!} </div>
-		<div class="form-group col-md-3"> {!! Form::label('sub_distributor', 'Sub Distributor*') !!}
-        {!! Form::select('sub_distributor', [], null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Sub Distributor --') ) !!} </div>
+		
+		<div class="form-group col-md-3"> {!! Form::label('subdistributor', 'Sub Distributor*') !!}
+        {!! Form::select('subdistributor', [], null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Sub Distributor --') ) !!} </div>
 
-                            <div class="form-group col-md-3"> {!! Form::label('branch', 'Branch') !!}
+        <div class="form-group col-md-3"> {!! Form::label('branch', 'Branch') !!}
         {!! Form::select('branch', [], null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Branch --') ) !!} </div>
                            
 		<div class="form-group col-md-3"> {!! Form::label('franchise', 'Franchise') !!}
@@ -270,6 +271,36 @@ $user_id = Auth::user()->id;
             <option value="{{$p}}">{{$user->distributor_name}}</option>
             <?php } else { ?>
               <option value="{{$p}}" selected>{{$user->distributor_name}}</option>
+            
+            <?php } ?>
+                @endforeach
+            </select>
+        </div>
+		
+		<div class="form-group col-md-3"> {!! Form::label('subdistributor1', 'Distributor') !!}
+			   @php $userdetails1 = DB::table('slj_employees')->where('user_id', $user_id)->first(); @endphp
+                         <?php
+			    	$distgroup = array();
+		 
+     
+            if(!empty($userdetails1->subdistributor)){
+			$distgroup = explode(",",$userdetails1->subdistributor);
+						
+								$sd=count($distgroup);		
+							
+            }
+            ?>
+              <select name="subdistributor" id="subdistributor" class="form-control" required>
+                <option value="">--Select Branch--</option>
+                 @foreach($distgroup as $p)
+            @php $user = DB::table('slj_subdistributors')->where('id', $p)->first(); @endphp;
+           <?php 
+           if($sd>1)
+           {
+           ?>
+            <option value="{{$p}}">{{$user->subdistributor_name}}</option>
+            <?php } else { ?>
+              <option value="{{$p}}" selected>{{$user->subdistributor_name}}</option>
             
             <?php } ?>
                 @endforeach
@@ -629,8 +660,49 @@ $user_id = Auth::user()->id;
 	});
 	</script>
 		<script>
+		
+		 $('#distributor').on('change', function() {
+            var distributor = $(this).val();  
+				
+            if(distributor == '' || distributor <=0){
+            	$('#subdistributor').html("<option value=''>-- Select Sub Distributor --</option>");
+				$('#branch').html("<option value=''>-- Select Branch --</option>");
+            
+            	return;
+            }
+            $.ajax({
+                url: "{{url('/admin/branches/subdistributors')}}/"+distributor,
+                type: "GET",
+                success:function(data) {
+                   $('#subdistributor').html(data);
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    alert(errorThrown);
+                }
+            });
+        }); 
+		
+		 $('#subdistributor').on('change', function() {
+            var subdistributor = $(this).val();  
+				
+            if(subdistributor == '' || subdistributor <=0){
+            	$('#branch').html("<option value=''>-- Select Branch --</option>");
+				
+            	return;
+            }
+            $.ajax({
+                url: "{{url('/admin/franchises/branches')}}/"+subdistributor,
+                type: "GET",
+                success:function(data) {
+                   $('#branch').html(data);
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    alert(errorThrown);
+                }
+            });
+        }); 
 
-		$('#distributor').on('change', function() {
+	/*	$('#distributor').on('change', function() {
             var distributor = $(this).val();
           
             var city = $("#city").val();
@@ -651,7 +723,7 @@ $user_id = Auth::user()->id;
                     alert(errorThrown);
                 }
             });
-		});
+		}); */
 	</script>
 	<script>
 	
@@ -807,7 +879,7 @@ $user_id = Auth::user()->id;
             
        	});
 
-		   $('#distributor').on('change', function() {
+		 /*  $('#distributor').on('change', function() {
             var distributor = $(this).val();
             var city = $("#city").val();
             if(distributor == '' || distributor <=0){
@@ -824,7 +896,7 @@ $user_id = Auth::user()->id;
                     alert(errorThrown);
                 }
             });
-        });
+        }); */
 </script>
 
 

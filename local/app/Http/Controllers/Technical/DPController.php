@@ -52,9 +52,10 @@ class DPController extends Controller
 				->leftjoin('slj_franchises','slj_dp.franchise', '=', 'slj_franchises.id')
 				->leftjoin('slj_fiber_laying','slj_fiber_laying.id', '=', 'slj_dp.fiber')
 				->leftjoin('slj_distributors','slj_distributors.id', '=', 'slj_dp.distributor')
+				->leftjoin('slj_subdistributors','slj_subdistributors.id', '=', 'slj_dp.subdistributor')
 				->leftjoin('slj_cities','slj_cities.id', '=', 'slj_dp.city')
 				//->leftjoin('slj_fiber_laying','slj_dp.fiber','=','slj_fiber_laying.id')
-				->select('slj_dp.*','slj_distributors.distributor_name','slj_fiber_laying.fiber_name','slj_franchises.franchise_name','slj_branches.branch_name','slj_cities.name as city_name')
+				->select('slj_dp.*','slj_distributors.distributor_name','slj_subdistributors.subdistributor_name','slj_fiber_laying.fiber_name','slj_franchises.franchise_name','slj_branches.branch_name','slj_cities.name as city_name')
 				->where($tbl, $operator, $id)->orderBy('slj_dp.generate_dp')
 				->paginate(20);
 		
@@ -168,7 +169,7 @@ class DPController extends Controller
      
         $getdata=\App\StockProducts::where('identification',$no)->where('employee_status',$j)->where('assign_status',$kk)->pluck('serial_no','serial_no');
      
-		return view('technical::dp.create',['cities'=>$cities,'franchise'=>$franchise_list, 'franchise_id'=>$franchise_id,'getdata'=>$getdata,'getsplitterdata'=>$getsplitterdata]);
+		return view('technical.dp.create',['cities'=>$cities,'franchise'=>$franchise_list, 'franchise_id'=>$franchise_id,'getdata'=>$getdata,'getsplitterdata'=>$getsplitterdata]);
                   }
                    else
  {
@@ -222,6 +223,7 @@ class DPController extends Controller
             $branch = \App\Branches::where('user_id',$id)->select('id','city','distributor_id')->first();
             $input['city']=$branch->city;
             $input['distributor']=$branch->distributor_id;
+			 $input['subdistributor']=$branch->subdistributor_id;
             $input['branch']=$branch->id;
         }
         if($roles[0]=='franchise'){
@@ -236,6 +238,7 @@ class DPController extends Controller
             $franchise = \App\Franchises::where('user_id',$id)->select('id','city','distributor_id','branch')->first();
             $input['city']=$franchise->city;
             $input['distributor']=$franchise->distributor_id;
+			 $input['subdistributor']=$franchise->subdistributor_id;
             $input['branch']=$franchise->branch;
             $input['franchise']=$franchise->id;
         }
@@ -330,6 +333,9 @@ class DPController extends Controller
 		$distributors = \App\Distributors::join('users','users.id', '=', 'slj_distributors.user_id')->where('city',$dpdetails->city)->where('users.status','Y')
        ->pluck('distributor_name as name', 'slj_distributors.id as id');
 	   
+	   $subdistributors = \App\SubDistributors::join('users','users.id', '=', 'slj_subdistributors.user_id')->where('city',$dpdetails->city)->where('users.status','Y')
+       ->pluck('subdistributor_name as name', 'slj_subdistributors.id as id');
+	   
 	    $franchisefibers = \App\FiberLaying::where('franchise',$dpdetails->franchise)->where('fiber_to','dp')->pluck('fiber_name as name','id');
         
         $olt_items = \App\OLT::where('branch',$dpdetails->branch)->pluck('id as name','id');
@@ -366,7 +372,7 @@ class DPController extends Controller
            // $ports[$port]=;
         //print_r($olt_port_numbers); exit;
 	   
-		return view('technical.dp.edit',['olt_port_numbers'=>$ports,'cities'=>$cities,'distributors'=>$distributors,'branches'=>$branches,'items'=>$items, 'dpdetails'=>$dpdetails, 'franchisefibers'=>$franchisefibers,'olt_items'=>$olt_items,'oltdetails'=>$oltdetails,'enclosuredata'=>$enclosuredata,'dpenclosure'=>$dpenclosure,'splitterd'=>$splitterd,'splitterserial'=>$splitterserial,'fiber_color'=>$fiber_color]); 
+		return view('technical.dp.edit',['olt_port_numbers'=>$ports,'cities'=>$cities,'distributors'=>$distributors,'subdistributors'=>$subdistributors,'branches'=>$branches,'items'=>$items, 'dpdetails'=>$dpdetails, 'franchisefibers'=>$franchisefibers,'olt_items'=>$olt_items,'oltdetails'=>$oltdetails,'enclosuredata'=>$enclosuredata,'dpenclosure'=>$dpenclosure,'splitterd'=>$splitterd,'splitterserial'=>$splitterserial,'fiber_color'=>$fiber_color]); 
 	}
 
     /**
@@ -416,6 +422,9 @@ class DPController extends Controller
                 }
                 if(!empty($requestdata['distributor'])){
 		$data['distributor'] = $requestdata['distributor'];
+                }
+				 if(!empty($requestdata['subdistributor'])){
+		$data['subdistributor'] = $requestdata['subdistributor'];
                 }
                 if(!empty($requestdata['branch'])){
 		$data['branch'] = $requestdata['branch'];

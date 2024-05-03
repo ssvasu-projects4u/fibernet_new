@@ -85,6 +85,18 @@ Route::prefix('admin/departments')->group(function() {
 	
 });
 
+  Route::prefix('admin/subdistributors')->group(function() {
+    Route::get('/', 'Administration\SubDistributorsController@index');
+	Route::get('/create', 'Administration\SubDistributorsController@create');
+	Route::post('/submit', ['as' => 'subdistributors.store', 'uses' => 'Administration\SubDistributorsController@store']);
+	Route::get('/edit/{id}', 'Administration\SubDistributorsController@edit');
+	Route::put('/{id}', ['as' => 'subdistributors.update', 'uses' => 'Administration\SubDistributorsController@update']);
+	Route::get('/delete/{id}', 'Administration\SubDistributorsController@destroy');
+ 
+    
+	
+});
+
 Route::prefix('admin/branches')->group(function() {
     Route::get('/', 'Administration\BranchesController@index');
 	Route::get('/create', 'Administration\BranchesController@create');
@@ -97,6 +109,9 @@ Route::prefix('admin/branches')->group(function() {
 	Route::get('/citydistributorsextra/{city}', 'Administration\BranchesController@getCityDistributorsExtra');
 	Route::get('/branchutility/{id}', 'Administration\BranchesController@branchutilitieslist'); // added by durga
 	  Route::get('/branch-moving/{id}','Administration\BranchesController@UtilityBranchMoving');
+
+	Route::get('/subdistributors/{distributor}', 'Administration\BranchesController@getSubDistributors');
+
   
  Route::post('/submitbranchmoving', ['as' => 'storebranchutilitiemoving', 'uses' => 'Administration\BranchesController@StoreBranchUtilityMoving']);
    	Route::get('/getbranchid/{item}','Administration\BranchesController@GetBranchID');
@@ -125,6 +140,9 @@ Route::prefix('admin/franchises')->group(function() {
 	Route::get('/citydistributorbranches/{city}/{distributor}', 'Administration\FranchisesController@getCityDistributorBranches');
 	Route::get('/citydistributorbranchesutiilty/{city}/{distributor}/{branch}', 'Administration\FranchisesController@getCityDistributorUtilityBranches');
 	
+	Route::get('/citydistributorsubdistributor/{city}/{distributor}', 'Administration\FranchisesController@getCityDistributorSubdistributor');
+	Route::get('/citysubdistributorbranches/{city}/{subdistributor}', 'Administration\FranchisesController@getCitySubdistributorBranches');
+	
 	Route::get('/citydistributorbranchesextra/{city}/{distributor}', 'Administration\FranchisesController@getCityDistributorBranchesExtra');
 	Route::get('/citydistributorbranchesextraedit/{city}/{distributor}', 'Administration\FranchisesController@getCityDistributorBranchesExtraEdit');
 	Route::get('/getdetails/{franchise}', 'Administration\FranchisesController@getFranchiseDetails');
@@ -133,6 +151,8 @@ Route::prefix('admin/franchises')->group(function() {
         Route::post('/adddeposit', ['as' => 'franchises.add_deposit', 'uses' => 'Administration\FranchisesController@add_deposit']);
  Route::post('/ledger', ['as' => 'franchises.ledger', 'uses' => 'Administration\FranchisesController@ledger']);
 Route::post('/franchledger', ['as' => 'franchises.franchledger', 'uses' => 'Administration\FranchisesController@franchledger']);
+
+Route::get('/branches/{subdistributor}', 'Administration\FranchisesController@getSubDistributorsBranches');
 
 		//Route::post('/ledger', 'FranchisesController@ledger');
 

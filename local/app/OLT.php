@@ -12,8 +12,8 @@ class OLT extends Model
 	protected $fillable = [
         'city',
         'distributor',
-		'branch',
-	
+		'subdistributor',
+		'branch',	
 		'olt_model',
 		'olt_serial_number',
 		'olt_port',

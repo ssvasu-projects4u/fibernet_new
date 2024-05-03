@@ -5,7 +5,7 @@
     <div class="card shadow mb-4">
 	   @include('administration.topmenu')
 	<div class="card-header py-2">
-	  <div class="float-left"><h3 class="m-0 font-weight-bold text-primary">Edit Distributor</h3></div>
+	  <div class="float-left"><h3 class="m-0 font-weight-bold text-primary">Edit Sub Distributor</h3></div>
 	  
 	</div>
 	
@@ -21,20 +21,23 @@
 		@endforeach </div>
 	  @endif
 	  
-	  {!! Form::model($distributordetails, array('route' => array('distributors.update', $distributordetails->id),'method'=>'put','id'=>'edit_form')) !!}
+	  {!! Form::model($subdistributordetails, array('route' => array('subdistributors.update', $subdistributordetails->id),'method'=>'put','id'=>'edit_form')) !!}
 	      @csrf
 			
 	      <div class="row">
-			<div class="form-group col-md-3"> {!! Form::label('distributor_name', 'Distributor Name*') !!}
-        {!! Form::text('distributor_name',null, array('class' => 'form-control','required'=>'required','placeholder'=>'Enter Distributor Name')) !!} </div>
-		
-		<div class="form-group col-md-3"> {!! Form::label('subdistributor_name', 'Sub Distributor Name*') !!}
-        {!! Form::text('subdistributor_name',null, array('class' => 'form-control','required'=>'required','placeholder'=>'Enter Sub Distributor Name')) !!} </div>
+				
+	
 
 		<div class="form-group col-md-3"> {!! Form::label('city', 'City*') !!}
         {!! Form::select('city', $items, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select City --') ) !!} </div>
 
-        <div class="form-group col-md-3"> {!! Form::label('area_description', 'Area Description') !!}
+        <div class="form-group col-md-3"> {!! Form::label('distributor', 'Distributor*') !!}
+        {!! Form::select('distributor', $distributors, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Distributor --') ) !!} </div>
+
+	  	<div class="form-group col-md-3"> {!! Form::label('subdistributor_name', 'Sub Distributor Name*') !!}
+        {!! Form::text('subdistributor_name',null, array('class' => 'form-control','required'=>'required','placeholder'=>'Enter Sub Distributor Name')) !!} </div>
+		
+	  <div class="form-group col-md-3"> {!! Form::label('area_description', 'Area Description') !!}
         {!! Form::text('area_description',null, array('class' => 'form-control','placeholder'=>'Enter Area Description')) !!} </div>
 
         <div class="form-group col-md-3"> {!! Form::label('name', 'Contact Name*') !!}
@@ -116,5 +119,30 @@
             
             
 	}
+		$(document).ready(function() {
+           
+        $('#city').on('change', function() {
+            var city = $(this).val();
+            if(city == '' || city <=0){
+            	$('#distributor').html("<option value=''>-- Select Distributor --</option>");	
+            	$('#branch').html("<option value=''>-- Select Branch --</option>");
+            	return;
+            }
+            $.ajax({
+                url: "{{url('/admin/branches/citydistributors')}}/"+city,
+                type: "GET",
+                success:function(data) {
+                   $('#distributor').html(data);				  
+                   $('#branch').html("<option value=''>-- Select Branch --</option>");
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    alert(errorThrown);
+                }
+            });
+        });
+
+        //$('#city').val({{old('city')}}).trigger('change');
+        
+    });
 </script> 
 @stop

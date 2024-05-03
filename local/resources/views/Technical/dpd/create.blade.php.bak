@@ -13,7 +13,7 @@
 @section('content')
     <!-- Page Heading -->
     <div class="card shadow mb-4">
-	   @include('technical::topmenu')
+	   @include('technical.topmenu')
 	<div class="card-header py-2">
 	  <div class="float-left"><h3 class="m-0 font-weight-bold text-primary">Create DPD</h3></div>
 	  
@@ -47,7 +47,12 @@
 						        {!! Form::select('city', $cities, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select City --') ) !!} </div>
 			<div class="form-group col-md-3"> {!! Form::label('distributor', 'Distributor') !!}
         {!! Form::select('distributor', [], null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Distributor --') ) !!} </div>
-			<div class="form-group col-md-3"> {!! Form::label('branch', 'Branch') !!}
+			
+        <div class="form-group col-md-3"> {!! Form::label('subdistributor', 'Sub Distributor*') !!}
+        {!! Form::select('subdistributor', [], null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Sub Distributor --') ) !!} </div>
+
+
+        <div class="form-group col-md-3"> {!! Form::label('branch', 'Branch') !!}
         {!! Form::select('branch', [], null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Branch --') ) !!} </div>
 		
 		<?php } if( $roles[0]=='branch' || $roles[0]=='superadmin' ){ ?>
@@ -405,5 +410,25 @@ if(branch == '' || branch <=0){
                 }
             });
         });
+
+        $('#distributor').on('change', function() {
+            var distributor = $(this).val();
+            var city = $("#city").val();
+            if(distributor == '' || distributor <=0){
+            	$('#distributor').html("<option value=''>-- Select Distributor --</option>");
+            	return;
+            }
+            $.ajax({
+                url: "{{url('/admin/branches/subdistributors')}}/"+city+"/"+distributor,
+                type: "GET",
+                success:function(data) {
+                   $('#sub_distributor').html(data);
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    alert(errorThrown);
+                }
+            });
+        });
+        
 </script>
 @stop

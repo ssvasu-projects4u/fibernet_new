@@ -22,6 +22,7 @@
 	<?php 
 		if(isset($_GET['city'])){$city_id = $_GET['city'];}else{$city_id = null;}
 		if(isset($_GET['distributor'])){$distributor_id = $_GET['distributor'];}else{$distributor_id = null;}
+		if(isset($_GET['subdistributor'])){$subdistributor_id = $_GET['subdistributor'];}else{$subdistributor_id = null;}
 		if(isset($_GET['branch'])){$branch_id = $_GET['branch'];}else{$branch_id = null;}
 		if(isset($_GET['franchise'])){$franchise_id = $_GET['franchise'];}else{$franchise_id = null;}
 		if(isset($_GET['fiber_related_to'])){$fiber_related_to = $_GET['fiber_related_to'];}else{$fiber_related_to = null;}
@@ -39,6 +40,10 @@
 			<div class="form-group col-md-3">
 			 {!! Form::label('distributor', 'Distributor') !!}
              {!! Form::select('distributor', $distributors, $distributor_id,array('class' => 'form-control','placeholder'=>'-- Select Distributor --') ) !!} 
+			 </div>
+			 <div class="form-group col-md-3">
+			 {!! Form::label('subdistributor', 'Sub Distributor') !!}
+             {!! Form::select('subdistributor', $subdistributors, $subdistributor_id,array('class' => 'form-control','placeholder'=>'-- Select Sub Distributor --') ) !!} 
 			 </div>
 			<div class="form-group col-md-3">
 			{!! Form::label('branch', 'Branch') !!}
@@ -100,6 +105,7 @@
 		<th>Actions</th>
 		<th>City</th>
 		<th>Distributor</th>
+		<th>subDistributor</th>
 		<th>Branch</th>
 		<th>Franchise</th>
 		<th>Fiber Name</th>
@@ -147,6 +153,7 @@
 		</td>
 		<td>{{ $datarow->city_name }}</td>
 		<td>{{ $datarow->distributor_name }}</td>
+		<td>{{ $datarow->subdistributor_name }}</td>
 		<td>{{ $datarow->branch_name }}</td>
 		<td>{{ $datarow->franchise_name }}</td>
 		<td>{{ $datarow->fiber_name }}</td>
@@ -200,6 +207,8 @@
 
   @php $user = DB::table('slj_distributors')->where('id', $datarow->distributor)->first(); @endphp
 		<td>{{ $user->distributor_name }}</td>
+	@php $user = DB::table('slj_subdistributors')->where('id', $datarow->subdistributor)->first(); @endphp
+		<td>{{ $user->subdistributor_name }}</td>
 		  @php $user = DB::table('slj_branches')->where('id', $datarow->branch)->first(); @endphp
 		<td>{{ $user->branch_name }}</td>
 	  @php $user = DB::table('slj_franchises')->where('id', $datarow->franchise)->first(); @endphp		
@@ -224,6 +233,7 @@
             var city = $(this).val();
             if(city == '' || city <=0){
             	$('#distributor').html("<option value=''>-- Select Distributor --</option>");
+				$('#subdistributor').html("<option value=''>-- Select Sub Distributor --</option>");
 				$('#branch').html("<option value=''>-- Select Branch --</option>");
             	$('#franchise').html("<option value=''>-- Select Franchise --</option>");
 				return;
@@ -240,8 +250,48 @@
             });
         });
 		
+		 $('#distributor').on('change', function() {
+            var distributor = $(this).val();  
+				
+            if(distributor == '' || distributor <=0){
+            	$('#subdistributor').html("<option value=''>-- Select Sub Distributor --</option>");
+				$('#branch').html("<option value=''>-- Select Branch --</option>");
+            
+            	return;
+            }
+            $.ajax({
+                url: "{{url('/admin/branches/subdistributors')}}/"+distributor,
+                type: "GET",
+                success:function(data) {
+                   $('#subdistributor').html(data);
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    alert(errorThrown);
+                }
+            });
+        }); 
 		
-		$('#distributor').on('change', function() {
+		 $('#subdistributor').on('change', function() {
+            var subdistributor = $(this).val();  
+				
+            if(subdistributor == '' || subdistributor <=0){
+            	$('#branch').html("<option value=''>-- Select Branch --</option>");
+				
+            	return;
+            }
+            $.ajax({
+                url: "{{url('/admin/franchises/branches')}}/"+subdistributor,
+                type: "GET",
+                success:function(data) {
+                   $('#branch').html(data);
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    alert(errorThrown);
+                }
+            });
+        }); 
+		
+	/*	$('#distributor').on('change', function() {
             var distributor = $(this).val();
             var city = $("#city").val();
             if(distributor == '' || distributor <=0){
@@ -259,7 +309,7 @@
                     alert(errorThrown);
                 }
             });
-        });
+        }); */
 
         $('#branch').on('change', function() {
             var city = $("#city").val();

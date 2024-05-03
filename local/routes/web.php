@@ -110,7 +110,7 @@ Route::prefix('admin/branches')->group(function() {
 	Route::get('/branchutility/{id}', 'Administration\BranchesController@branchutilitieslist'); // added by durga
 	  Route::get('/branch-moving/{id}','Administration\BranchesController@UtilityBranchMoving');
 
-	Route::get('/subdistributors/{city}/{distributor}', 'Administration\BranchesController@getSubDistributors');
+	Route::get('/subdistributors/{distributor}', 'Administration\BranchesController@getSubDistributors');
 
   
  Route::post('/submitbranchmoving', ['as' => 'storebranchutilitiemoving', 'uses' => 'Administration\BranchesController@StoreBranchUtilityMoving']);
@@ -140,6 +140,9 @@ Route::prefix('admin/franchises')->group(function() {
 	Route::get('/citydistributorbranches/{city}/{distributor}', 'Administration\FranchisesController@getCityDistributorBranches');
 	Route::get('/citydistributorbranchesutiilty/{city}/{distributor}/{branch}', 'Administration\FranchisesController@getCityDistributorUtilityBranches');
 	
+	Route::get('/citydistributorsubdistributor/{city}/{distributor}', 'Administration\FranchisesController@getCityDistributorSubdistributor');
+	Route::get('/citysubdistributorbranches/{city}/{subdistributor}', 'Administration\FranchisesController@getCitySubdistributorBranches');
+	
 	Route::get('/citydistributorbranchesextra/{city}/{distributor}', 'Administration\FranchisesController@getCityDistributorBranchesExtra');
 	Route::get('/citydistributorbranchesextraedit/{city}/{distributor}', 'Administration\FranchisesController@getCityDistributorBranchesExtraEdit');
 	Route::get('/getdetails/{franchise}', 'Administration\FranchisesController@getFranchiseDetails');
@@ -148,6 +151,8 @@ Route::prefix('admin/franchises')->group(function() {
         Route::post('/adddeposit', ['as' => 'franchises.add_deposit', 'uses' => 'Administration\FranchisesController@add_deposit']);
  Route::post('/ledger', ['as' => 'franchises.ledger', 'uses' => 'Administration\FranchisesController@ledger']);
 Route::post('/franchledger', ['as' => 'franchises.franchledger', 'uses' => 'Administration\FranchisesController@franchledger']);
+
+Route::get('/branches/{subdistributor}', 'Administration\FranchisesController@getSubDistributorsBranches');
 
 		//Route::post('/ledger', 'FranchisesController@ledger');
 
@@ -232,7 +237,7 @@ Route::prefix('admin')->group(function() {
     Route::get('/olt', 'Technical\OLTController@index');
 	Route::get('/olt/create', 'Technical\OLTController@create');
 	Route::post('/olt/submit', ['as' => 'olt.store', 'uses' => 'Technical\OLTController@store']);
-	Route::get('/olt/edit/{id}', 'OLTController@edit');
+	Route::get('/olt/edit/{id}', 'Technical\OLTController@edit');
 	Route::put('/olt/{id}', ['as' => 'olt.update', 'uses' => 'Technical\OLTController@update']);
 	Route::get('/olt/delete/{id}', 'Technical\OLTController@destroy');
 	

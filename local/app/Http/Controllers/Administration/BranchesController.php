@@ -71,6 +71,7 @@ class BranchesController extends Controller
     public function create()
     {
         $items = \App\City::where('status','Y')->pluck('name', 'id');
+		//$subdistributor = \App\SubDistributors::where('status','Y')->pluck('subdistributor_name', 'id');
 		
 		return view('administration.branches.create',['items'=>$items]);
     }
@@ -233,7 +234,7 @@ public function branchutilitieslist($id)
 			'branch_name' => 'required',
 			'city' => 'required',
 			'distributor' => 'required',
-			'sub_distributor' => 'required',
+			'subdistributor' => 'required',
             'office_address' => 'required',
 			//'long_lat' => 'required',
 			//'rent' => 'required',
@@ -272,10 +273,16 @@ public function branchutilitieslist($id)
         $input['branch_id'] = $branchid;
         $input['user_id'] = $userdata->id;
         $input['distributor_id'] = $input['distributor'];
-		 $input['subdistributor_id'] = $input['sub_distributor'];
+		 $input['subdistributor_id'] = $input['subdistributor'];
         $input['status'] = "Y";
+		
+		 $input['bank_holder_name'] = $input['bank_holder_name'];
+        $input['bank_account'] = $input['bank_account'];
+        $input['ifsc_code'] = $input['ifsc_code'];
+        $input['bank_branch_name'] = $input['bank_branch_name'];
+        $input['bank_name'] = $input['bank_name'];
         
-
+		
         //echo "<pre>"; printf($input); exit;
         \App\Branches::create($input);
 
@@ -337,6 +344,12 @@ public function branchutilitieslist($id)
 		$data['long_lat'] = $requestdata['long_lat'];
 		$data['rent'] = $requestdata['rent'];
 		
+		 $data['bank_holder_name'] = $requestdata['bank_holder_name'];
+        $data['bank_account'] = $requestdata['bank_account'];
+        $data['ifsc_code'] = $requestdata['ifsc_code'];
+        $data['bank_branch_name'] = $requestdata['bank_branch_name'];
+        $data['bank_name'] = $requestdata['bank_name'];
+		
         $branch->update($data); //Update details
 
         $user = \App\User::find($branch->user_id);
@@ -344,6 +357,7 @@ public function branchutilitieslist($id)
         $data['name'] = $requestdata['owner_name'];
         $data['email'] = $requestdata['email'];
         $data['mobile'] = $requestdata['mobile'];
+				
         $user->update($data);
 		
 		return redirect('admin/branches')->with('success', 'Branch details updated successfully.');
@@ -366,14 +380,13 @@ public function branchutilitieslist($id)
 
             
            // \App\Branches::destroy($id);
-			
-			$delete_data=[
-        			'status'    => 0,
-        			//'updated_by' 	 => $user->id,
-        			//'updated_at'	 => date('Y-m-d H:i:s')
-        	];
-			
-			$update = \App\Branches::where('id',$id)->update($delete_data);
+		   
+		    $data['status'] = "N";
+            $branches = \App\Branches::find($id);
+            
+            //Update details
+            $branches->update($data);
+				
             if($branch->user_id > 0){
                 $user = \App\User::find($branch->user_id);
                 \App\User::destroy($branch->user_id); //remove user
@@ -473,7 +486,7 @@ public function branchutilitieslist($id)
     }
 
 
-    public function getSubDistributors($city,$distributor)
+     public function getSubDistributors($distributor)
     {
         //$user = Auth::user();
         $id = \Auth::user()->id;
@@ -482,32 +495,28 @@ public function branchutilitieslist($id)
         $ids=array();
         if($roles[0]=='branch'){
             $tbl='slj_branches.user_id'; 
-            $column='slj_branches.distributor_id';
+            $column='slj_branches.subdistributor_id';
             $ids = \App\Branches::join('users','users.id', '=', $tbl)->where('users.id',$id)->pluck($column, $column);
             
         }
         elseif($roles[0]=='franchise'){
             $tbl='slj_franchises.user_id';
-            $column='slj_franchises.distributor_id';
+            $column='slj_franchises.subdistributor_id';
             $ids = \App\Franchises::join('users','users.id', '=', $tbl)->where('users.id',$id)->pluck($column, $column);
         }
         if($ids){ 
-            $subdistributors = \App\SubDistributors::join('users','users.id', '=', 'slj_distributors.user_id')->where('city',$city)->where('distributor_id',$distributor)->whereIn('slj_distributors.id',$ids)->where('users.status','Y')
-        ->select('slj_distributors.id','distributor_name')->get();
+            $subdistributors = \App\SubDistributors::join('users','users.id', '=', 'slj_subdistributors.user_id')->where('distributor_id',$distributor)->whereIn('slj_subdistributors.id',$ids)->where('users.status','Y')
+        ->select('slj_subdistributors.id','subdistributor_name')->get();
         }
         else{ 
-            $subdistributors = \App\SubDistributors::join('users','users.id', '=', 'slj_subdistributors.user_id')
-            ->join('slj_distributors', 'slj_distributors.id', '=', 'slj_subdistributors.distributer_id')            
-            ->where('slj_subdistributors.city',$city)
-            ->where('slj_subdistributors.distributer_id',$distributor)
-            ->where('users.status','Y')
+            $subdistributors = \App\SubDistributors::join('users','users.id', '=', 'slj_subdistributors.user_id')->where('distributor_id',$distributor)->where('users.status','Y')
         ->select('slj_subdistributors.id','subdistributor_name')->get();
         }
         
 
         $html = "<option value=''>-- Select Sub Distributor --</option>";
-        foreach($subdistributors as $distributor){
-            $html.="<option value='".$distributor->id."'>".$distributor->subdistributor_name."</option>";
+        foreach($subdistributors as $sdistributor){
+            $html.="<option value='".$sdistributor->id."'>".$sdistributor->subdistributor_name."</option>";
         }
 
         return $html;

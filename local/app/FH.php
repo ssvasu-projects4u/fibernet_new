@@ -12,6 +12,7 @@ class FH extends Model
 	protected $fillable = [
         'city',
 		'distributor',
+		'subdistributor',
         'branch',
 		'franchise',
 		'fiber',

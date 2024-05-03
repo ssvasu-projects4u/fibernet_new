@@ -25,14 +25,13 @@
 	      @csrf
 			
 	      <div class="row">
+		  
+		  <div class="form-group col-md-3"> {!! Form::label('city', 'City*') !!}
+        {!! Form::select('city', $items, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select City --') ) !!} </div>
+		
 			<div class="form-group col-md-3"> {!! Form::label('distributor_name', 'Distributor Name*') !!}
         {!! Form::text('distributor_name',null, array('class' => 'form-control','required'=>'required','placeholder'=>'Enter Distributor Name')) !!} </div>
-		
-		<div class="form-group col-md-3"> {!! Form::label('subdistributor_name', 'Sub Distributor Name*') !!}
-        {!! Form::text('subdistributor_name',null, array('class' => 'form-control','required'=>'required','placeholder'=>'Enter Sub Distributor Name')) !!} </div>
-
-		<div class="form-group col-md-3"> {!! Form::label('city', 'City*') !!}
-        {!! Form::select('city', $items, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select City --') ) !!} </div>
+				
 
         <div class="form-group col-md-3"> {!! Form::label('area_description', 'Area Description') !!}
         {!! Form::text('area_description',null, array('class' => 'form-control','placeholder'=>'Enter Area Description')) !!} </div>

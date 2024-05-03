@@ -71,6 +71,10 @@ if ($roles[0] == 'branch' || $roles[0] == 'franchise') {
                                                 <td><span>Distributor</span></td>
                                                 <td>{{ $distributor }}</td>
                                             </tr>
+											 <tr>
+                                                <td><span>Sub Distributor</span></td>
+                                                <td>{{ $subdistributor }}</td>
+                                            </tr>
                                             <tr>
                                                 <td><span>Franchise</span></td>
                                                 <td>{{ $franchise }}</td>
