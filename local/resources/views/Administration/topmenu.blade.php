@@ -137,9 +137,9 @@
         <a class="nav-link dropdown-toggle <?php if(Request::segment(2) == 'subdistributors'){echo 'active';} ?>" data-toggle="dropdown" href="#">Sub Distributors</a>
       @endcan
       <div class="dropdown-menu">
-        @can("create-subdistributor")
+      
           <a class="dropdown-item" href="{{url('admin/subdistributors/create')}}">Create SubDistributor</a>
-        @endcan
+        
         @can("subdistributors")
         <a class="dropdown-item" href="{{url('admin/subdistributors')}}">List SubDistributors</a>
         @endcan

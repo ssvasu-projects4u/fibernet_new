@@ -326,7 +326,7 @@ class SubDistributorsController extends Controller
         $validatedData = $request->validate([
 			'name' => 'required',
             'subdistributor_name' => 'required',
-			'distributor' => 'required',
+			//'distributor' => 'required',
 			'city' => 'required',
 			'office_address' => 'required',
 			//'long_lat' => 'required',
@@ -371,9 +371,14 @@ class SubDistributorsController extends Controller
         if(isset($data->subdistributor_id)){
             $subdistributorid = substr($data->subdistributor_id, -5); 
         }
+<<<<<<< HEAD
         $subdistributorid = "SLJSDR".str_pad($subdistributorid + 1, 5, 0, STR_PAD_LEFT);   
         $input['subdistributor_id'] = $subdistributorid; 
 		$input['distributor_id'] = $input['distributor'];
+=======
+        $distributorid = "SLJDR".str_pad($distributorid + 1, 5, 0, STR_PAD_LEFT);   
+        $input['subdistributor_id'] = $distributorid;
+>>>>>>> e4223d41d50d329a1923d7e3f951295f8a3a2162
         $input['user_id'] = $userdata->id;
 
         //echo "<pre>"; printf($input); exit;
@@ -425,7 +430,7 @@ class SubDistributorsController extends Controller
         $validatedData = $request->validate([
 			'name' => 'required',
             'subdistributor_name' => 'required',
-			'distributor' => 'required',
+			//'distributor' => 'required',
             'city' => 'required',
             'office_address' => 'required',
             //'long_lat' => 'required',
