@@ -339,6 +339,7 @@ public function branchutilitieslist($id)
 		]);
 		
 		$requestdata = $request->all(); 
+        //test
 		
 		$data['branch_name'] = $requestdata['branch_name'];
 		$data['city'] = $requestdata['city'];
