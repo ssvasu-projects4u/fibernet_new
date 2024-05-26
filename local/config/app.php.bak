@@ -231,7 +231,7 @@ return [
 		'Form' => 'Collective\Html\FormFacade',
 		'Html' => 'Collective\Html\HtmlFacade',
         'PDF' => 'Barryvdh\DomPDF\Facade::class',
-      //  'Breadcrumbs' => Creitive\Breadcrumbs\Facades\Breadcrumbs::class,
+        'Breadcrumbs' => Creitive\Breadcrumbs\Facades\Breadcrumbs::class,
 
     ],
 

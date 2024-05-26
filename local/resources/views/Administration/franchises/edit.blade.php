@@ -33,12 +33,25 @@
 		<div class="form-group col-md-3"> {!! Form::label('distributor', 'Distributor*') !!}
         {!! Form::select('distributor', $distributors, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Distributor --') ) !!} </div>
 		
-		<div class="form-group col-md-3"> {!! Form::label('subdistributor', 'Sub Distributor*') !!}
-        {!! Form::select('subdistributor', $subdistributors, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Sub Distributor --') ) !!} </div>
+		<!--<div class="form-group col-md-3"> {!! Form::label('subdistributor', 'Sub Distributor*') !!}
+        {!! Form::select('subdistributor', $subdistributors, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Sub Distributor --') ) !!} </div>-->
+		<?php //dd($franchisedetails);?>
+		 <div class="form-group col-md-3">
+		 {!! Form::label('subdistributor', 'Sub Distributor*') !!}
+		  <select class ="form-control" id="subdistributor" name="subdistributor" required>
+		  <option value="" >-- Select Sub Distributor --</option>
+            @foreach($subdistributors as $value => $label)
+                <option value="{{ $value }}" {{ (old('dropdown', $franchisedetails['subdistributor_id']) == $value) ? 'selected' : '' }}>
+                    {{ $label }}
+                </option>
+            @endforeach
+        </select>
+		</div> 
 		
 		<div class="form-group col-md-3"> {!! Form::label('branch', 'Branch*') !!}
         {!! Form::select('branch', $branches, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Branch --') ) !!} </div>
-
+		
+		
 			<div class="form-group col-md-3"> {!! Form::label('franchise_name', 'Franchise Name*') !!}
         {!! Form::text('franchise_name',null, array('class' => 'form-control','required'=>'required','placeholder'=>'Enter Franchise Name')) !!} </div>
         <div class="form-group col-md-3"> {!! Form::label('area_description', 'Area Description') !!}
@@ -104,12 +117,12 @@
 
 <script type="text/javascript">
 	$(document).ready(function() {
-           
+         
         $('#city').on('change', function() {
             var city = $(this).val();
             if(city == '' || city <=0){
             	$('#distributor').html("<option value=''>-- Select Distributor --</option>");
-            	$('#branch').html("<option value=''>-- Select Branch --</option>");
+				$('#subdistributor').html("<option value=''>-- Select Sub Distributor --</option>");
             	return;
             }
             $.ajax({
@@ -117,13 +130,15 @@
                 type: "GET",
                 success:function(data) {
                    $('#distributor').html(data);
-                   $('#branch').html("<option value=''>-- Select Branch --</option>");
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
                     alert(errorThrown);
                 }
             });
         });
+
+        //$('#distributor').val({{old('city')}}).trigger('change');
+        $('#distributor').val({{$franchisedetails->distributor_id}});
 		
 		 $('#distributor').on('change', function() {
             var distributor = $(this).val();  
@@ -143,26 +158,17 @@
                 }
             });
         }); 
-
-		  $('#distributor').val({{$franchisedetails->distributor_id}});
-		  $('#subdistributor').val({{$franchisedetails->subdistributor_id}});
-          $('#branch').val({{$franchisedetails->branch}});
-        //$('#city').val({{old('city')}}).trigger('change');
-        
-    });
-</script>
-
-  <script type="text/javascript">
-	$(document).ready(function() {
-        $('#distributor').on('change', function() {
-            var distributor = $(this).val();
-            var city = $("#city").val();
-            if(distributor == '' || distributor <=0){
+		
+		
+		 $('#subdistributor').on('change', function() {
+            var subdistributor = $(this).val();  
+				
+            if(subdistributor == '' || subdistributor <=0){
             	$('#branch').html("<option value=''>-- Select Branch --</option>");
             	return;
             }
             $.ajax({
-                url: "{{url('/admin/franchises/citydistributorbranches')}}/"+city+"/"+distributorcity,
+                url: "{{url('/admin/franchises/branches')}}/"+subdistributor,
                 type: "GET",
                 success:function(data) {
                    $('#branch').html(data);
@@ -171,15 +177,10 @@
                     alert(errorThrown);
                 }
             });
-        });
+        }); 
 
-        //$('#city').val({{old('city')}}).trigger('change');
-
-        $('#distributor').val({{$franchisedetails->distributor_id}});
-        $('#branch').val({{$franchisedetails->branch}});
         
     });
 </script>
-
 
 @stop

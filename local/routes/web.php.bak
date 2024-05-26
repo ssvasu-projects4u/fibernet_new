@@ -144,6 +144,7 @@ Route::prefix('admin/franchises')->group(function() {
 	Route::get('/citysubdistributorbranches/{city}/{subdistributor}', 'Administration\FranchisesController@getCitySubdistributorBranches');
 	
 	Route::get('/citydistributorbranchesextra/{city}/{distributor}', 'Administration\FranchisesController@getCityDistributorBranchesExtra');
+	Route::get('/getCityDistributorSubdistributorExtra/{city}/{subdistributor}', 'Administration\FranchisesController@getCityDistributorSubdistributorExtra');
 	Route::get('/citydistributorbranchesextraedit/{city}/{distributor}', 'Administration\FranchisesController@getCityDistributorBranchesExtraEdit');
 	Route::get('/getdetails/{franchise}', 'Administration\FranchisesController@getFranchiseDetails');
         Route::post('/passwordsetup', ['as' => 'franchises.change_password', 'uses' => 'Administration\FranchisesController@change_password']);
@@ -237,7 +238,7 @@ Route::prefix('admin')->group(function() {
     Route::get('/olt', 'Technical\OLTController@index');
 	Route::get('/olt/create', 'Technical\OLTController@create');
 	Route::post('/olt/submit', ['as' => 'olt.store', 'uses' => 'Technical\OLTController@store']);
-	Route::get('/olt/edit/{id}', 'OLTController@edit');
+	Route::get('/olt/edit/{id}', 'Technical\OLTController@edit');
 	Route::put('/olt/{id}', ['as' => 'olt.update', 'uses' => 'Technical\OLTController@update']);
 	Route::get('/olt/delete/{id}', 'Technical\OLTController@destroy');
 	

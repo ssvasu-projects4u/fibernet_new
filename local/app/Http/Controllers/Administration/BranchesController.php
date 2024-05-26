@@ -310,9 +310,10 @@ public function branchutilitieslist($id)
         $branchdetails = \App\Branches::join('users','users.id', '=', 'slj_branches.user_id')->select('slj_branches.*','users.name as owner_name','users.email','users.mobile')->find($id);
 		$items = \App\City::where('status','Y')->pluck('name', 'id');
         $distributors = \App\Distributors::where('city',$branchdetails->city)->pluck('distributor_name as name', 'id');
-		// $subdistributors = DB::('slj_subdistributors')->where('city',$branchdetails->city)->pluck('subdistributor_name as name', 'id');
+		 $subdistributors = \App\SubDistributors::where('distributor_id',$branchdetails->distributor_id)->pluck('subdistributor_name as name', 'id');
+		 
 		
-		return view('administration.branches.edit',['items'=>$items, 'branchdetails'=>$branchdetails,'distributors'=>$distributors]); 
+		return view('administration.branches.edit',['items'=>$items, 'branchdetails'=>$branchdetails,'distributors'=>$distributors, 'subdistributors'=>$subdistributors]); 
     }
 
     /**

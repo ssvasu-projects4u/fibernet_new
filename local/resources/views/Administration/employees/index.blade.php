@@ -112,9 +112,11 @@
 		<td>{{ $key+1 }}</td>
 		<td>{{ $datarow->city }}</td>
 		<?php
-			$path = asset('public/uploads/default-image.png');
+			$path = asset('local/public/uploads/default-image.png');
+		//	$path = asset('uploads/default-image.png');
 
-			$src = asset('public/uploads/employees/'.$datarow->employee_photo);
+			$src = asset('local/public/uploads/employees/'.$datarow->employee_photo);
+		//		$src = asset('uploads/employees/'.$datarow->employee_photo);
 			if($datarow->employee_photo !=''){
 				$path = $src;
 			}

@@ -144,6 +144,7 @@ Route::prefix('admin/franchises')->group(function() {
 	Route::get('/citysubdistributorbranches/{city}/{subdistributor}', 'Administration\FranchisesController@getCitySubdistributorBranches');
 	
 	Route::get('/citydistributorbranchesextra/{city}/{distributor}', 'Administration\FranchisesController@getCityDistributorBranchesExtra');
+	Route::get('/citydistributorsubdistributorextra/{city}/{distributor}', 'Administration\FranchisesController@getCityDistributorSubdistributorExtra');
 	Route::get('/citydistributorbranchesextraedit/{city}/{distributor}', 'Administration\FranchisesController@getCityDistributorBranchesExtraEdit');
 	Route::get('/getdetails/{franchise}', 'Administration\FranchisesController@getFranchiseDetails');
         Route::post('/passwordsetup', ['as' => 'franchises.change_password', 'uses' => 'Administration\FranchisesController@change_password']);

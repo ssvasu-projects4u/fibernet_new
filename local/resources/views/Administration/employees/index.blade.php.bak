@@ -3,7 +3,7 @@
 @section('content')
     <!-- Page Heading -->
     <div class="card shadow mb-4">
-	   @include('administration::topmenu')
+	   @include('administration.topmenu')
 	<div class="card-header py-2">
 	  <div class="float-left"><h3 class="m-0 font-weight-bold text-primary">Employees</h3></div>
 	  
@@ -112,9 +112,11 @@
 		<td>{{ $key+1 }}</td>
 		<td>{{ $datarow->city }}</td>
 		<?php
-			$path = asset('public/uploads/default-image.png');
+			$path = asset('../../public/uploads/default-image.png');
+		//	$path = asset('uploads/default-image.png');
 
-			$src = asset('public/uploads/employees/'.$datarow->employee_photo);
+			$src = asset('../../public/uploads/employees/'.$datarow->employee_photo);
+		//		$src = asset('uploads/employees/'.$datarow->employee_photo);
 			if($datarow->employee_photo !=''){
 				$path = $src;
 			}

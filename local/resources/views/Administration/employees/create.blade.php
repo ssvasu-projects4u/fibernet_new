@@ -22,6 +22,7 @@
  <?php 
 		if(isset($_GET['city'])){$city_id = $_GET['city'];}else{$city_id = null;}
 		if(isset($_GET['distributor'])){$distributor_id = $_GET['distributor'];}else{$distributor_id = null;}
+        if(isset($_GET['subdistributor'])){$subdistributor_id = $_GET['subdistributor'];}else{$subdistributor_id = null;}
 		if(isset($_GET['branch'])){$branch_id = $_GET['branch'];}else{$branch_id = null;}
 		if(isset($_GET['franchise'])){$franchise_id = $_GET['franchise'];}else{$franchise_id = null;}
 	?>
@@ -134,8 +135,16 @@
 
         <div class="form-group col-md-3"> {!! Form::label('role', 'Role*') !!}
         {!! Form::select('role', $roles, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Role --') ) !!} </div>
-          <div class="form-group col-md-12"> {!! Form::label('distributor', 'Distributor') !!}
+        
+
+		<div class="form-group col-md-12"> {!! Form::label('distributor', 'Distributor') !!}
     	<div class="row kk2" style="height: 200px;overflow: scroll;border: 1px solid #ccc">
+            
+		
+			</div>  
+			</div>
+		<div class="form-group col-md-12"> {!! Form::label('subdistributor', 'Sub Distributor') !!}
+    	<div class="row kk3" style="height: 200px;overflow: scroll;border: 1px solid #ccc">
             
 		
 			</div>  
@@ -271,10 +280,10 @@
         });
 		
 		
-	  $('body').on('change','.checkbxx',function() {
+	  $('body').on('change','.checkbxxx',function() {
 	     
          
-        $('input.checkbxx').each(function (e)
+        $('input.checkbxxx').each(function (e)
           
         {
             
@@ -309,6 +318,91 @@
              }
         });
 	  })
+	  
+	  <!--code for subdistriibutore start-->
+	  
+	  	
+	  $('body').on('change','.checkbxx',function() {
+	     
+         
+        $('input.checkbxx').each(function (e)
+          
+        {
+            
+            
+            var checked = [];
+            var distributor;
+           
+            var city = $("#city").val();
+          
+            
+           if($(this).is(":checked"))
+             {
+                 $('.kk3').html("");
+            checked.push($(this).val());
+           
+	       for(var i=0;i<checked.length;i++)
+        {
+            distributor = checked[i];
+            $.ajax({
+                url: "{{url('/admin/franchises/citydistributorsubdistributorextra')}}/"+city+"/"+distributor,
+                type: "GET",
+                success:function(data) {
+                   $('#branch').html(data);
+                  
+                   $('.kk3').append(data);
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    alert(errorThrown);
+                }
+            });
+        }
+             }
+        });
+	  })
+	  
+	  <!--code for subdistributro end-->
+	  
+	  
+	  
+	//    $('body').on('change','.checkbxx',function() {
+	     
+         
+    //     $('input.checkbxx').each(function (e)
+          
+    //     {
+            
+            
+    //         var checked = [];
+    //         var distributor;
+           
+    //         var city = $("#city").val();
+          
+            
+    //        if($(this).is(":checked"))
+    //          {
+    //              $('.kk3').html("");
+    //         checked.push($(this).val());
+           
+	//        for(var i=0;i<checked.length;i++)
+    //     {
+    //         distributor = checked[i];
+    //         $.ajax({
+    //             url: "{{url('/admin/franchises/citydistributorsubdistributorextra')}}/"+city+"/"+subdistributor,
+    //             type: "GET",
+    //             success:function(data) {
+    //                $('#branch').html(data);
+                  
+    //                $('.kk3').append(data);
+    //             },
+    //             error: function(XMLHttpRequest, textStatus, errorThrown) {
+    //                 alert(errorThrown);
+    //             }
+    //         });
+    //     }
+    //          }
+    //     });
+	//   })
 
      $('body').on('change','.checkbx',function() {	  
          

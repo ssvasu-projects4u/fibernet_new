@@ -310,9 +310,12 @@ public function branchutilitieslist($id)
         $branchdetails = \App\Branches::join('users','users.id', '=', 'slj_branches.user_id')->select('slj_branches.*','users.name as owner_name','users.email','users.mobile')->find($id);
 		$items = \App\City::where('status','Y')->pluck('name', 'id');
         $distributors = \App\Distributors::where('city',$branchdetails->city)->pluck('distributor_name as name', 'id');
-		// $subdistributors = DB::('slj_subdistributors')->where('city',$branchdetails->city)->pluck('subdistributor_name as name', 'id');
+		 $subdistributors = \App\SubDistributors::where('distributor_id',$branchdetails->distributor_id)->pluck('subdistributor_name as name', 'id');
+		 
+		 //	$subdistributors = \App\SubDistributors::select('id', 'subdistributor_name')->where('distributor_id',$branchdetails->distributor_id)->get();
+		// dd($subdistributors);
 		
-		return view('administration.branches.edit',['items'=>$items, 'branchdetails'=>$branchdetails,'distributors'=>$distributors]); 
+		return view('administration.branches.edit',['items'=>$items, 'branchdetails'=>$branchdetails,'distributors'=>$distributors, 'subdistributors'=>$subdistributors]); 
     }
 
     /**
@@ -344,6 +347,12 @@ public function branchutilitieslist($id)
 		$data['long_lat'] = $requestdata['long_lat'];
 		$data['rent'] = $requestdata['rent'];
 		
+		 $data['bank_holder_name'] = $requestdata['bank_holder_name'];
+        $data['bank_account'] = $requestdata['bank_account'];
+        $data['ifsc_code'] = $requestdata['ifsc_code'];
+        $data['bank_branch_name'] = $requestdata['bank_branch_name'];
+        $data['bank_name'] = $requestdata['bank_name'];
+		
         $branch->update($data); //Update details
 
         $user = \App\User::find($branch->user_id);
@@ -351,12 +360,7 @@ public function branchutilitieslist($id)
         $data['name'] = $requestdata['owner_name'];
         $data['email'] = $requestdata['email'];
         $data['mobile'] = $requestdata['mobile'];
-		
-		 $data['bank_holder_name'] = $requestdata['bank_holder_name'];
-        $data['bank_account'] = $requestdata['bank_account'];
-        $data['ifsc_code'] = $requestdata['ifsc_code'];
-        $data['bank_branch_name'] = $requestdata['bank_branch_name'];
-        $data['bank_name'] = $requestdata['bank_name'];
+				
         $user->update($data);
 		
 		return redirect('admin/branches')->with('success', 'Branch details updated successfully.');

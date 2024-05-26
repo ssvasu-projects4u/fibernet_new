@@ -52,7 +52,7 @@ return [
     |
     */
 
-    'url' => env('APP_URL', 'http://localhost/sljfiber'),
+    'url' => env('APP_URL', 'http://localhost/fibernet_new'),
 
     'asset_url' => env('ASSET_URL', null),
 

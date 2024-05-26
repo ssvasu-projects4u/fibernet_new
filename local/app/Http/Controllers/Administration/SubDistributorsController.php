@@ -372,8 +372,8 @@ class SubDistributorsController extends Controller
             $subdistributorid = substr($data->subdistributor_id, -5); 
         }
 
-        $distributorid = "SLJDR".str_pad($distributorid + 1, 5, 0, STR_PAD_LEFT);   
-        $input['subdistributor_id'] = $distributorid;
+        $subdistributorid = "SLJDR".str_pad($subdistributorid + 1, 5, 0, STR_PAD_LEFT);   
+        $input['subdistributor_id'] = $subdistributorid;
         $input['distributor_id'] = $input['distributor'];
         $input['user_id'] = $userdata->id;
 
@@ -402,6 +402,8 @@ class SubDistributorsController extends Controller
 	    {
 			
         $subdistributordetails = \App\SubDistributors::join('users','users.id', '=', 'slj_subdistributors.user_id')->where('slj_subdistributors.id',$id)->select('slj_subdistributors.*','users.name','users.mobile','users.email')->first();
+		
+		
 		//$distributors = \App\Distributors::where('city',$subdistributordetails->city)->where('status','Y')->pluck('distributor_name as name', 'id');
 		$distributors = \App\Distributors::join('users','users.id', '=', 'slj_distributors.user_id')->where('city',$subdistributordetails->city)->where('users.status','Y')
        ->pluck('distributor_name as name', 'slj_distributors.id as id');

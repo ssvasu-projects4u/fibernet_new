@@ -71,6 +71,7 @@ class EmployeesController extends Controller
     public function create()
     {
         $distributors = array();
+        $subdistributors = array();
 		$branches = array();
 		$franchises = array();
 
@@ -79,13 +80,16 @@ class EmployeesController extends Controller
 		if(isset($_GET['distributor'])){
 			$distributors = \App\Distributors::where('id',$_GET['distributor'])->pluck('distributor_name as name', 'id');
 		}
+        if(isset($_GET['subdistributor'])){
+			$distributors = \App\SubDistributors::where('id',$_GET['subdistributor'])->pluck('subdistributor_name as name', 'id');
+		}
 		if(isset($_GET['branch'])){
 			$branches = \App\Branches::where('id',$_GET['branch'])->pluck('branch_name as name', 'id');
 		}
 		if(isset($_GET['franchise'])){
 			$franchises = \App\Franchises::where('id',$_GET['franchise'])->pluck('franchise_name as name', 'id');
 		}
-        $roles = Role::whereNotIn('name',['superadmin','customer','franchise','distributor','branch'])->pluck('name', 'id');
+        $roles = Role::whereNotIn('name',['superadmin','customer','franchise','distributor','subdistributor','branch'])->pluck('name', 'id');
         $departments = \App\Departments::where('status','Y')->pluck('department as name', 'id');
 		$cities = \App\City::where('status','Y')->pluck('name', 'id');
 
@@ -94,6 +98,7 @@ class EmployeesController extends Controller
             'departments' => $departments,
              'cities' => $cities,
             'distributors'=>$distributors,
+            'subdistributors'=>$subdistributors,
 			'branches'=>$branches,
 			'franchises'=>$franchises
         ]);
@@ -271,6 +276,10 @@ class EmployeesController extends Controller
        // $employees['distributor']=$input['distributor'];
          if(isset($requestdata['distributor']) && count($requestdata['distributor'])>0){
              $employee['distributor'] = implode(",",$requestdata['distributor']);
+        }
+		
+		  if(isset($requestdata['subdistributor']) && count($requestdata['subdistributor'])>0){
+             $employee['subdistributor'] = implode(",",$requestdata['subdistributor']);
         }
         if(isset($requestdata['branches']) && count($requestdata['branches'])>0){
              $employee['branch'] = implode(",",$requestdata['branches']);

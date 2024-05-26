@@ -31,9 +31,18 @@
 		<div class="form-group col-md-3"> {!! Form::label('city', 'City*') !!}
         {!! Form::select('city', $items, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select City --') ) !!} </div>
 
-        <div class="form-group col-md-3"> {!! Form::label('distributor', 'Distributor*') !!}
-        {!! Form::select('distributor', $distributors, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Distributor --') ) !!} </div>
-
+       <!-- <div class="form-group col-md-3"> {!! Form::label('distributor', 'Distributor*') !!}
+        {!! Form::select('distributor', $distributors, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Distributor --') ) !!} </div>-->
+		 <div class="form-group col-md-3">
+		  <select class ="form-control" id="distributor" name="distributor" required>
+		  <option value="" >-- Select Distributor --</option>
+            @foreach($distributors as $value => $label)
+                <option value="{{ $value }}" {{ (old('dropdown', $subdistributordetails['distributor_id']) == $value) ? 'selected' : '' }}>
+                    {{ $label }}
+                </option>
+            @endforeach
+        </select>
+		</div>
 	  	<div class="form-group col-md-3"> {!! Form::label('subdistributor_name', 'Sub Distributor Name*') !!}
         {!! Form::text('subdistributor_name',null, array('class' => 'form-control','required'=>'required','placeholder'=>'Enter Sub Distributor Name')) !!} </div>
 		
@@ -124,8 +133,7 @@
         $('#city').on('change', function() {
             var city = $(this).val();
             if(city == '' || city <=0){
-            	$('#distributor').html("<option value=''>-- Select Distributor --</option>");
-				$('#subdistributor').html("<option value=''>-- Select Distributor --</option>");
+            	$('#distributor').html("<option value=''>-- Select Distributor --</option>");	
             	$('#branch').html("<option value=''>-- Select Branch --</option>");
             	return;
             }
@@ -133,8 +141,7 @@
                 url: "{{url('/admin/branches/citydistributors')}}/"+city,
                 type: "GET",
                 success:function(data) {
-                   $('#distributor').html(data);
-				    $('#subdistributor').html(data);
+                   $('#distributor').html(data);				  
                    $('#branch').html("<option value=''>-- Select Branch --</option>");
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {

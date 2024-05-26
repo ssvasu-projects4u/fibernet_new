@@ -72,9 +72,11 @@
         <div class="form-group col-md-3"> 
             {!! Form::label('employee_photo', 'Employee Photo') !!} 
             <?php
-                $path = asset('public/uploads/default-image.png');
+                $path = asset('local/public/uploads/default-image.png');
+				
 
-                $src = asset('public/uploads/employees/'.$userdetails->employee_photo);
+                $src = asset('local/public/uploads/employees/'.$userdetails->employee_photo);
+			
                 if($userdetails->employee_photo !=''){
                     $path = $src;
                 }
@@ -284,7 +286,8 @@
                             <td>                          
                             <?php
                                 if ($userdetails->resume != "") { 
-                                    $src = asset('public/uploads/employees/'.$userdetails->resume);
+                                    $src = asset('local/public/uploads/employees/'.$userdetails->resume);
+									
                                     $src1=$userdetails->resume;
                                     
                                 ?>
@@ -301,7 +304,8 @@
                             <td>
                             <?php 
                                 if ($userdetails->aadhar_card != "") { 
-                                        $src = asset('public/uploads/employees/'.$userdetails->aadhar_card);
+                                        $src = asset('local/public/uploads/employees/'.$userdetails->aadhar_card);
+										
                                         $src1=$userdetails->aadhar_card;
                                 ?>
                                 <a href="{{ $src }}" target="_blank" >View</a>
@@ -315,7 +319,8 @@
                             <td>
                                 <?php
                                 if ($userdetails->id_proof != "") { 
-                                    $src = asset('public/uploads/employees/'.$userdetails->id_proof);
+                                    $src = asset('local/public/uploads/employees/'.$userdetails->id_proof);
+								
                                     $src2=$userdetails->id_proof;
                                 ?>
                                     <a href="{{ $src }}" target="_blank" >View</a>
@@ -332,7 +337,8 @@
                             <td>
                             <?php 
                                     if ($userdetails->pan_card != "") { 
-                                        $src = asset('public/uploads/employees/'.$userdetails->pan_card); 
+                                        $src = asset('local/public/uploads/employees/'.$userdetails->pan_card); 
+										
                                         $src2=$userdetails->pan_card;
                                 ?>
                                         <a href="{{ $src }}" target="_blank" >View</a>
@@ -346,7 +352,8 @@
                             <td>
                             <?php 
                                 if ($userdetails->experience_letter != "") {
-                                    $src = asset('public/uploads/employees/'.$userdetails->experience_letter);
+                                   $src = asset('local/public/uploads/employees/'.$userdetails->experience_letter);
+									
                                     $src2=$userdetails->experience_letter;
                                 ?>
                                     <a href="{{ $src2 }}" target="_blank" >View</a>
@@ -379,7 +386,8 @@
                         <td>
                         <?php
                             if ($userdetails->sslc != "") {
-                                $src = asset('public/uploads/employees/'.$userdetails->sslc);                    
+                                $src = asset('local/public/uploads/employees/'.$userdetails->sslc);  
+									 
                             ?>
                                     <a href="{{ $src }}" target="_blank" >View</a>
                             <?php } else $src=""; ?>
@@ -395,7 +403,8 @@
                         <td>
                             <?php 
                             if ($userdetails->puc_diploma != "") {
-                                $src = asset('public/uploads/employees/'.$userdetails->puc_diploma);
+                                $src = asset('local/public/uploads/employees/'.$userdetails->puc_diploma);
+								
                                 ?>
                                 <a href="{{ $src }}" target="_blank" >View</a>
                             <?php } ?>
@@ -413,7 +422,8 @@
                         <td>
                             <?php
                             if ($userdetails->under_graduate != "") {
-                                $src = asset('public/uploads/employees/'.$userdetails->under_graduate);
+                                $src = asset('local/public/uploads/employees/'.$userdetails->under_graduate);
+								 
                             ?>
                                     <a href="{{ $src }}" target="_blank" >View</a>
                             <?php } ?>
@@ -429,7 +439,8 @@
                         <td>
                             <?php
                             if ($userdetails->post_graduate != "") {
-                                $src = asset('public/uploads/employees/'.$userdetails->post_graduate);                        
+                                $src = asset('local/public/uploads/employees/'.$userdetails->post_graduate);
+																
                                 ?>
                                 <a href="{{ $src }}" target="_blank" >View</a>
                             <?php } ?>
@@ -452,7 +463,12 @@
                             
                                 <td>
 
-                                <?php $src = asset('public/uploads/employees/' . $file->filename); ?>
+                                <?php 
+								$src = asset('local/public/uploads/employees/' . $file->filename);
+								
+								
+
+								?>
                                     <a href="{{ $src }}" target="_blank" >View</a>
                                     <p></p>
                                 </td>

@@ -474,13 +474,13 @@ class DistributorsController extends Controller
         $branches = \App\Branches::where('distributor_id',$id)->count();
         
         if($id > 0 && $branches == 0){
-            $distributor = \App\Distributors::find($id);
+           // $distributor = \App\Distributors::find($id);
           //  \App\Distributors::destroy($id);
 			  $data['status'] = "N";
-            $branches = \App\Branches::find($id);
+            $distributors = \App\Distributors::find($id);
             
             //Update details
-            $branches->update($data);
+            $distributors->update($data);
 			
 			
             if($distributor->user_id > 0){

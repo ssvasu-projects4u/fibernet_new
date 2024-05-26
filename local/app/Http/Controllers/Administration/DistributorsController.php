@@ -483,9 +483,9 @@ class DistributorsController extends Controller
             $distributors->update($data);
 			
 			
-            if($distributor->user_id > 0){
-                $user = \App\User::find($distributor->user_id);
-                \App\User::destroy($distributor->user_id); //remove user
+            if($distributors->user_id > 0){
+                $user = \App\User::find($distributors->user_id);
+                \App\User::destroy($distributors->user_id); //remove user
                 
                 if(!empty($user->roles->first()) && count($user->roles->first())>0){
                     $user->removeRole($user->roles->first()); //remove role from user

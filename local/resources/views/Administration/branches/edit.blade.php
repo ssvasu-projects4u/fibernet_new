@@ -31,8 +31,20 @@
         <div class="form-group col-md-3"> {!! Form::label('distributor', 'Distributor*') !!}
         {!! Form::select('distributor', $distributors, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Distributor --') ) !!} </div>
 	
-		 <div class="form-group col-md-3"> {!! Form::label('subdistributor', 'Sub Distributor*') !!}
-        {!! Form::select('subdistributor', $distributors, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Sub Distributor --') ) !!} </div>
+		<!-- <div class="form-group col-md-3"> {!! Form::label('subdistributor', 'Sub Distributor*') !!}
+        {!! Form::select('subdistributor', $subdistributors, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Sub Distributor --') ) !!} </div>-->
+		
+		 <div class="form-group col-md-3">
+		 {!! Form::label('subdistributor', 'Sub Distributor*') !!}
+		  <select class ="form-control" id="subdistributor" name="subdistributor" required>
+		  <option value="" >-- Select Sub Distributor --</option>
+            @foreach($subdistributors as $value => $label)
+                <option value="{{ $value }}" {{ (old('dropdown', $branchdetails['subdistributor_id']) == $value) ? 'selected' : '' }}>
+                    {{ $label }}
+                </option>
+            @endforeach
+        </select>
+		</div>
 		
         <div class="form-group col-md-3"> {!! Form::label('branch_name', 'Branch Name*') !!}
         {!! Form::text('branch_name',null, array('class' => 'form-control','required'=>'required','placeholder'=>'Enter Branch Name')) !!} </div>
