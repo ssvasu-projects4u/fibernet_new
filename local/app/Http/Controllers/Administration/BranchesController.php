@@ -331,6 +331,7 @@ public function branchutilitieslist($id)
 			'city' => 'required',
             'email' => 'required|unique:users,email,'.$branch->user_id,
 			'office_address' => 'required',
+            
 			//'long_lat' => 'required',
 			'owner_name' => 'required',
 			//'rent' => 'required',
@@ -344,6 +345,9 @@ public function branchutilitieslist($id)
 		$data['office_address'] = $requestdata['office_address'];
 		$data['long_lat'] = $requestdata['long_lat'];
 		$data['rent'] = $requestdata['rent'];
+
+        $data['distributor_id'] = $requestdata['distributor'];
+        $data['subdistributor_id'] = $requestdata['subdistributor'];
 		
 		 $data['bank_holder_name'] = $requestdata['bank_holder_name'];
         $data['bank_account'] = $requestdata['bank_account'];
