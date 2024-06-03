@@ -391,7 +391,7 @@ class EmployeesController extends Controller
     {
 		$cities = \App\City::where('status','Y')->pluck('name', 'id');
 
-        $roles = Role::whereNotIn('name',['superadmin','customer','franchise','distributor','branch'])->pluck('name', 'id');
+        $roles = Role::whereNotIn('name',['superadmin','customer','franchise','distributor','subdistributor','branch'])->pluck('name', 'id');
         $departments = \App\Departments::where('status','Y')->pluck('department as name', 'id');
 
         $userdetails = \App\Employees::join('users', 'users.id', '=', 'slj_employees.user_id')
@@ -400,6 +400,7 @@ class EmployeesController extends Controller
         )
         ->orderBy('slj_employees.created_at')
         ->where('slj_employees.id',$id)->first();
+    
 
         $designations = \App\Designations::where('department',$userdetails->department)
         ->where('status','Y')->pluck('designation as name', 'id');
@@ -596,6 +597,9 @@ class EmployeesController extends Controller
          if(isset($requestdata['distributor']) && count($requestdata['distributor'])>0){
              $employeedata['distributor'] = implode(",",$requestdata['distributor']);
         }
+        if(isset($requestdata['subdistributor']) && count($requestdata['subdistributor'])>0){
+            $employeedata['subdistributor'] = implode(",",$requestdata['subdistributor']);
+       }
         if(isset($requestdata['branches']) && count($requestdata['branches'])>0){
              $employeedata['branch'] = implode(",",$requestdata['branches']);
         }

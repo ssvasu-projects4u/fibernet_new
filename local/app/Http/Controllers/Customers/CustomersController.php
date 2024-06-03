@@ -4402,7 +4402,7 @@ public function destroynotintrested($id)
 
         return $html;
     }
-      public function getBranchFranchisesExtraEdit($city,$branch)
+      public function getBranchFranchisesExtraEdit($city,$branch,$user_id)
     {
         
         
@@ -4417,15 +4417,30 @@ public function destroynotintrested($id)
         $roles = \Auth::user()->getRoleNames(); 
         $ids=array();
         $citybranches=array();
-        // $dist_ids=array();
-            
+        // $dist_ids=array(); 
              $dist_ids = explode(',', $branch);
             $html='';
+            
+            
+             $emp = \App\Employees::select('slj_employees.franch')->where('branch', $branch)->where('city', $city)->where('id', $user_id)->first();
+            //  $emp = \App\Employees::join('users','users.id', '=', 'slj_employees.id')->where('branch',$branch)->where('users.status','Y')->where('city', $city)->select('slj_employees.franch')->first();
+             
+            //  dd($emp);
+            if(!empty($emp)){
+             $branchesgroup1 = explode(",",$emp->franch);
+            }
+             
             foreach ($dist_ids as $dist_idnum) 
              {
                  
-           $cbs = \App\Franchises::select('slj_franchises.*')->where('branch', $dist_idnum)->first();
-           			   $html.="<option value='".$cbs->id."'>".$cbs->franchise_name."</option>";
+        //   $cbs =  \App\Franchises::join('users','users.id', '=', 'slj_franchises.user_id')->where('branch',$dist_idnum)->where('users.status','Y')->select('slj_franchises.id','franchise_name')->get();
+           $franc = \App\Franchises::select('slj_franchises.id','franchise_name')->where('branch', $dist_idnum)->where('city', $city)->get();
+           foreach ($franc as $cbs) 
+             {
+                        if(!empty($branchesgroup1) && in_array($cbs->id,$branchesgroup1)){$selected  = "selected";}else{$selected = "";}
+                        
+           			   $html.="<option ".$selected." value='".$cbs->id."'>".$cbs->franchise_name."</option>";
+             }
 			   
              }
      

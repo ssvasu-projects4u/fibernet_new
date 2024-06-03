@@ -742,6 +742,99 @@ DB::enableQueryLog();
 
         return $html;
     }
+
+    public function getCitySubdistributorBranchesExtraEdit($city,$subdistributor,$user_id)
+    {
+        $id = \Auth::user()->id;
+        $roles = \Auth::user()->getRoleNames(); 
+        $ids=array();
+       // $citybranches=array();
+        $dist_ids=array();
+        if($roles[0]=='branch'){
+            $tbl='slj_branches.user_id'; 
+            $column='slj_branches.id';
+            $ids = \App\Branches::join('users','users.id', '=', $tbl)->where('users.id',$id)->pluck($column, $column);
+            
+        }
+        elseif($roles[0]=='franchise'){
+            $tbl='slj_franchises.user_id';
+            $column='slj_franchises.branch';
+            $ids = \App\Franchises::join('users','users.id', '=', $tbl)->where('users.id',$id)->pluck($column, $column);
+        }
+            
+             $dist_ids = explode(',', $subdistributor);
+            $html='';
+             $emp = \App\Employees::select('slj_employees.branch')->whereIn('subdistributor', $dist_ids)->where('city', $city)->where('id', $user_id)->first();
+              
+              $sub_distributors_group = array();
+              if(!empty($emp) && !empty($emp->branch)){
+            
+                $branch_group = explode(",",$emp->branch);
+              }
+              
+            //foreach ($dist_ids as $dist_idnum) 
+            // {
+                 
+           $kk = \App\Branches::select('slj_branches.*')->whereIn('subdistributor_id', $dist_ids)->get();
+           
+            foreach($kk as $cbs)
+            {
+                        if( !empty($branch_group) && in_array($cbs->id,$branch_group)){$selected  = "selected";}else{$selected = "";}
+
+           			   $html.="<option  ".$selected." value='".$cbs->id."'>".$cbs->branch_name."</option>";
+            }
+    
+
+        return $html;
+    }
+
+    public function getCityDistributorSubdistributorExtraEdit($city,$distributor,$user_id="")
+    {
+        // echo $emp_id;die;
+        $id = \Auth::user()->id;
+        $roles = \Auth::user()->getRoleNames(); 
+        $ids=array();
+       // $citybranches=array();
+        $dist_ids=array();
+        if($roles[0]=='branch'){
+            $tbl='slj_branches.user_id'; 
+            $column='slj_branches.id';
+            $ids = \App\Branches::join('users','users.id', '=', $tbl)->where('users.id',$id)->pluck($column, $column);
+            
+        }
+        elseif($roles[0]=='franchise'){
+            $tbl='slj_franchises.user_id';
+            $column='slj_franchises.branch';
+            $ids = \App\Franchises::join('users','users.id', '=', $tbl)->where('users.id',$id)->pluck($column, $column);
+        }
+            
+             $dist_ids = explode(',', $distributor);
+            $html='';
+            
+              $emp = \App\Employees::select('slj_employees.subdistributor')->whereIn('distributor', $dist_ids)->where('city', $city)->where('id', $user_id)->first();
+              
+              $sub_distributors_group = array();
+              if(!empty($emp) && !empty($emp->subdistributor)){
+            
+                $sub_distributors_group = explode(",",$emp->subdistributor);
+              }
+            //   dd($sub_distributors_group);
+             
+            //foreach ($dist_ids as $dist_idnum) 
+            // {
+               
+          // $kk = \App\Branches::select('slj_branches.*')->whereIn('distributor_id', $dist_ids)->get();
+           $kk = \App\SubDistributors::select('slj_subdistributors.*')->whereIn('distributor_id', $dist_ids)->get();
+                 
+            foreach($kk as $cbs)
+            {
+                       if(in_array($cbs->id,$sub_distributors_group)){$selected  = "selected";}else{$selected = "";}
+           			   $html.="<option  ".$selected." value='".$cbs->id."'>".$cbs->subdistributor_name."</option>";
+            }
+    
+
+        return $html;
+    }
 	
 	
 	

@@ -36,6 +36,7 @@ class Employees extends Model
 		'note',
 		'resignation_date',
 		'distributor',
+		'subdistributor',
 		'branch',
 		'franch'
     ];

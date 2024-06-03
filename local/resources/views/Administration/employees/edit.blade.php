@@ -6,7 +6,9 @@
     <script src="{{ asset('assets/js/bootstrap-multiselect.js')}}"></script>
      
   
-    
+    <?php
+        //dd($userdetails);
+    ?>
     <!-- Page Heading -->
     <div class="card shadow mb-4">
 	   @include('administration.topmenu')
@@ -30,6 +32,7 @@
           <h5 class="bg-primary text-white px-2 pt-1 pb-1">Basic Information</h5>
           <div class="row">
             <input type="hidden" id="user-id" name="user_id" value="{{ $userdetails->user_id }}">
+            <input type="hidden" id="emp_id" name="emp_id" value="{{ $userdetails->id }}">
 					<?php // if( in_array('superadmin', $roles)){ ?>
 					<div class="form-group col-md-3"> {!! Form::label('city', 'City *') !!}
 					{!! Form::select('city', $cities, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select City --') ) !!} </div>
@@ -98,6 +101,7 @@
 								
 							
             }
+           
             ?>
             <div>
               <select class="form-control"  name="distributor[]" id="example-getting-started-distributor" multiple>
@@ -108,6 +112,45 @@
 		   
 			
 			@endforeach					
+					</select>					
+            
+</div>			
+            </div>
+
+            <div class="form-group col-md-3">
+                	{!! Form::label('subdistributor', 'Sub Distributor') !!}
+			   		 <?php
+			    	$subdistributorgroup = array();
+                   
+            if(!empty($userdetails->subdistributor)){
+                
+								$subdistributorgroup = explode(",",$userdetails->subdistributor);
+								
+							
+            }
+           
+            ?>
+
+           
+            <div>
+              <select class="form-control"  name="subdistributor[]" id="example-getting-started-subdistributor" multiple>
+              <?php
+
+                $distids = explode(',',$userdetails->distributor);
+
+                       //if(!empty($userdetails->subdistributor)){
+                           ?>
+              @foreach($distids as $dist) 
+            @php 
+                $subdis = DB::table('slj_subdistributors')->where('distributor_id', $dist)->get();
+                             
+            @endphp
+            @foreach($subdis as $subd)
+              <option value="{{$subd->id}}" <?php if(in_array($subd->id,$subdistributorgroup)){echo "selected";} ?>>{{$subd->subdistributor_name}}</option>
+
+              @endforeach
+			@endforeach
+            <?php //} ?>		
 					</select>					
             
 </div>			
@@ -127,22 +170,32 @@
 								
 							
             }
+           
             ?>
             <div>
               <select class="form-control branchc"  name="branches[]" id="example-getting-started-branch" multiple>
                   
            <?php
-                       if(!empty($userdetails->branch)){
+                     //  if(!empty($userdetails->branch)){
+                        $braches = explode(",",$userdetails->subdistributor);
+                     
                            ?>
-             @foreach($branchesgroup as $p)
+             @foreach($braches as $bra)
             @php 
-                $user = DB::table('slj_branches')->where('id', $p)->first();
+               
+                  $branches = DB::table('slj_branches')->where('subdistributor_id',$bra)->get(); 
+                 
+                
             @endphp
-              <option value="{{$user->id}}" <?php if(in_array($user->id,$branchesgroup)){echo "selected";} ?>>{{$user->branch_name}}</option>
-		    
+            @foreach($branches as $bran)
+              <option value="{{$bran->id}}" <?php if(in_array($bran->id,$branchesgroup)){echo "selected";} ?>>{{$bran->branch_name}}</option>
+
+              @endforeach
+            
+              @endforeach		
 			
-			@endforeach
-            <?php } ?>
+			
+            <?php // } ?>
 			    </select>
 			  </div>
 			</div>
@@ -157,17 +210,19 @@
                 
 								$branchesgroup1 = explode(",",$userdetails->franch);
 								
+                                $fanches = explode(",",$userdetails->branch);
 							
             }
             ?>
              <select class="form-control"  name="franchises[]" id="example-getting-started" multiple>
-                                  @foreach($branchesgroup1 as $pp)
+             @foreach($fanches as $fr)                 
             @php 
-            $user1 = DB::table('slj_franchises')->where('id', $pp)->first(); 
-            
+                      
+            $allfranch = DB::table('slj_franchises')->where('branch', $fr)->get(); 
             @endphp
-            <option value="{{$user1->id}}" <?php if(in_array($user1->id,$branchesgroup1)){echo "selected";} ?>>{{$user1->franchise_name}}</option>
-			
+            @foreach($allfranch as $fra)  
+            <option value="{{$fra->id}}" <?php if(in_array($fra->id,$branchesgroup1)){echo "selected";} ?>>{{$fra->franchise_name}}</option>
+			@endforeach
 			@endforeach	
                    </select>
             		
@@ -221,6 +276,7 @@
     $(document).ready(function() {
         $('#example-getting-started-branch').multiselect();
         $('#example-getting-started-distributor').multiselect();
+        $('#example-getting-started-subdistributor').multiselect();
         $('#example-getting-started').multiselect();
         
     });
@@ -267,6 +323,8 @@
         <div class="form-group col-md-3"> {!! Form::label('role', 'Role*') !!}
         {!! Form::select('role', $roles, $role, array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Role --') ) !!} </div>
         </div>
+
+
         <hr class="pt-0 pb-0 mb-1 mt-0">
 		<h5 class="bg-primary text-white px-2 pt-1 pb-1">Upload Documents</h5>
         <div class="row">
@@ -657,21 +715,71 @@ $('#example-getting-started-distributor').multiselect({
          
        onChange:function(option, checked)
   {
-      $('#example-getting-started-branch').html('');
+    //  $('#example-getting-started-branch').html('');
+      $('#example-getting-started-subdistributor').html('');
                 
   
-   $('#example-getting-started-branch').multiselect('rebuild');
+  // $('#example-getting-started-branch').multiselect('rebuild');
+   $('#example-getting-started-subdistributor').multiselect('rebuild');
    var distributor = this.$select.val();
    if(distributor.length > 0)
    {
             var city = $("#city").val();
+             var user_id = $("#emp_id").val(); 
           
             
           //alert(distributor);
            
 	   
             $.ajax({
-                url: "{{url('/admin/franchises/citydistributorbranchesextraedit')}}/"+city+"/"+distributor,
+                url: "{{url('/admin/franchises/citydistributorsubdistributorextraedit')}}/"+city+"/"+distributor+"/"+user_id,
+                type: "GET",
+                success:function(data) {
+            //    alert(data);
+                // $('#example-getting-started-branch').html(data);
+                // $('#example-getting-started-branch').multiselect('rebuild');
+
+                $('#example-getting-started-subdistributor').html(data);
+                $('#example-getting-started-subdistributor').multiselect('rebuild');
+             
+                  
+               //$('example-getting-started-branch').append(data);
+                //$('#example-getting-started-branch').multiselect('rebuild');
+             
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    alert(errorThrown);
+                }
+            });
+   }
+  }
+            
+    
+      });
+</script>
+
+<script>
+
+$('#example-getting-started-subdistributor').multiselect({
+         
+       onChange:function(option, checked)
+  {
+      $('#example-getting-started-branch').html('');
+                
+  
+   $('#example-getting-started-branch').multiselect('rebuild');
+   var subdistributor = this.$select.val();
+   if(subdistributor.length > 0)
+   {
+            var city = $("#city").val();
+             var user_id = $("#emp_id").val(); 
+          
+            
+          //alert(distributor);
+           
+	   
+            $.ajax({
+                url: "{{url('/admin/franchises/citysubdistributorbranchesextraedit')}}/"+city+"/"+subdistributor+"/"+user_id,
                 type: "GET",
                 success:function(data) {
             //    alert(data);
@@ -706,13 +814,13 @@ $('#example-getting-started-distributor').multiselect({
           //alert(branch);
          
           var city = $("#city").val();
-             
+          var user_id = $("#emp_id").val(); 
         
         //alert(city);
     
           
             $.ajax({
-                url: "{{url('/admin/customers/branch-franchisesextraedit')}}/"+city+"/"+branch,
+                url: "{{url('/admin/customers/branch-franchisesextraedit')}}/"+city+"/"+branch+"/"+user_id,
                 type: "GET",
                 success:function(data1) {
                 console.log(data1);

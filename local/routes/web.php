@@ -145,7 +145,14 @@ Route::prefix('admin/franchises')->group(function() {
 	
 	Route::get('/citydistributorbranchesextra/{city}/{distributor}', 'Administration\FranchisesController@getCityDistributorBranchesExtra');
 	Route::get('/citydistributorsubdistributorextra/{city}/{distributor}', 'Administration\FranchisesController@getCityDistributorSubdistributorExtra');
+	
+	Route::get('/citydistributorsubdistributorextraedit/{city}/{distributor}/{user_id}', 'Administration\FranchisesController@getCityDistributorSubdistributorExtraEdit');
+	Route::get('/citysubdistributorbranchesextraedit/{city}/{subdistributor}/{user_id}', 'Administration\FranchisesController@getCitySubdistributorBranchesExtraEdit');
+
 	Route::get('/citydistributorbranchesextraedit/{city}/{distributor}', 'Administration\FranchisesController@getCityDistributorBranchesExtraEdit');
+	// Route::get('/citydistributorsubdistributorextraedit/{city}/{distributor}', 'Administration\FranchisesController@getCityDistributorSubdistributorExtraEdit');
+	// Route::get('/citysubdistributorbranchesextraedit/{city}/{subdistributor}', 'Administration\FranchisesController@getCitySubdistributorBranchesExtraEdit');
+	
 	Route::get('/getdetails/{franchise}', 'Administration\FranchisesController@getFranchiseDetails');
         Route::post('/passwordsetup', ['as' => 'franchises.change_password', 'uses' => 'Administration\FranchisesController@change_password']);
         
@@ -587,7 +594,9 @@ Route::prefix('admin/customers')->group(function() {
 	Route::get('/branch-franchises/{city}/{branch}', 'Customers\CustomersController@getCityBranchFranchises');
 	Route::get('/branch-franchises/{branch}', 'Customers\CustomersController@getBranchFranchises');
 	Route::get('/branch-franchisesextra/{city}/{branch}', 'Customers\CustomersController@getBranchFranchisesExtra');
-	Route::get('/branch-franchisesextraedit/{city}/{branch}', 'Customers\CustomersController@getBranchFranchisesExtraEdit');
+	//Route::get('/branch-franchisesextraedit/{city}/{branch}', 'Customers\CustomersController@getBranchFranchisesExtraEdit');
+	Route::get('/branch-franchisesextraedit/{city}/{branch}/{user_id}', 'Customers\CustomersController@getBranchFranchisesExtraEdit');
+	
 	Route::get('/package-subpackages/{package}', 'Customers\CustomersController@getPackageSubPackages');
 	Route::get('/package-combo-subpackages/{package}', 'Customers\CustomersController@getComboPackageSubPackages');
 
