@@ -14,6 +14,9 @@ use Auth;
 use Carbon\Carbon;
 
 
+use Illuminate\Support\Facades\DB;
+
+
 class FranchisesController extends Controller
 {
     public function __construct()
@@ -61,8 +64,9 @@ class FranchisesController extends Controller
     public function create()
     {
         $items = \App\City::where('status','Y')->pluck('name', 'id');
+        $states = \App\State::where('status','Y')->pluck('name', 'id');
 		
-		return view('administration.franchises.create',['items'=>$items]);
+		return view('administration.franchises.create',['items'=>$items,'states'=>$states]);
     }
 
     /**
@@ -128,18 +132,74 @@ class FranchisesController extends Controller
 
 		//Generate Franchise Id
 		$data = \App\Franchises::select('franchise_id')->orderBy('franchise_id','desc')->first();
-		$franchiseid = "00000";
+       
+        $franchiseid = "00000";
 		if(isset($data->franchise_id)){
 			$franchiseid = substr($data->franchise_id, -5);	
 		}
-		$franchiseid = "SLJFR".str_pad($franchiseid + 1, 5, 0, STR_PAD_LEFT);	
+		 $franchiseid = "SLJFR".str_pad($franchiseid + 1, 5, 0, STR_PAD_LEFT);
+        // $franchiseid_api = "SLJ".str_pad($franchiseid + 1, 5, 0, STR_PAD_LEFT);
+
+       $data = $request->all();
+		 
+		$access_token = 'ei0ff1d675eec4c016fa86a4d12b';
+		
+		$base_url = config('constants.base_url');
+		 
+		$url = $base_url.'RSMS/AddOperator';
+		
+		$headers = array(
+			"Accept: application/json",
+			"Content-Type: application/json",
+			'Authorization: ' . $access_token
+		);
+		
+		
+		 $query_params = array(
+			'name_header'       => "Mrs",
+            'operator_name'     => isset($input['name']) ? $input['name'] : null,
+			'email'        => isset($input['email']) ? $input['email'] : null,
+			'contact'     => isset($input['mobile']) ? $input['mobile'] : null,
+			'address'            => isset($input['agreement_address']) ? $input['agreement_address'] : null,
+			'area'             => isset($input['area_description']) ? $input['area_description'] : null,
+			'street'           => isset($input['street']) ? $input['street'] : null,
+			'state'          => isset($input['state']) ? $input['state'] : null,			
+			'pincode'             => isset($input['pincode']) ? $input['pincode'] : null,
+			'user_id'            => $franchiseid,
+			'password'            => isset($input['password']) ? $input['password'] : null,
+		);
+        
+        $query_string = http_build_query($query_params);		
+		$json_data = json_encode($query_params);
+       
+		
+		$ch = curl_init($url);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+			curl_setopt($ch, CURLOPT_POST, true);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $json_data);
+
+		 $response = curl_exec($ch);
+           
+
+            if (curl_errno($ch)) {
+				echo 'Error:' . curl_error($ch);
+			} else {
+				$response_data = json_decode($response, true);
+             
+            
+       // $input['op_id'] = isset($response_data['op_id'])?$response_data['op_id']:'';
 		$input['franchise_id'] = $franchiseid;
 		$input['user_id'] = $userdata->id;
 		$input['distributor_id'] = $input['distributor'];		
 		 $input['subdistributor_id'] = $input['subdistributor'];
+         $input['state'] = $input['state'];
+         $input['street'] = $input['street'];
+         $input['pincode'] = $input['pincode']; 
     	$input['vlan'] = $input['vlan'];
 		\App\Franchises::create($input);
-
+            }
+      
         return redirect('admin/franchises')->with('success', 'Franchise created successfully.');
     }
 
@@ -169,11 +229,11 @@ class FranchisesController extends Controller
 		
 		$branches = \App\Branches::join('users','users.id', '=', 'slj_branches.user_id')->where('users.status','Y')->where('subdistributor_id',$franchisedetails->subdistributor_id)->pluck('branch_name as name', 'slj_branches.id');
 
-      
+        $states = \App\State::where('status','Y')->pluck('name', 'id');
       // \App\Employees_Logs::create($employeedata);
 	  
 		
-		return view('administration.franchises.edit',['distributors'=>$distributors,'subdistributors'=>$subdistributors,'branches'=>$branches,'items'=>$items, 'franchisedetails'=>$franchisedetails]); 
+		return view('administration.franchises.edit',['distributors'=>$distributors,'subdistributors'=>$subdistributors,'branches'=>$branches,'items'=>$items, 'franchisedetails'=>$franchisedetails,'states'=>$states]); 
     }
 
     /**
@@ -214,6 +274,7 @@ class FranchisesController extends Controller
 		//dd($requestdata);
 		
 		$data['franchise_name'] = $requestdata['franchise_name'];
+        $data['state'] = $requestdata['state'];
 		$data['city'] = $requestdata['city'];
 		$data['branch'] = $requestdata['branch'];
 	
@@ -229,6 +290,9 @@ class FranchisesController extends Controller
 		$data['bank_branch_name'] = $requestdata['bank_branch_name'];
 		$data['bank_name'] = $requestdata['bank_name'];
 		$data['area_description'] = $requestdata['area_description'];
+        $data['street'] = $requestdata['street'];
+        $data['pincode'] = $requestdata['pincode'];
+                  
 		$data['vlan'] = $requestdata['vlan'];
 		
 		//Update details
@@ -472,10 +536,15 @@ class FranchisesController extends Controller
 	
 	 public function getCityDistributorSubdistributor($city,$distributor)
     {
-		echo 'hi';die;
+		
+        
+// Enable query log
+DB::enableQueryLog();
+
         $id = \Auth::user()->id;
         $roles = \Auth::user()->getRoleNames(); 
         $ids=array();
+    //    echo 'hi'.$roles[0];die;
         
         if($roles[0]=='branch'){
             $tbl='slj_branches.user_id'; 
@@ -496,7 +565,28 @@ class FranchisesController extends Controller
         $branchdetails=array();
         if($roles[0]=='superadmin')
         {
-               $distributors = \App\Branches::join('users','users.id', '=', 'slj_branches.user_id')->where('city',$city)->where('distributor_id',$distributor)->where('users.status','Y')->select('slj_branches.id','branch_name')->get();
+               $distributors = \App\SubDistributors::join('users','users.id', '=', 'slj_subdistributors.user_id')->where('city',$city)->where('distributor_id',$distributor)->where('users.status','Y')->select('slj_subdistributors.id','subdistributor_name')->get();
+               
+
+               
+// // Get the query log
+// $queries = DB::getQueryLog();
+
+// // Get the last executed query
+// $lastQuery = end($queries);
+
+// function formatQuery($query)
+// {
+//     $sql = str_replace('?', '%s', $query['query']);
+//     return vsprintf($sql, array_map(function ($binding) {
+//         return is_numeric($binding) ? $binding : "'$binding'";
+//     }, $query['bindings']));
+// }
+
+// // Format and print the last executed query
+// dd(formatQuery($lastQuery));
+                
+
         }
         else
         {
@@ -514,7 +604,7 @@ class FranchisesController extends Controller
 
         $html = "<option value=''>-- Select distributor --</option>";
         foreach($distributors as $distributor){
-			$html.="<option value='".$distributor->id."'>".$distributor->distributor_name."</option>";
+			$html.="<option value='".$distributor->id."'>".$distributor->subdistributor_name."</option>";
         }
 
         return $html;
@@ -597,7 +687,7 @@ class FranchisesController extends Controller
 
         return $html;
     }
-     public function getCityDistributorBranchesExtra($city,$distributor)
+     public function getCityDistributorBranchesExtra($city,$subdistributor)
     {
         $id = \Auth::user()->id;
         $roles = \Auth::user()->getRoleNames(); 
@@ -615,10 +705,10 @@ class FranchisesController extends Controller
         }
         if($ids){
             
-            $citybranches = \App\Branches::join('users','users.id', '=', 'slj_branches.user_id')->where('city',$city)->where('distributor_id',$distributor)->whereIn('slj_branches.id',$ids)->where('users.status','Y')->select('slj_branches.id','branch_name')->get();
+            $citybranches = \App\Branches::join('users','users.id', '=', 'slj_branches.user_id')->where('city',$city)->where('subdistributor_id',$subdistributor)->whereIn('slj_branches.id',$ids)->where('users.status','Y')->select('slj_branches.id','branch_name')->get();
         }
         else{
-            $citybranches = \App\Branches::join('users','users.id', '=', 'slj_branches.user_id')->where('city',$city)->where('distributor_id',$distributor)->where('users.status','Y')->select('slj_branches.id','branch_name')->get();
+            $citybranches = \App\Branches::join('users','users.id', '=', 'slj_branches.user_id')->where('city',$city)->where('subdistributor_id',$subdistributor)->where('users.status','Y')->select('slj_branches.id','branch_name')->get();
         }
         
         $html='';
@@ -637,7 +727,7 @@ class FranchisesController extends Controller
         return $html;
     }
 	
-	  public function getCityDistributorSubdistributorsExtra($city,$distributor)
+	  public function getCityDistributorSubdistributorExtra($city,$distributor)
     {
         $id = \Auth::user()->id;
         $roles = \Auth::user()->getRoleNames(); 
@@ -655,19 +745,21 @@ class FranchisesController extends Controller
         }
         if($ids){
             
-            $citybranches = \App\Branches::join('users','users.id', '=', 'slj_branches.user_id')->where('city',$city)->where('distributor_id',$distributor)->whereIn('slj_branches.id',$ids)->where('users.status','Y')->select('slj_branches.id','branch_name')->get();
+            $citydistributors = \App\SubDistributors::join('users','users.id', '=', 'slj_subdistributors.user_id')->where('city',$city)->where('distributor_id',$distributor)->where('users.status','Y')->select('slj_subdistributors.id','subdistributor_name')->get();
+
+            
         }
         else{
-            $citybranches = \App\Branches::join('users','users.id', '=', 'slj_branches.user_id')->where('city',$city)->where('distributor_id',$distributor)->where('users.status','Y')->select('slj_branches.id','branch_name')->get();
+            $citydistributors = \App\SubDistributors::join('users','users.id', '=', 'slj_subdistributors.user_id')->where('city',$city)->where('distributor_id',$distributor)->where('users.status','Y')->select('slj_subdistributors.id','subdistributor_name')->get();
         }
         
         $html='';
         
-        foreach($citybranches as $branch)
+        foreach($citydistributors as $distributors)
 			{
 			    $html .= '<div class="col-md-3">';
 			    $html .= '<label class="radio-inline mr10" style="font-size: 11px;">';
-			    $html .= "<input type='checkbox' class='checkbx' name='branches[]' id='branch' value='".$branch->id."'>$branch->branch_name";
+			    $html .= "<input type='checkbox' class='checkbxxx' name='branches[]' id='branch' value='".$distributors->id."'>$distributors->subdistributor_name";
 			    $html .= '</label>';
 			    $html .= '</div>';
 			   
@@ -706,6 +798,99 @@ class FranchisesController extends Controller
             {
                     
            			   $html.="<option value='".$cbs->id."'>".$cbs->branch_name."</option>";
+            }
+    
+
+        return $html;
+    }
+
+    public function getCitySubdistributorBranchesExtraEdit($city,$subdistributor,$user_id)
+    {
+        $id = \Auth::user()->id;
+        $roles = \Auth::user()->getRoleNames(); 
+        $ids=array();
+       // $citybranches=array();
+        $dist_ids=array();
+        if($roles[0]=='branch'){
+            $tbl='slj_branches.user_id'; 
+            $column='slj_branches.id';
+            $ids = \App\Branches::join('users','users.id', '=', $tbl)->where('users.id',$id)->pluck($column, $column);
+            
+        }
+        elseif($roles[0]=='franchise'){
+            $tbl='slj_franchises.user_id';
+            $column='slj_franchises.branch';
+            $ids = \App\Franchises::join('users','users.id', '=', $tbl)->where('users.id',$id)->pluck($column, $column);
+        }
+            
+             $dist_ids = explode(',', $subdistributor);
+            $html='';
+             $emp = \App\Employees::select('slj_employees.branch')->whereIn('subdistributor', $dist_ids)->where('city', $city)->where('id', $user_id)->first();
+              
+              $sub_distributors_group = array();
+              if(!empty($emp) && !empty($emp->branch)){
+            
+                $branch_group = explode(",",$emp->branch);
+              }
+              
+            //foreach ($dist_ids as $dist_idnum) 
+            // {
+                 
+           $kk = \App\Branches::select('slj_branches.*')->whereIn('subdistributor_id', $dist_ids)->get();
+           
+            foreach($kk as $cbs)
+            {
+                        if( !empty($branch_group) && in_array($cbs->id,$branch_group)){$selected  = "selected";}else{$selected = "";}
+
+           			   $html.="<option  ".$selected." value='".$cbs->id."'>".$cbs->branch_name."</option>";
+            }
+    
+
+        return $html;
+    }
+
+    public function getCityDistributorSubdistributorExtraEdit($city,$distributor,$user_id="")
+    {
+        // echo $emp_id;die;
+        $id = \Auth::user()->id;
+        $roles = \Auth::user()->getRoleNames(); 
+        $ids=array();
+       // $citybranches=array();
+        $dist_ids=array();
+        if($roles[0]=='branch'){
+            $tbl='slj_branches.user_id'; 
+            $column='slj_branches.id';
+            $ids = \App\Branches::join('users','users.id', '=', $tbl)->where('users.id',$id)->pluck($column, $column);
+            
+        }
+        elseif($roles[0]=='franchise'){
+            $tbl='slj_franchises.user_id';
+            $column='slj_franchises.branch';
+            $ids = \App\Franchises::join('users','users.id', '=', $tbl)->where('users.id',$id)->pluck($column, $column);
+        }
+            
+             $dist_ids = explode(',', $distributor);
+            $html='';
+            
+              $emp = \App\Employees::select('slj_employees.subdistributor')->whereIn('distributor', $dist_ids)->where('city', $city)->where('id', $user_id)->first();
+              
+              $sub_distributors_group = array();
+              if(!empty($emp) && !empty($emp->subdistributor)){
+            
+                $sub_distributors_group = explode(",",$emp->subdistributor);
+              }
+            //   dd($sub_distributors_group);
+             
+            //foreach ($dist_ids as $dist_idnum) 
+            // {
+               
+          // $kk = \App\Branches::select('slj_branches.*')->whereIn('distributor_id', $dist_ids)->get();
+           $kk = \App\SubDistributors::select('slj_subdistributors.*')->whereIn('distributor_id', $dist_ids)->get();
+                 
+            foreach($kk as $cbs)
+            {
+                       if(in_array($cbs->id,$sub_distributors_group)){$selected  = "selected";}else{$selected = "";}
+           			   $html.="<option  ".$selected." value='".$cbs->id."'>".$cbs->subdistributor_name."</option>";
             }
     
 

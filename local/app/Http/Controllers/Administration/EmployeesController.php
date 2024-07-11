@@ -76,6 +76,7 @@ class EmployeesController extends Controller
 		$franchises = array();
 
 		$cities = \App\City::where('status','Y')->pluck('name', 'id');
+        $states = \App\State::where('status','Y')->pluck('name', 'id');
 
 		if(isset($_GET['distributor'])){
 			$distributors = \App\Distributors::where('id',$_GET['distributor'])->pluck('distributor_name as name', 'id');
@@ -97,6 +98,7 @@ class EmployeesController extends Controller
             'roles' => $roles,
             'departments' => $departments,
              'cities' => $cities,
+             'states' => $states,
             'distributors'=>$distributors,
             'subdistributors'=>$subdistributors,
 			'branches'=>$branches,
@@ -123,6 +125,7 @@ class EmployeesController extends Controller
             'first_name' => 'required',            
             'address' => 'required',
             'city' => 'required',
+            'state' => 'required',
             'password' => 'required|min:8',
             'email' => 'required|email|unique:users',
             'mobile' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10',
@@ -257,6 +260,7 @@ class EmployeesController extends Controller
         $employee = new \App\Employees();
         $employee['user_id'] = $user->id;
         $employee['city'] = $input['city'];
+        $employee['state'] = $input['state'];
         $employee['f_name_c_name'] = $input['f_name_c_name'];
         $employee['joining_date'] = $input['joining_date'];
         $employee['address'] = $input['address'];
@@ -390,6 +394,7 @@ class EmployeesController extends Controller
     public function edit($id)
     {
 		$cities = \App\City::where('status','Y')->pluck('name', 'id');
+        $states = \App\State::where('status','Y')->pluck('name', 'id');
 
         $roles = Role::whereNotIn('name',['superadmin','customer','franchise','distributor','subdistributor','branch'])->pluck('name', 'id');
         $departments = \App\Departments::where('status','Y')->pluck('department as name', 'id');
@@ -418,6 +423,7 @@ class EmployeesController extends Controller
             'departments'=>$departments,
             'designations'=>$designations,
             'cities'=>$cities,
+            'states'=>$states,
             'certificates'=>$certificates
         ]);
     }
@@ -587,6 +593,7 @@ class EmployeesController extends Controller
         }
 
         $employeedata['city'] = $requestdata['city'];
+        $employeedata['state'] = $requestdata['state'];
         $employeedata['f_name_c_name'] = $requestdata['f_name_c_name'];
         $employeedata['joining_date'] = $requestdata['joining_date'];
         $employeedata['address'] = $requestdata['address'];

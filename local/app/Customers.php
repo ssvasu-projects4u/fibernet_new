@@ -78,7 +78,10 @@ class Customers extends Model
         'status',
         'current_status',
         'eid',
-        'ucreateddt'
+        'ucreateddt',
+        'date_of_birth',
+        'state',
+        'address_proof_no'
         
     ];
 	

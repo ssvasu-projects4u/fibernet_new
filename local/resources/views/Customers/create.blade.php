@@ -42,6 +42,8 @@
 					<?php 
 					if($roles[0]=='superadmin'){
 					if($roles[0]=='superadmin'){ ?>
+					<div class="form-group col-md-3"> {!! Form::label('state', 'State *') !!}
+						        {!! Form::select('state', $states, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select State --') ) !!} </div>
 					<div class="form-group col-md-3"> {!! Form::label('city', 'City *') !!}
 						        {!! Form::select('city', $cities, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select City --') ) !!} </div>
 			<div class="form-group col-md-3"> {!! Form::label('distributor', 'Distributor *') !!}
@@ -51,6 +53,7 @@
                                         <?php } if($roles[0]=='branch' || $roles[0]=='superadmin'){ ?>                      
 		<div class="form-group col-md-3"> {!! Form::label('franchise', 'Franchise *') !!}
         {!! Form::select('franchise', $franchise_list, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Franchise --') ) !!} </div>
+		<input type="hidden" name="operator_id" id = "operator_id" value="">
                                         <?php } } else { 
                                           $userid = Auth::user()->id;
                                         ?>
@@ -122,7 +125,9 @@
               
                   <option value="{{$p}}">{{ $fname->franchise_name }}</option>
              @endforeach
+
                   </select>
+				
              
           
             
@@ -142,7 +147,10 @@
 				        <div class="form-group col-md-3"> {!! Form::label('last_name', 'Last Name *') !!}
 				        {!! Form::text('last_name',null, array('class' => 'form-control','required'=>'required','placeholder'=>'Enter Last Name')) !!} </div>
 
-				        <div class="form-group col-md-3"> {!! Form::label('f_name_c_name', 'Father/Company Name *') !!}
+				      <div class="form-group col-md-3"> {!! Form::label('date_of_birth', 'Date of Birth *') !!}
+				        {!! Form::text('date_of_birth',null, array('class' => 'form-control','required'=>'required','placeholder'=>'Enter Date of Birth')) !!} </div>
+
+					  <div class="form-group col-md-3"> {!! Form::label('f_name_c_name', 'Father/Company Name *') !!}
 				        {!! Form::text('f_name_c_name',null, array('class' => 'form-control','required'=>'required','placeholder'=>'Enter Father Name or Company Name')) !!} </div>
 
 				        <div class="form-group col-md-3"> {!! Form::label('email', 'Email *') !!}
@@ -1183,7 +1191,21 @@
         	}
 
 		});
-
+		$('#franchise').on('change', function() {
+          
+            var franchise_id = $(this).val();
+           
+            $.ajax({
+                url: "{{url('/admin/customers/get_op_id')}}/"+franchise_id,
+                type: "GET",
+                success:function(data) {
+                   $('#operator_id').val(data);
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    alert(errorThrown);
+                }
+            });
+        });
 </script>
   
 

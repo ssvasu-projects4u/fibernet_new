@@ -20,7 +20,4 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::get('get-details-operator','API\OperatorController@index');
 Route::post('add-operator','API\OperatorController@addOperator');
 
-Route::get('get-details-subscriber','API\SubscriberController@index');
-Route::post('add-subscriber','API\SubscriberController@addSubscriber');
-
 

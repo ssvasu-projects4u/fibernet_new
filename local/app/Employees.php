@@ -12,6 +12,7 @@ class Employees extends Model
 	protected $fillable = [
         'user_id',
 		'city',
+		'state',
 		// fahter name
 		'f_name_c_name',
 		'alt_mobile_num',

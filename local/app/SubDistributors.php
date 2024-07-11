@@ -11,6 +11,7 @@ class SubDistributors extends Model
 	
 	protected $fillable = [
         'city',
+		'state',
 		'subdistributor_name',
 		'office_address',
 		'long_lat',

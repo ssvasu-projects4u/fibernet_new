@@ -11,6 +11,7 @@ class Franchises extends Model
 	
 	protected $fillable = [
         'user_id',
+		'state',
 		'city',
 		'branch',
 		'franchise_id',
@@ -20,6 +21,10 @@ class Franchises extends Model
 		'aadhar',
 		'landline',
 		'agreement_address',
+		'street',
+		'pincode',
+		'op_id',
+		'name_header',
 		'bank_account',
 		'bank_holder_name',
 		'ifsc_code',
@@ -30,9 +35,9 @@ class Franchises extends Model
 		'pan_card',
 		'bank_passbook',
 		'status',
-                'credited_balance',
-                'debited_balance',
-                'available_balance',
+		'credited_balance',
+		'debited_balance',
+		'available_balance',
         'vlan'
     ];
 	

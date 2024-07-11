@@ -38,6 +38,8 @@
 		   <h5 class="bg-primary text-white px-2 pt-1 pb-1">Basic Information</h5>
 					<div class="row">
 					<?php if($roles[0]=='superadmin'){ ?>
+					<div class="form-group col-md-3"> {!! Form::label('state', 'State *') !!}
+						        {!! Form::select('state', $states, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select State --') ) !!} </div>
 					<div class="form-group col-md-3"> {!! Form::label('city', 'City *') !!}
 						        {!! Form::select('city', $cities, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select City --') ) !!} </div>
 			<div class="form-group col-md-3"> {!! Form::label('distributor', 'Distributor *') !!}
@@ -57,6 +59,9 @@
 
 				        <div class="form-group col-md-3"> {!! Form::label('last_name', 'Last Name *') !!}
 				        {!! Form::text('last_name',$customerdetails->last_name, array('class' => 'form-control','required'=>'required','placeholder'=>'Enter Last Name')) !!} </div>
+						
+						 <div class="form-group col-md-3"> {!! Form::label('date_of_birth', 'Date of Birth *') !!}
+				        {!! Form::text('date_of_birth',$customerdetails->date_of_birth, array('class' => 'form-control','required'=>'required','placeholder'=>'Enter Date of Birth')) !!} </div>
 
 				        <div class="form-group col-md-3"> {!! Form::label('f_name_c_name', 'Father/Company Name *') !!}
 				        {!! Form::text('f_name_c_name',null, array('class' => 'form-control','required'=>'required','placeholder'=>'Enter Father Name or Company Name')) !!} </div>

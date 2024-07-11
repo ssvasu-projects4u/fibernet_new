@@ -11,6 +11,7 @@ class Distributors extends Model
 	
 	protected $fillable = [
         'city',
+		'state',
 		'distributor_name',
 		'office_address',
 		'long_lat',

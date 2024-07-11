@@ -26,7 +26,9 @@
 	      @csrf
 			
 			<div class="row">
-			
+			<div class="form-group col-md-3"> {!! Form::label('state', 'State*') !!}
+        {!! Form::select('state', $states, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select State --') ) !!} </div>
+
 			<div class="form-group col-md-3"> {!! Form::label('city', 'City*') !!}
         {!! Form::select('city', $items, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select City --') ) !!} </div>
 		
@@ -76,9 +78,17 @@
 
 		<div class="form-group col-md-3"> {!! Form::label('agreement_address', 'Agreement Address') !!}
         {!! Form::text('agreement_address',null, array('class' => 'form-control','placeholder'=>'Enter Agreement Address')) !!} </div>
-        	<div class="form-group col-md-3"> {!! Form::label('vlan', 'VLAN*') !!}
+        
+        <div class="form-group col-md-3"> {!! Form::label('street', 'Street*') !!}
+        {!! Form::text('street',null, array('class' => 'form-control','required'=>'required','placeholder'=>'Enter Street')) !!} </div>
+        <div class="form-group col-md-3"> {!! Form::label('pincode', 'Pincode*') !!}
+        {!! Form::text('pincode',null, array('class' => 'form-control','required'=>'required','placeholder'=>'Enter pincode')) !!} </div>
+
+        
+        <div class="form-group col-md-3"> {!! Form::label('vlan', 'VLAN*') !!}
         {!! Form::text('vlan',null, array('class' => 'form-control','required'=>'required','placeholder'=>'Enter VLAN')) !!} </div>
 		
+      
 		
 		</div>
 		

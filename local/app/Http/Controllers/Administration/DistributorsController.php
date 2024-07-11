@@ -312,8 +312,8 @@ class DistributorsController extends Controller
     public function create()
     {
 		$items = \App\City::where('status','Y')->pluck('name', 'id');
-		
-		return view('administration.distributors.create',['items'=>$items]);
+        $states = \App\State::where('status','Y')->pluck('name', 'id');
+		return view('administration.distributors.create',['items'=>$items,'states'=>$states]);
     }
 
     /**
@@ -327,6 +327,7 @@ class DistributorsController extends Controller
 			'name' => 'required',
             'distributor_name' => 'required',
 			'city' => 'required',
+            'state' => 'required',
 			'office_address' => 'required',
 			//'long_lat' => 'required',
 			//'rent' => 'required',
@@ -373,8 +374,10 @@ class DistributorsController extends Controller
         $distributorid = "SLJDR".str_pad($distributorid + 1, 5, 0, STR_PAD_LEFT);   
         $input['distributor_id'] = $distributorid;
         $input['user_id'] = $userdata->id;
+      //  $input['city'] = $data->city;
+      //  $input['state'] = $data->state;
 
-        //echo "<pre>"; printf($input); exit;
+       // echo "<pre>"; printf($input); exit;
         \App\Distributors::create($input);
 
         return redirect('admin/distributors')->with('success', 'Distributor created successfully.');
@@ -399,8 +402,8 @@ class DistributorsController extends Controller
     {
         $distributordetails = \App\Distributors::join('users','users.id', '=', 'slj_distributors.user_id')->where('slj_distributors.id',$id)->select('slj_distributors.*','users.name','users.mobile','users.email')->first();
 		$items = \App\City::where('status','Y')->pluck('name', 'id');
-		
-		return view('administration.distributors.edit',['items'=>$items, 'distributordetails'=>$distributordetails]); 
+        $states = \App\State::where('status','Y')->pluck('name', 'id');
+		return view('administration.distributors.edit',['items'=>$items, 'distributordetails'=>$distributordetails,'states'=>$states]); 
     }
 
     /**
@@ -418,6 +421,7 @@ class DistributorsController extends Controller
 			'name' => 'required',
             'distributor_name' => 'required',
             'city' => 'required',
+            'state' => 'required',
             'office_address' => 'required',
             //'long_lat' => 'required',
             //'rent' => 'required',
@@ -430,6 +434,7 @@ class DistributorsController extends Controller
         $data = array();
 		$data['distributor_name'] = $requestdata['distributor_name'];
 		$data['city'] = $requestdata['city'];
+        $data['state'] = $requestdata['state'];
 		$data['office_address'] = $requestdata['office_address'];
 		$data['long_lat'] = $requestdata['long_lat'];
 		$data['rent'] = $requestdata['rent'];

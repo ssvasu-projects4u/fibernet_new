@@ -597,6 +597,8 @@ Route::prefix('admin/customers')->group(function() {
 	//Route::get('/branch-franchisesextraedit/{city}/{branch}', 'Customers\CustomersController@getBranchFranchisesExtraEdit');
 	Route::get('/branch-franchisesextraedit/{city}/{branch}/{user_id}', 'Customers\CustomersController@getBranchFranchisesExtraEdit');
 	
+	Route::get('/get_op_id/{id}', 'Customers\CustomersController@getOperatorId');
+
 	Route::get('/package-subpackages/{package}', 'Customers\CustomersController@getPackageSubPackages');
 	Route::get('/package-combo-subpackages/{package}', 'Customers\CustomersController@getComboPackageSubPackages');
 

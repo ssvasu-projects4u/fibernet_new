@@ -71,9 +71,10 @@ class BranchesController extends Controller
     public function create()
     {
         $items = \App\City::where('status','Y')->pluck('name', 'id');
+        $states = \App\State::where('status','Y')->pluck('name', 'id');
 		//$subdistributor = \App\SubDistributors::where('status','Y')->pluck('subdistributor_name', 'id');
 		
-		return view('administration.branches.create',['items'=>$items]);
+		return view('administration.branches.create',['items'=>$items,'states'=>$states]);
     }
 
 public function branchutilitieslist($id)
@@ -233,6 +234,7 @@ public function branchutilitieslist($id)
         $validatedData = $request->validate([
 			'branch_name' => 'required',
 			'city' => 'required',
+            'state' => 'required',
 			'distributor' => 'required',
 			'subdistributor' => 'required',
             'office_address' => 'required',
@@ -275,6 +277,8 @@ public function branchutilitieslist($id)
         $input['distributor_id'] = $input['distributor'];
 		 $input['subdistributor_id'] = $input['subdistributor'];
         $input['status'] = "Y";
+        $input['state'] = $input['state'];
+        $input['city'] = $input['city'];
 		
 		 $input['bank_holder_name'] = $input['bank_holder_name'];
         $input['bank_account'] = $input['bank_account'];
@@ -311,9 +315,9 @@ public function branchutilitieslist($id)
 		$items = \App\City::where('status','Y')->pluck('name', 'id');
         $distributors = \App\Distributors::where('city',$branchdetails->city)->pluck('distributor_name as name', 'id');
 		 $subdistributors = \App\SubDistributors::where('distributor_id',$branchdetails->distributor_id)->pluck('subdistributor_name as name', 'id');
-		 
+         $states = \App\State::where('status','Y')->pluck('name', 'id');
 		
-		return view('administration.branches.edit',['items'=>$items, 'branchdetails'=>$branchdetails,'distributors'=>$distributors, 'subdistributors'=>$subdistributors]); 
+		return view('administration.branches.edit',['items'=>$items, 'states'=>$states, 'branchdetails'=>$branchdetails,'distributors'=>$distributors, 'subdistributors'=>$subdistributors]); 
     }
 
     /**
@@ -329,6 +333,7 @@ public function branchutilitieslist($id)
         $validatedData = $request->validate([
 			'branch_name' => 'required',
 			'city' => 'required',
+            'state' => 'required',
             'email' => 'required|unique:users,email,'.$branch->user_id,
 			'office_address' => 'required',
             
@@ -343,6 +348,7 @@ public function branchutilitieslist($id)
 		
 		$data['branch_name'] = $requestdata['branch_name'];
 		$data['city'] = $requestdata['city'];
+        $data['state'] = $requestdata['state'];
 		$data['office_address'] = $requestdata['office_address'];
 		$data['long_lat'] = $requestdata['long_lat'];
 		$data['rent'] = $requestdata['rent'];

@@ -11,6 +11,7 @@ class Branches extends Model
 	
 	protected $fillable = [
         'city',
+		'state',
 		'branch_name',
 		'office_address',
 		'long_lat',

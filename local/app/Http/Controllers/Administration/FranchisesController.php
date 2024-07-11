@@ -64,8 +64,9 @@ class FranchisesController extends Controller
     public function create()
     {
         $items = \App\City::where('status','Y')->pluck('name', 'id');
+        $states = \App\State::where('status','Y')->pluck('name', 'id');
 		
-		return view('administration.franchises.create',['items'=>$items]);
+		return view('administration.franchises.create',['items'=>$items,'states'=>$states]);
     }
 
     /**
@@ -131,18 +132,75 @@ class FranchisesController extends Controller
 
 		//Generate Franchise Id
 		$data = \App\Franchises::select('franchise_id')->orderBy('franchise_id','desc')->first();
-		$franchiseid = "00000";
+       
+        $franchiseid = "00000";
 		if(isset($data->franchise_id)){
 			$franchiseid = substr($data->franchise_id, -5);	
 		}
-		$franchiseid = "SLJFR".str_pad($franchiseid + 1, 5, 0, STR_PAD_LEFT);	
+		 $franchiseid = "SLJFR".str_pad($franchiseid + 1, 5, 0, STR_PAD_LEFT);
+        // $franchiseid_api = "SLJ".str_pad($franchiseid + 1, 5, 0, STR_PAD_LEFT);
+
+       $data = $request->all();
+		 
+		$access_token = 'ei0ff1d675eec4c016fa86a4d12b';
+		
+		$base_url = config('constants.base_url');
+		 
+		$url = $base_url.'RSMS/AddOperator';
+		
+		$headers = array(
+			"Accept: application/json",
+			"Content-Type: application/json",
+			'Authorization: ' . $access_token
+		);
+		
+		
+		 $query_params = array(
+			'name_header'       => "Mrs",
+            'operator_name'     => isset($input['name']) ? $input['name'] : null,
+			'email'        => isset($input['email']) ? $input['email'] : null,
+			'contact'     => isset($input['mobile']) ? $input['mobile'] : null,
+			'address'            => isset($input['agreement_address']) ? $input['agreement_address'] : null,
+			'area'             => isset($input['area_description']) ? $input['area_description'] : null,
+			'street'           => isset($input['street']) ? $input['street'] : null,
+			'state'          => isset($input['state']) ? $input['state'] : null,			
+			'pincode'             => isset($input['pincode']) ? $input['pincode'] : null,
+			'user_id'            => $franchiseid,
+			'password'            => isset($input['password']) ? $input['password'] : null,
+		);
+        
+        $query_string = http_build_query($query_params);		
+		$json_data = json_encode($query_params);
+       
+		
+		$ch = curl_init($url);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+			curl_setopt($ch, CURLOPT_POST, true);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $json_data);
+
+		 $response = curl_exec($ch);
+           
+
+            if (curl_errno($ch)) {
+				echo 'Error:' . curl_error($ch);
+			} else {
+				$response_data = json_decode($response, true);
+             
+            
+       // $input['op_id'] = isset($response_data['op_id'])?$response_data['op_id']:'';
+	   $input['op_id'] => $response_data['op_id'],
 		$input['franchise_id'] = $franchiseid;
 		$input['user_id'] = $userdata->id;
 		$input['distributor_id'] = $input['distributor'];		
 		 $input['subdistributor_id'] = $input['subdistributor'];
+         $input['state'] = $input['state'];
+         $input['street'] = $input['street'];
+         $input['pincode'] = $input['pincode']; 
     	$input['vlan'] = $input['vlan'];
 		\App\Franchises::create($input);
-
+            }
+      
         return redirect('admin/franchises')->with('success', 'Franchise created successfully.');
     }
 
@@ -172,11 +230,11 @@ class FranchisesController extends Controller
 		
 		$branches = \App\Branches::join('users','users.id', '=', 'slj_branches.user_id')->where('users.status','Y')->where('subdistributor_id',$franchisedetails->subdistributor_id)->pluck('branch_name as name', 'slj_branches.id');
 
-      
+        $states = \App\State::where('status','Y')->pluck('name', 'id');
       // \App\Employees_Logs::create($employeedata);
 	  
 		
-		return view('administration.franchises.edit',['distributors'=>$distributors,'subdistributors'=>$subdistributors,'branches'=>$branches,'items'=>$items, 'franchisedetails'=>$franchisedetails]); 
+		return view('administration.franchises.edit',['distributors'=>$distributors,'subdistributors'=>$subdistributors,'branches'=>$branches,'items'=>$items, 'franchisedetails'=>$franchisedetails,'states'=>$states]); 
     }
 
     /**
@@ -217,6 +275,7 @@ class FranchisesController extends Controller
 		//dd($requestdata);
 		
 		$data['franchise_name'] = $requestdata['franchise_name'];
+        $data['state'] = $requestdata['state'];
 		$data['city'] = $requestdata['city'];
 		$data['branch'] = $requestdata['branch'];
 	
@@ -232,6 +291,9 @@ class FranchisesController extends Controller
 		$data['bank_branch_name'] = $requestdata['bank_branch_name'];
 		$data['bank_name'] = $requestdata['bank_name'];
 		$data['area_description'] = $requestdata['area_description'];
+        $data['street'] = $requestdata['street'];
+        $data['pincode'] = $requestdata['pincode'];
+                  
 		$data['vlan'] = $requestdata['vlan'];
 		
 		//Update details

@@ -869,6 +869,7 @@ $user = Auth::user();
         }
 
 		$cities = \App\City::where('status','Y')->pluck('name', 'id');
+		$states = \App\State::where('status','Y')->pluck('name', 'id');
 		
 		$connection_types = \App\ConnectionType::select('id','title')->pluck('title','id');
 
@@ -910,7 +911,7 @@ $user = Auth::user();
 			
 		}
 
-		return view('customers.create',['connectiontypedetails'=>$connectiontypedetails,'cities'=>$cities,'franchise_list'=>$franchise_list,'connection_types'=>$connection_types,'packages'=>$packages,'combopackages'=>$combopackages, 'cabledatabytype'=>$cabledatabytype,'iptvdatabytype'=>$iptvdatabytype]);
+		return view('customers.create',['connectiontypedetails'=>$connectiontypedetails,'states'=>$states,'cities'=>$cities,'franchise_list'=>$franchise_list,'connection_types'=>$connection_types,'packages'=>$packages,'combopackages'=>$combopackages, 'cabledatabytype'=>$cabledatabytype,'iptvdatabytype'=>$iptvdatabytype]);
     }
 
     /**
@@ -1009,7 +1010,8 @@ $user = Auth::user();
             $column='slj_branches.city';
             $branch = \App\Branches::join('users','users.id', '=', $tbl)->select('slj_branches.id','slj_branches.city','slj_branches.distributor_id')->where('users.id',$id)->first();
             //$franchise_list = \App\Franchises::where('branch',$branch->id)->pluck('franchise_name','id');
-            $input['city']=$branch->city;
+             $input['state']=$branch->state;
+			$input['city']=$branch->city;
             $input['distributor']=$branch->distributor_id;
             $input['branch']=$branch->id;
         }
@@ -1017,7 +1019,8 @@ $user = Auth::user();
         if($roles[0]=='franchise'){
             $tbl='slj_franchises.user_id'; 
             $branch = \App\Franchises::join('users','users.id', '=', $tbl)->select('slj_franchises.id','slj_franchises.city','slj_franchises.distributor_id','slj_franchises.branch')->where('users.id',$id)->first();
-            $input['city']=$branch->city;
+            $input['state']=$branch->state;
+		    $input['city']=$branch->city;
             $input['distributor']=$branch->distributor_id;
             $input['branch']=$branch->branch;
             $input['franchise']=$branch->id;
@@ -1055,7 +1058,12 @@ $user = Auth::user();
         $input['status'] = "N";
         $input['current_status'] = "new";
         $cust_pay['paytype']="new";
-        $cust_pay['city']=$input['city'];
+		 $cust_pay['state']=$input['state'];
+		  
+		$input['state']=$input['state'];
+        $input['date_of_birth']=$input['date_of_birth'];
+		
+		
 //$connection=\App\ConnectionType::where('id',$input['connection_type'])->first();
 //$input['connection_type']=$connection->title;
         $user_data = array();
@@ -1083,7 +1091,7 @@ $em=$input['email'];
     
         
     ];
-     Mail::to($em)->send(new \App\Mail\TermsandConditions($details));
+   //  Mail::to($em)->send(new \App\Mail\TermsandConditions($details));
 
 
 
@@ -1250,6 +1258,49 @@ $cust_pay['amount']=$input['secure_deposite_amount']+$input['setup_box_amount']+
 
         $input['technical_details_status'] = "N";
         $input['eid']=$id;
+		
+		
+		$access_token = 'ei0ff1d675eec4c016fa86a4d12b';
+		
+		$base_url = config('constants.base_url');
+		 
+		$url = $base_url.'RSMS/SubscriberCreate';
+		
+		$headers = array(
+			"Accept: application/json",
+			"Content-Type: application/json",
+			'Authorization: ' . $access_token
+		);
+		
+		
+		 $query_params = array(
+		    'op_id'       => isset($input['operator_id']) ? $input['operator_id'] : null,
+			//'casform_id'       => isset($input['casform_id']) ? $input['casform_id'] : null,
+			'first_name'    => isset($input['customer_name']) ? $input['customer_name'] : null,
+			'last_name'  => isset($input['customer_name_l']) ? $input['customer_name_l'] : null,
+			'f_name_c_name'      => isset($input['father_name']) ? $input['father_name'] : null,
+			'date_of_birth'    => isset($input['date_of_birth']) ? $input['date_of_birth'] : null,
+			'billing_address'          => isset($input['address']) ? $input['address'] : null,
+			'email'            => isset($input['email']) ? $input['email'] : null,
+			'mobile'        => isset($input['mobile_no']) ? $input['mobile_no'] : null,
+			'installation_address'  => isset($input['install_address']) ? $input['install_address'] : null,
+			'address_proof_no'    => isset($input['address_proof']) ? $input['address_proof'] : null,
+		);
+        
+        $query_string = http_build_query($query_params);		
+		$json_data = json_encode($query_params);
+       
+		
+		$ch = curl_init($url);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+			curl_setopt($ch, CURLOPT_POST, true);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $json_data);
+
+		 $response = curl_exec($ch);
+		
+		
+		
         //Customer
         $customer = \App\Customers::create($input);
             $cust_pay['customer_id']=$customer->id;
@@ -3174,6 +3225,7 @@ $subpackdetails = \App\BroadbandSubPackages::select('sub_plan_name','total')->wh
         $branches = \App\Branches::where('city',$customerdetails->city)->pluck('branch_name as name', 'id');
         $franchises = \App\Franchises::where('id',$customerdetails->franchise)->pluck('franchise_name as name', 'id');
         $cities = \App\City::pluck('name', 'id');
+		$states = \App\State::where('status','Y')->pluck('name', 'id');
 
         $olt = \App\OLT::where('franchise_id',$customerdetails->franchise)->pluck('id as name', 'id');
 
@@ -3196,7 +3248,7 @@ $subpackdetails = \App\BroadbandSubPackages::select('sub_plan_name','total')->wh
 
 
 
-        return view('customers.edit',['combopackages'=>$combopackages,'franchise_list'=>$franchise_list, 'combosubpackages'=>$combosubpackages, 'cabledata'=>$cabledata, 'cabledatabytype'=>$cabledatabytype,'iptvdatabytype'=>$iptvdatabytype,'distributors'=>$distributors,'branches'=>$branches,'franchises'=>$franchises,'cities'=>$cities,'packages'=>$packages,'subpackages'=>$subpackages,'customerdetails'=>$customerdetails,'olt'=>$olt,'dp'=>$dp,'fh'=>$fh,]);
+        return view('customers.edit',['combopackages'=>$combopackages,'franchise_list'=>$franchise_list, 'combosubpackages'=>$combosubpackages, 'cabledata'=>$cabledata, 'cabledatabytype'=>$cabledatabytype,'iptvdatabytype'=>$iptvdatabytype,'distributors'=>$distributors,'branches'=>$branches,'franchises'=>$franchises,'states'=>$states,'cities'=>$cities,'packages'=>$packages,'subpackages'=>$subpackages,'customerdetails'=>$customerdetails,'olt'=>$olt,'dp'=>$dp,'fh'=>$fh,]);
       //  return view('customers::edit');
 
     }
@@ -3224,6 +3276,9 @@ $subpackdetails = \App\BroadbandSubPackages::select('sub_plan_name','total')->wh
         $user->update($data);
 
         $customerdata = array();
+		 if(!empty($requestdata['state'])){
+        $customerdata['state'] = $requestdata['state'];
+        }
         if(!empty($requestdata['city'])){
         $customerdata['city'] = $requestdata['city'];
         }
@@ -4552,5 +4607,11 @@ public function destroynotintrested($id)
             $package_amount = $packagedetails->total;
         }
         return $package_amount;
+    }
+    public function getOperatorId($id)
+    {
+        $op_id = \App\Franchises::where('id',$id)->select('op_id')->first();
+
+        return $op_id['op_id'];
     }
 }

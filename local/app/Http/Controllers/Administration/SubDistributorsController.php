@@ -312,8 +312,9 @@ class SubDistributorsController extends Controller
     public function create()
     {
 		$items = \App\City::where('status','Y')->pluck('name', 'id');
+        $states = \App\State::where('status','Y')->pluck('name', 'id');
 		
-		return view('administration.subdistributors.create',['items'=>$items]);
+		return view('administration.subdistributors.create',['items'=>$items,'states'=>$states]);
     }
 
     /**
@@ -328,6 +329,7 @@ class SubDistributorsController extends Controller
             'subdistributor_name' => 'required',
 			//'distributor' => 'required',
 			'city' => 'required',
+            'state' => 'required',
 			'office_address' => 'required',
 			//'long_lat' => 'required',
 			//'rent' => 'required',
@@ -375,6 +377,8 @@ class SubDistributorsController extends Controller
         $subdistributorid = "SLJDR".str_pad($subdistributorid + 1, 5, 0, STR_PAD_LEFT);   
         $input['subdistributor_id'] = $subdistributorid;
         $input['distributor_id'] = $input['distributor'];
+        $input['city'] = $input['city'];
+        $input['state'] = $input['state'];
         $input['user_id'] = $userdata->id;
 
         //echo "<pre>"; printf($input); exit;
@@ -410,8 +414,9 @@ class SubDistributorsController extends Controller
 
 		
 		$items = \App\City::where('status','Y')->pluck('name', 'id');
-		
-		return view('administration.subdistributors.edit',['items'=>$items, 'subdistributordetails'=>$subdistributordetails,'distributors'=>$distributors]); 
+        $states = \App\State::where('status','Y')->pluck('name', 'id');
+
+		return view('administration.subdistributors.edit',['states'=>$states, 'items'=>$items, 'subdistributordetails'=>$subdistributordetails,'distributors'=>$distributors]); 
     }
 
     /**
@@ -430,6 +435,7 @@ class SubDistributorsController extends Controller
             'subdistributor_name' => 'required',
 			//'distributor' => 'required',
             'city' => 'required',
+            'state' => 'required',
             'office_address' => 'required',
             //'long_lat' => 'required',
             //'rent' => 'required',
@@ -443,6 +449,7 @@ class SubDistributorsController extends Controller
 		$data['subdistributor_name'] = $requestdata['subdistributor_name'];
 		$data['distributor_id'] = $requestdata['distributor'];
 		$data['city'] = $requestdata['city'];
+        $data['state'] = $requestdata['state'];
 		$data['office_address'] = $requestdata['office_address'];
 		$data['long_lat'] = $requestdata['long_lat'];
 		$data['rent'] = $requestdata['rent'];

@@ -34,7 +34,10 @@
             <input type="hidden" id="user-id" name="user_id" value="{{ $userdetails->user_id }}">
             <input type="hidden" id="emp_id" name="emp_id" value="{{ $userdetails->id }}">
 					<?php // if( in_array('superadmin', $roles)){ ?>
-					<div class="form-group col-md-3"> {!! Form::label('city', 'City *') !!}
+        <div class="form-group col-md-3"> {!! Form::label('state', 'State *') !!}
+					{!! Form::select('state', $states, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select State --') ) !!} </div>
+
+		<div class="form-group col-md-3"> {!! Form::label('city', 'City *') !!}
 					{!! Form::select('city', $cities, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select City --') ) !!} </div>
 
                     <div class="form-group col-md-3"> {!! Form::label('name', 'Name*') !!}

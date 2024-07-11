@@ -20,6 +20,7 @@
 	  <div class="float-left"><h4 class="m-0 font-weight-bold text-primary">Create Employee</h4></div>
 	</div>
  <?php 
+        if(isset($_GET['state'])){$city_id = $_GET['state'];}else{$city_id = null;}
 		if(isset($_GET['city'])){$city_id = $_GET['city'];}else{$city_id = null;}
 		if(isset($_GET['distributor'])){$distributor_id = $_GET['distributor'];}else{$distributor_id = null;}
         if(isset($_GET['subdistributor'])){$subdistributor_id = $_GET['subdistributor'];}else{$subdistributor_id = null;}
@@ -37,8 +38,11 @@
           <h5 class="bg-primary text-white px-2 pt-1 pb-1">Basic Information</h5>
           <div class="row">
 					<?php // if( in_array('superadmin', $roles)){ ?>
-					<div class="form-group col-md-3"> {!! Form::label('city', 'City *') !!}
-					{!! Form::select('city', $cities, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select City --') ) !!} </div>       
+    <div class="form-group col-md-3"> {!! Form::label('state', 'State *') !!}
+                    {!! Form::select('state', $states, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select State --') ) !!} </div> 
+  
+                    <div class="form-group col-md-3"> {!! Form::label('city', 'City *') !!}
+    {!! Form::select('city', $cities, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select City --') ) !!} </div>       
 
                     <div class="form-group col-md-3"> {!! Form::label('name', 'Name*') !!}
         {!! Form::text('name',null, array('class' => 'form-control','required'=>'required','placeholder'=>'Enter Name')) !!} </div>

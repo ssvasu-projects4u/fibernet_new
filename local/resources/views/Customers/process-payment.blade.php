@@ -162,7 +162,7 @@ if(empty($posted['hash']) && sizeof($posted) > 0) {
 		<input type="hidden" name="firstname" id="firstname" value="<?php echo $first_name; ?>" />
 		<input type="hidden" name="lastname" id="lastname" value="<?php echo $last_name; ?>" />
 		<input type="hidden" name="email" id="email" value="<?php echo $email; ?>" />
-		<input type="hidden" name="amount" value="<?php echo $total_amount; ?>" />
+		<input type="hidden" name="amount" value="<?php echo isset($total_amount)?$total_amount:''; ?>" />
 		<input type="hidden" name="phone" value="<?php echo $mobile; ?>" />
 		<input type="hidden" name="package_amount" id="package-amount" value="<?php echo $package_amount; ?>" />
 		<input type="hidden" name="productinfo" value="<?php echo $connection_type."__".$customerdetails->id."__".$package_amount; ?>" />
@@ -213,7 +213,7 @@ if(empty($posted['hash']) && sizeof($posted) > 0) {
 			</tr>
             <?php } ?>
 			<tr class="bg bg-primary text-white">
-				<th><b>Total Amount<b></th><td>{{ $total_amount }}</td>
+				<th><b>Total Amount<b></th><td>{{ isset($total_amount)?$total_amount:'' }}</td>
 			</tr>
 			<tr>
 			<td style="border-bottom:none;vertical-align:bottom" rowspan="5">
