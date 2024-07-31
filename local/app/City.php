@@ -10,7 +10,7 @@ class City extends Model
 	protected $table = 'slj_cities';
 	
 	protected $fillable = [
-        'name','status'
+        'name','state','status'
     ];
 	
 	public $timestamps = false;

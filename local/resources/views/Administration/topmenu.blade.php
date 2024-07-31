@@ -9,6 +9,8 @@
     "create-designation",
     "employees",
     "create-employee",
+    "state",
+    "create-state",
     "city",
     "create-city",
     "distributors",
@@ -85,6 +87,27 @@
       @endcan
     </div>
   </li>
+  @endcanany
+
+  @canany(
+    [
+      "state",
+      "create-state",
+    ]
+  )
+    <li class="nav-item dropdown">
+      @can("state")
+        <a class="nav-link dropdown-toggle <?php if(Request::segment(2) == 'state'){echo 'active';} ?>" data-toggle="dropdown" href="#">State</a>
+      @endcan 
+      <div class="dropdown-menu">
+        @can("create-state")
+          <a class="dropdown-item" href="{{url('admin/state/create')}}">Create State</a>
+        @endcan
+        @can("state")
+          <a class="dropdown-item" href="{{url('admin/state')}}">List States</a>
+        @endcan
+      </div>
+    </li>
   @endcanany
 
   @canany(
@@ -196,6 +219,15 @@
 <div class="card-header bottom-submenu my-0 py-0 pl-0 pt-0 pr-2">
 <nav class="navbar py-0">
 <ul class="nav">
+
+@if(Request::segment(2) == 'state')
+  @can("create-state")
+    <li class="nav-item"><a class="nav-link active" href="{{url('admin/state/create')}}">Create State</a></li>
+  @endcan
+  @can("state")
+    <li class="nav-item"><a class="nav-link" href="{{url('admin/state')}}">List States</a></li>
+  @endcan
+@endif
 
 @if(Request::segment(2) == 'city')
   @can("create-city")

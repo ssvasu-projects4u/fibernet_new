@@ -81,7 +81,10 @@ class Customers extends Model
         'ucreateddt',
         'date_of_birth',
         'state',
-        'address_proof_no'
+        'address_proof_type',
+        'address_proof_no',
+        'api_response',
+        'api_request'
         
     ];
 	

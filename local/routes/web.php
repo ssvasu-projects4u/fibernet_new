@@ -25,6 +25,16 @@ Route::prefix('admin')->group(function() {
 	Route::post('/feasability-check/submit', ['as' => 'feasability-check.submit', 'uses' => 'Administration\AdministrationController@feasabilityCheckSubmit']);
 });
 
+Route::prefix('admin/state')->group(function() {
+    Route::get('/', 'Administration\StateController@index');
+	Route::get('/create', 'Administration\StateController@create');
+	Route::post('/submit', ['as' => 'state.store', 'uses' => 'Administration\StateController@store']);
+	Route::get('/edit/{id}', 'Administration\StateController@edit');
+	Route::put('/{id}', ['as' => 'state.update', 'uses' => 'Administration\StateController@update']);
+	Route::get('/delete/{id}', 'Administration\StateController@destroy');
+        
+});
+
 Route::prefix('admin/city')->group(function() {
     Route::get('/', 'Administration\CityController@index');
 	Route::get('/create', 'Administration\CityController@create');

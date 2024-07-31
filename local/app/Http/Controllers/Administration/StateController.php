@@ -7,7 +7,7 @@ use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use DB;
 
-class CityController extends Controller
+class StateController extends Controller
 {
     public function __construct()
     {
@@ -20,8 +20,8 @@ class CityController extends Controller
     public function index()
     {	
        // $data = \App\City::where('status','Y')->orderBy('name')->paginate(20);
-		 $data = \App\City::orderBy('name')->paginate(20);
-		 return view('administration.cities.index',compact('data'));
+		 $data = \App\State::orderBy('name')->paginate(20);
+		 return view('administration.states.index',compact('data'));
 		//return view('administration::cities.index',['data'=>$data]);
     }
 	
@@ -31,9 +31,9 @@ class CityController extends Controller
      */
     public function create()
     {
-        $states = \App\State::where('status','Y')->pluck('name', 'id');
-        return view('administration.cities.create',['states'=>$states]);
+        return view('administration.states.create');
     }
+
     /**
      * Store a newly created resource in storage.
      * @param Request $request
@@ -49,11 +49,10 @@ class CityController extends Controller
 		
 		$input = request()->all();
         $input['status'] = "Y";
-       
 
-		\App\City::create($input);
+		\App\State::create($input);
 
-        return redirect('admin/city')->with('success', 'City created successfully.');
+        return redirect('admin/state')->with('success', 'State created successfully.');
     }
 
     /**
@@ -63,7 +62,7 @@ class CityController extends Controller
      */
     public function show($id)
     {
-        return view('administration.cities.show');
+        return view('administration.states.show');
     }
 
     /**
@@ -73,10 +72,9 @@ class CityController extends Controller
      */
     public function edit($id)
     {
-        $citydetails = \App\City::find($id);
-        $states = \App\State::where('status','Y')->pluck('name', 'id');
+        $statedetails = \App\State::find($id);
 		
-		return view('administration.cities.edit',['citydetails'=>$citydetails,'states'=>$states]);
+		return view('administration.states.edit',['statedetails'=>$statedetails]);
     }
 
     /**
@@ -94,13 +92,12 @@ class CityController extends Controller
 		$requestdata = $request->all(); 
 		
 		$data['name'] = $requestdata['name'];
-        $data['state'] = $requestdata['state'];
-        $city = \App\City::find($id);
+        $state = \App\State::find($id);
 		
 		//Update details
-		$city->update($data);
+		$state->update($data);
 		
-		return redirect('admin/city')->with('success', 'City updated successfully.');
+		return redirect('admin/state')->with('success', 'State updated successfully.');
     }
 
     /**
@@ -110,18 +107,18 @@ class CityController extends Controller
      */
     public function destroy($id)
     {
-        $distributors = \App\Distributors::where('city',$id)->count();
-        $customers = \App\Customers::where('city',$id)->count();
+        $distributors = \App\Distributors::where('state',$id)->count();
+        $customers = \App\Customers::where('state',$id)->count();
         if($id > 0 && $distributors == 0 && $customers == 0){
-           // \App\City::destroy($id);
+           // \App\State::destroy($id);
 		     $data['status'] = "N";
-            $city = \App\City::find($id);
+            $state = \App\State::find($id);
             
             //Update details
-            $city->update($data);
-             return redirect('admin/city')->with('success', 'City deleted successfully.');
+            $state->update($data);
+             return redirect('admin/state')->with('success', 'State deleted successfully.');
         }else{
-            return redirect('admin/city')->with('error', 'City cannot be deleted because of dependency');
+            return redirect('admin/state')->with('error', 'State cannot be deleted because of dependency');
         } 
     }
 }

@@ -48,7 +48,11 @@
 						        {!! Form::select('city', $cities, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select City --') ) !!} </div>
 			<div class="form-group col-md-3"> {!! Form::label('distributor', 'Distributor *') !!}
         {!! Form::select('distributor', [], null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Distributor --') ) !!} </div>
-			<div class="form-group col-md-3"> {!! Form::label('branch', 'Branch *') !!}
+		
+		<div class="form-group col-md-3"> {!! Form::label('subdistributor', 'Sub Distributor *') !!}
+        {!! Form::select('subdistributor', [], null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Sub Distributor --') ) !!} </div>
+		
+		<div class="form-group col-md-3"> {!! Form::label('branch', 'Branch *') !!}
         {!! Form::select('branch', [], null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Branch --') ) !!} </div>
                                         <?php } if($roles[0]=='branch' || $roles[0]=='superadmin'){ ?>                      
 		<div class="form-group col-md-3"> {!! Form::label('franchise', 'Franchise *') !!}
@@ -169,10 +173,29 @@
 				        <input type="text" value="" name="dp" id="dp" required>     
 				        
 				        </div>
-					
+						<?php 
+
+	$address_proof_type  = array(
+		'1' => 'No Proof',
+		'2' => 'Ration Card',
+		'3' => 'Driving Licence',
+		'4' => 'Aadhar Card',
+		'5' => 'Voter ID',
+		'6' => 'Address Proof',
+	);
+
+?>
+
+						<div class="form-group col-md-3"> {!! Form::label('address_proof_type', 'Address proof Type *') !!}
+						        {!! Form::select('address_proof_type', $address_proof_type, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select proof --') ) !!} </div>
+
+				    <div class="form-group col-md-3"> {!! Form::label('address_proof_no', 'Addess Proof') !!}
+				        {!! Form::text('address_proof_no',null, array('class' => 'form-control','placeholder'=>'Enter Proof No')) !!} </div>
 					
 					
 					</div>
+
+					
 					
 					
 					
@@ -512,7 +535,7 @@
 
     `<script type="text/javascript">
 	$(document).ready(function() {
-	setInterval(function(){ 
+	/*setInterval(function(){ 
     //code goes here that will be run every 5 seconds.    
 
 	       var email = $('#email').val();
@@ -534,7 +557,7 @@
             });
             }
            
-            }, 3000);
+            }, 3000); */
             
 
     
@@ -553,7 +576,7 @@
                     dp:{required:true},
                     
 
-                    email: {
+                 /*   email: {
                         required: true,
                         email: true,
                         remote: {
@@ -569,7 +592,7 @@
                                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                             }
                         }
-                    },
+                    }, */
                     billing_address: {
                         required: true,
                     },
@@ -598,12 +621,12 @@
             
               
             
-        });
+        }); 
 
         $('.row_setup_box_amount').hide();
 		$('.row_androidbox_security_deposit').hide();
 		$('.row_secure_deposite_amount').show();
-		  $('#email').change(function ()
+		/*  $('#email').change(function ()
 		  {
                     var email = $('#email').val();
                    // alert(email);
@@ -617,7 +640,7 @@
                     alert(errorThrown);
                 }
             });
-            });
+            }); */
           
            
            
@@ -646,16 +669,34 @@
         });
 		
 		
-		$('#distributor').on('change', function() {
-            var distributor = $(this).val();
-            var city = $("#city").val();
+		 $('#distributor').on('change', function() {
+            var distributor = $(this).val();  
+				
             if(distributor == '' || distributor <=0){
-            	$('#branch').html("<option value=''>-- Select Branch --</option>");
-				$('#franchise').html("<option value=''>-- Select Franchise --</option>");
-				return;
+            	$('#subdistributor').html("<option value=''>-- Select Sub Distributor --</option>");
+            	return;
             }
             $.ajax({
-                url: "{{url('/admin/franchises/citydistributorbranches')}}/"+city+"/"+distributor,
+                url: "{{url('/admin/branches/subdistributors')}}/"+distributor,
+                type: "GET",
+                success:function(data) {
+                   $('#subdistributor').html(data);
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    alert(errorThrown);
+                }
+            });
+        }); 
+		
+		 $('#subdistributor').on('change', function() {
+            var subdistributor = $(this).val();  
+				
+            if(subdistributor == '' || subdistributor <=0){
+            	$('#branch').html("<option value=''>-- Select Branch --</option>");
+            	return;
+            }
+            $.ajax({
+                url: "{{url('/admin/franchises/branches')}}/"+subdistributor,
                 type: "GET",
                 success:function(data) {
                    $('#branch').html(data);
@@ -664,7 +705,8 @@
                     alert(errorThrown);
                 }
             });
-        });
+        }); 
+
         
 
         $('#branch').on('change', function() {

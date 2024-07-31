@@ -48,11 +48,16 @@
 						        {!! Form::select('city', $cities, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select City --') ) !!} </div>
 			<div class="form-group col-md-3"> {!! Form::label('distributor', 'Distributor *') !!}
         {!! Form::select('distributor', [], null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Distributor --') ) !!} </div>
-			<div class="form-group col-md-3"> {!! Form::label('branch', 'Branch *') !!}
+		
+		<div class="form-group col-md-3"> {!! Form::label('subdistributor', 'Sub Distributor *') !!}
+        {!! Form::select('subdistributor', [], null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Sub Distributor --') ) !!} </div>
+		
+		<div class="form-group col-md-3"> {!! Form::label('branch', 'Branch *') !!}
         {!! Form::select('branch', [], null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Branch --') ) !!} </div>
                                         <?php } if($roles[0]=='branch' || $roles[0]=='superadmin'){ ?>                      
 		<div class="form-group col-md-3"> {!! Form::label('franchise', 'Franchise *') !!}
         {!! Form::select('franchise', $franchise_list, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Franchise --') ) !!} </div>
+		<input type="hidden" name="operator_id" id = "operator_id" value="">
                                         <?php } } else { 
                                           $userid = Auth::user()->id;
                                         ?>
@@ -124,7 +129,9 @@
               
                   <option value="{{$p}}">{{ $fname->franchise_name }}</option>
              @endforeach
+
                   </select>
+				
              
           
             
@@ -144,8 +151,8 @@
 				        <div class="form-group col-md-3"> {!! Form::label('last_name', 'Last Name *') !!}
 				        {!! Form::text('last_name',null, array('class' => 'form-control','required'=>'required','placeholder'=>'Enter Last Name')) !!} </div>
 
-				      <div class="form-group col-md-3"> {!! Form::label('first_name', 'First Name *') !!}
-				        {!! Form::text('first_name',null, array('class' => 'form-control','required'=>'required','placeholder'=>'Enter First Name')) !!} </div>
+				      <div class="form-group col-md-3"> {!! Form::label('date_of_birth', 'Date of Birth *') !!}
+				        {!! Form::text('date_of_birth',null, array('class' => 'form-control','required'=>'required','placeholder'=>'Enter Date of Birth')) !!} </div>
 
 					  <div class="form-group col-md-3"> {!! Form::label('f_name_c_name', 'Father/Company Name *') !!}
 				        {!! Form::text('f_name_c_name',null, array('class' => 'form-control','required'=>'required','placeholder'=>'Enter Father Name or Company Name')) !!} </div>
@@ -166,10 +173,29 @@
 				        <input type="text" value="" name="dp" id="dp" required>     
 				        
 				        </div>
-					
+						<?php 
+
+	$address_proof_type  = array(
+		'1' => 'No Proof',
+		'2' => 'Ration Card',
+		'3' => 'Driving Licence',
+		'4' => 'Aadhar Card',
+		'5' => 'Voter ID',
+		'6' => 'Address Proof',
+	);
+
+?>
+
+						<div class="form-group col-md-3"> {!! Form::label('address_proof_type', 'Address proof Type *') !!}
+						        {!! Form::select('address_proof_type', $address_proof_type, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select proof --') ) !!} </div>
+
+				    <div class="form-group col-md-3"> {!! Form::label('address_proof_no', 'Addess Proof') !!}
+				        {!! Form::text('address_proof_no',null, array('class' => 'form-control','placeholder'=>'Enter Proof No')) !!} </div>
 					
 					
 					</div>
+
+					
 					
 					
 					
@@ -509,7 +535,7 @@
 
     `<script type="text/javascript">
 	$(document).ready(function() {
-	setInterval(function(){ 
+	/*setInterval(function(){ 
     //code goes here that will be run every 5 seconds.    
 
 	       var email = $('#email').val();
@@ -531,7 +557,7 @@
             });
             }
            
-            }, 3000);
+            }, 3000); */
             
 
     
@@ -550,7 +576,7 @@
                     dp:{required:true},
                     
 
-                    email: {
+                 /*   email: {
                         required: true,
                         email: true,
                         remote: {
@@ -566,7 +592,7 @@
                                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                             }
                         }
-                    },
+                    }, */
                     billing_address: {
                         required: true,
                     },
@@ -595,12 +621,12 @@
             
               
             
-        });
+        }); 
 
         $('.row_setup_box_amount').hide();
 		$('.row_androidbox_security_deposit').hide();
 		$('.row_secure_deposite_amount').show();
-		  $('#email').change(function ()
+		/*  $('#email').change(function ()
 		  {
                     var email = $('#email').val();
                    // alert(email);
@@ -614,7 +640,7 @@
                     alert(errorThrown);
                 }
             });
-            });
+            }); */
           
            
            
@@ -1188,7 +1214,21 @@
         	}
 
 		});
-
+		$('#franchise').on('change', function() {
+          
+            var franchise_id = $(this).val();
+           
+            $.ajax({
+                url: "{{url('/admin/customers/get_op_id')}}/"+franchise_id,
+                type: "GET",
+                success:function(data) {
+                   $('#operator_id').val(data);
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    alert(errorThrown);
+                }
+            });
+        });
 </script>
   
 

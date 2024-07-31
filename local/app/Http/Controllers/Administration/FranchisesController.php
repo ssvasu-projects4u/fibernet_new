@@ -171,7 +171,7 @@ class FranchisesController extends Controller
         
         $query_string = http_build_query($query_params);		
 		$json_data = json_encode($query_params);
-       
+    //    echo $json_data;
 		
 		$ch = curl_init($url);
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -180,17 +180,16 @@ class FranchisesController extends Controller
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $json_data);
 
 		 $response = curl_exec($ch);
-           
+        
 
             if (curl_errno($ch)) {
 				echo 'Error:' . curl_error($ch);
 			} else {
 				$response_data = json_decode($response, true);
-             
+            //  echo "<pre>";print_r($response_data);die;
             
-       // $input['op_id'] = isset($response_data['op_id'])?$response_data['op_id']:'';
-	   $input['op_id'] => $response_data['op_id'],
-		$input['franchise_id'] = $franchiseid;
+        $input['op_id'] = isset($response_data['op_id'])?$response_data['op_id']:'';
+	   	$input['franchise_id'] = $franchiseid;
 		$input['user_id'] = $userdata->id;
 		$input['distributor_id'] = $input['distributor'];		
 		 $input['subdistributor_id'] = $input['subdistributor'];
@@ -200,7 +199,7 @@ class FranchisesController extends Controller
     	$input['vlan'] = $input['vlan'];
 		\App\Franchises::create($input);
             }
-      
+            curl_close($ch);
         return redirect('admin/franchises')->with('success', 'Franchise created successfully.');
     }
 

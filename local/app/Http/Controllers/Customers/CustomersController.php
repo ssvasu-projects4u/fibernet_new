@@ -1001,6 +1001,8 @@ $user = Auth::user();
         }
         $cust_pay=array();
         $input = request()->all();
+        
+
         $user = Auth::user();
         $id = \Auth::user()->id;
         $roles = $user->getRoleNames(); 
@@ -1013,6 +1015,7 @@ $user = Auth::user();
              $input['state']=$branch->state;
 			$input['city']=$branch->city;
             $input['distributor']=$branch->distributor_id;
+			 $input['subdistributor']=$branch->subdistributor_id;
             $input['branch']=$branch->id;
         }
 
@@ -1022,6 +1025,7 @@ $user = Auth::user();
             $input['state']=$branch->state;
 		    $input['city']=$branch->city;
             $input['distributor']=$branch->distributor_id;
+			$input['subdistributor']=$branch->subdistributor_id;
             $input['branch']=$branch->branch;
             $input['franchise']=$branch->id;
         }	
@@ -1046,6 +1050,7 @@ $user = Auth::user();
        if($roles[0]=='superadmin')
          {
                $input['distributor']=$input['distributor'];
+			    $input['subdistributor']=$input['subdistributor'];
         $input['branch'] =$input['branch'];
         
        $input['franchise'] =$input['franchise'];
@@ -1073,6 +1078,9 @@ $user = Auth::user();
         $user_data['password'] = "";//Hash::make($input['password']);
         $user_data['email'] = $input['email'];
         $user_data['mobile'] = $input['mobile'];
+        $user_data['address_proof_type'] = $input['address_proof_type'];
+        $user_data['address_proof_no'] = $input['address_proof_no'];
+
         $user_data['status'] = "N";
        // $user_data['eid']=$id;
 
@@ -1272,20 +1280,25 @@ $cust_pay['amount']=$input['secure_deposite_amount']+$input['setup_box_amount']+
 			'Authorization: ' . $access_token
 		);
 		
+        if($input['connection_type'] == 7 || $input['connection_type'] == 5){
+
+        
 		
 		 $query_params = array(
-		    'op_id'       => isset($input['operator_id']) ? $input['operator_id'] : null,
-			//'casform_id'       => isset($input['casform_id']) ? $input['casform_id'] : null,
-			'first_name'    => isset($input['customer_name']) ? $input['customer_name'] : null,
-			'last_name'  => isset($input['customer_name_l']) ? $input['customer_name_l'] : null,
-			'f_name_c_name'      => isset($input['father_name']) ? $input['father_name'] : null,
+		    'operatorid'       => isset($input['operator_id']) ? $input['operator_id'] : null,
+			'casform_id'       => isset($input['casform_id']) ? $input['casform_id'] : "",
+			'customer_name'    => isset($input['first_name']) ? $input['first_name'] : null,
+			'customer_name_l'  => isset($input['last_name']) ? $input['last_name'] : null,
+			'father_name'      => isset($input['f_name_c_name']) ? $input['f_name_c_name'] : null,
 			'date_of_birth'    => isset($input['date_of_birth']) ? $input['date_of_birth'] : null,
-			'billing_address'          => isset($input['address']) ? $input['address'] : null,
+			'address'          => isset($input['billing_address']) ? $input['billing_address'] : null,
 			'email'            => isset($input['email']) ? $input['email'] : null,
-			'mobile'        => isset($input['mobile_no']) ? $input['mobile_no'] : null,
-			'installation_address'  => isset($input['install_address']) ? $input['install_address'] : null,
-			'address_proof_no'    => isset($input['address_proof']) ? $input['address_proof'] : null,
+			'mobile_no'        => isset($input['mobile']) ? $input['mobile'] : null,
+			'install_address'  => isset($input['installation_address']) ? $input['installation_address'] : null,
+			'address_proof'    => isset($input['address_proof_no']) ? $input['address_proof_no'] : null,
+            'landline_no'    => "",
 		);
+       // print_r( $query_params);die;
         
         $query_string = http_build_query($query_params);		
 		$json_data = json_encode($query_params);
@@ -1298,7 +1311,10 @@ $cust_pay['amount']=$input['secure_deposite_amount']+$input['setup_box_amount']+
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $json_data);
 
 		 $response = curl_exec($ch);
-		
+         curl_close($ch);
+		$input['api_response'] = $response;
+        $input['api_request'] = $json_data;
+        }
 		
 		
         //Customer
@@ -3222,6 +3238,7 @@ $subpackdetails = \App\BroadbandSubPackages::select('sub_plan_name','total')->wh
 
 
 		$distributors = \App\Distributors::where('id',$customerdetails->distributor)->pluck('distributor_name as name', 'id');
+		$subdistributors = \App\Subdistributors::where('id',$customerdetails->subdistributor)->pluck('subdistributor_name as name', 'id');
         $branches = \App\Branches::where('city',$customerdetails->city)->pluck('branch_name as name', 'id');
         $franchises = \App\Franchises::where('id',$customerdetails->franchise)->pluck('franchise_name as name', 'id');
         $cities = \App\City::pluck('name', 'id');
@@ -3248,7 +3265,7 @@ $subpackdetails = \App\BroadbandSubPackages::select('sub_plan_name','total')->wh
 
 
 
-        return view('customers.edit',['combopackages'=>$combopackages,'franchise_list'=>$franchise_list, 'combosubpackages'=>$combosubpackages, 'cabledata'=>$cabledata, 'cabledatabytype'=>$cabledatabytype,'iptvdatabytype'=>$iptvdatabytype,'distributors'=>$distributors,'branches'=>$branches,'franchises'=>$franchises,'states'=>$states,'cities'=>$cities,'packages'=>$packages,'subpackages'=>$subpackages,'customerdetails'=>$customerdetails,'olt'=>$olt,'dp'=>$dp,'fh'=>$fh,]);
+        return view('customers.edit',['combopackages'=>$combopackages,'franchise_list'=>$franchise_list, 'combosubpackages'=>$combosubpackages, 'cabledata'=>$cabledata, 'cabledatabytype'=>$cabledatabytype,'iptvdatabytype'=>$iptvdatabytype,'distributors'=>$distributors,'subdistributors'=>$subdistributors,'branches'=>$branches,'franchises'=>$franchises,'states'=>$states,'cities'=>$cities,'packages'=>$packages,'subpackages'=>$subpackages,'customerdetails'=>$customerdetails,'olt'=>$olt,'dp'=>$dp,'fh'=>$fh,]);
       //  return view('customers::edit');
 
     }
@@ -3284,6 +3301,9 @@ $subpackdetails = \App\BroadbandSubPackages::select('sub_plan_name','total')->wh
         }
         if(!empty($requestdata['distributor'])){
 	$customerdata['distributor'] = $requestdata['distributor'];
+        }
+		 if(!empty($requestdata['subdistributor'])){
+	$customerdata['subdistributor'] = $requestdata['subdistributor'];
         }
         if(!empty($requestdata['branch'])){
         $customerdata['branch'] = $requestdata['branch'];

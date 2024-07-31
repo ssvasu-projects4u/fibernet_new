@@ -67,7 +67,7 @@ $('#loginModal').modal('show');
 	  <?php
 	    $user = Auth::user();
               $roles = $user->getRoleNames();
-              if($roles[0]='superadmin')
+              if($roles[0]='superadmin' || $roles[0]=='Area Tech Incharge')
               {
                   ?>
 	@foreach ($data as $datarow)

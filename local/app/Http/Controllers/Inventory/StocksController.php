@@ -139,7 +139,8 @@ class StocksController extends Controller {
     public function fiberindex() // added by durga
     {
       //   $categories = \App\ProductCategories::where('status','Y')->where('parent',14)->orderBy("name")->pluck('name', 'id');
-$categories = \App\Products::where('status','Y')->where('category',14)->orderBy("name")->pluck('name', 'id');
+  $categories = \App\Products::where('status','Y')->where('category',14)->orderBy("name")->pluck('name', 'id');
+  
  
     $subcategories = array();
     $category = '';
@@ -182,7 +183,8 @@ $categories = \App\Products::where('status','Y')->where('category',14)->orderBy(
         DB::raw("sum(case when status='theft' then 1 else 0 end) as count_theft"),
         DB::raw("sum(case when status='damaged' then 1 else 0 end) as count_damaged"),
         DB::raw("sum(case when status='inactive' then 1 else 0 end) as count_inactive")
-      );
+        );
+     
 
       // category
     //  if (!empty($category)){
@@ -190,21 +192,23 @@ $categories = \App\Products::where('status','Y')->where('category',14)->orderBy(
     //  }
 
           // sub_category
-      if (!empty($sub_category)){
+       if (!empty($sub_category)){
          
-          $query = $query->where("product",$sub_category);
-      }
+           $query = $query->where("product",$sub_category);
+       }
 
       // sub_category
       if (!empty($brand)){
         $query = $query->where("slj_stock_products.brand",$brand);
       }
 
+      
+      $query = $query->groupBy('id', 'product', 'length', 'status');
       $query = $query->orderBy("id");
-      $query = $query->groupBy('id');
       $data = $query->paginate(20);
 
     }
+   // print_r( $query);die;
     	  $employeedata=array();
 	  $id = \Auth::user()->id;
       
@@ -1640,8 +1644,11 @@ $parentnum = 3;
 
     public function download()
     {
+     
         //PDF file is stored under public/uploads/stock_upload_sheet.csv
-        $file= public_path(). "/uploads/stock_upload_sheet.csv";
+     //   $file= public_path(). "/public/uploads/stock_upload_sheet.csv";
+        $file= public_path()."/uploads/stock_upload_sheet.csv";
+       // print_r($file);die;
         $headers = array('Content-Type: text/csv');
 
         return response()->download($file); 

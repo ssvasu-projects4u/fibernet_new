@@ -109,7 +109,7 @@ class OperatorController extends Controller
 				
 				 $operator_data = [
 				 
-				'op_id'       => $response_data['op_id'],			
+				'op_id'       => $response_data['op_id'],		
 				'franchise_name'       => isset($response_data['item']['operator name']) ? $response_data['item']['operator name'] : '',
 				'user_id'       => $user_id,
 				'city'       => isset($data['city']) ? $data['city'] : '0',

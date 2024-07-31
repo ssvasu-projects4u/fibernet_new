@@ -9,6 +9,8 @@
     "create-designation",
     "employees",
     "create-employee",
+    "State",
+    "create-State",
     "city",
     "create-city",
     "distributors",
@@ -89,6 +91,27 @@
 
   @canany(
     [
+      "state",
+      "create-state",
+    ]
+  )
+    <li class="nav-item dropdown">
+      @can("state")
+        <a class="nav-link dropdown-toggle <?php if(Request::segment(2) == 'state'){echo 'active';} ?>" data-toggle="dropdown" href="#">State</a>
+      @endcan 
+      <div class="dropdown-menu">
+        @can("create-state")
+          <a class="dropdown-item" href="{{url('admin/state/create')}}">Create State</a>
+        @endcan
+        @can("state")
+          <a class="dropdown-item" href="{{url('admin/state')}}">List Cities</a>
+        @endcan
+      </div>
+    </li>
+  @endcanany
+
+  @canany(
+    [
       "city",
       "create-city",
     ]
@@ -133,14 +156,14 @@
     "create-subdistributor"
   ])
     <li class="nav-item dropdown">
-      @can("distributors")
-        <a class="nav-link dropdown-toggle <?php if(Request::segment(2) == 'distributors'){echo 'active';} ?>" data-toggle="dropdown" href="#">Sub Distributors</a>
+      @can("subdistributors")
+        <a class="nav-link dropdown-toggle <?php if(Request::segment(2) == 'subdistributors'){echo 'active';} ?>" data-toggle="dropdown" href="#">Sub Distributors</a>
       @endcan
       <div class="dropdown-menu">
-        @can("create-distributor")
+      
           <a class="dropdown-item" href="{{url('admin/subdistributors/create')}}">Create SubDistributor</a>
-        @endcan
-        @can("distributors")
+        
+        @can("subdistributors")
         <a class="dropdown-item" href="{{url('admin/subdistributors')}}">List SubDistributors</a>
         @endcan
       </div>
@@ -196,6 +219,15 @@
 <div class="card-header bottom-submenu my-0 py-0 pl-0 pt-0 pr-2">
 <nav class="navbar py-0">
 <ul class="nav">
+
+@if(Request::segment(2) == 'state')
+  @can("create-state")
+    <li class="nav-item"><a class="nav-link active" href="{{url('admin/state/create')}}">Create State</a></li>
+  @endcan
+  @can("state")
+    <li class="nav-item"><a class="nav-link" href="{{url('admin/state')}}">List States</a></li>
+  @endcan
+@endif
 
 @if(Request::segment(2) == 'city')
   @can("create-city")
