@@ -1296,7 +1296,7 @@ $cust_pay['amount']=$input['secure_deposite_amount']+$input['setup_box_amount']+
 			'mobile_no'        => isset($input['mobile']) ? $input['mobile'] : null,
 			'install_address'  => isset($input['installation_address']) ? $input['installation_address'] : null,
 			'address_proof'    => isset($input['address_proof_no']) ? $input['address_proof_no'] : null,
-            'landline_no'    => "",
+            'landline_no'    => isset($input['landline_no']) ? $input['landline_no'] : "",
 		);
        // print_r( $query_params);die;
         
@@ -1311,6 +1311,7 @@ $cust_pay['amount']=$input['secure_deposite_amount']+$input['setup_box_amount']+
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $json_data);
 
 		 $response = curl_exec($ch);
+         curl_close($ch);
 		$input['api_response'] = $response;
         $input['api_request'] = $json_data;
         }
@@ -2472,7 +2473,7 @@ $totamt=0;
      
                    
     
-     Mail::to($email)->send(new \App\Mail\PaymentEmail($details));
+     //Mail::to($email)->send(new \App\Mail\PaymentEmail($details));
 
                     
 
@@ -3300,6 +3301,9 @@ $subpackdetails = \App\BroadbandSubPackages::select('sub_plan_name','total')->wh
         }
         if(!empty($requestdata['distributor'])){
 	$customerdata['distributor'] = $requestdata['distributor'];
+        }
+		 if(!empty($requestdata['subdistributor'])){
+	$customerdata['subdistributor'] = $requestdata['subdistributor'];
         }
         if(!empty($requestdata['branch'])){
         $customerdata['branch'] = $requestdata['branch'];

@@ -111,7 +111,7 @@
             <div class="col-xl-12 col-md-12 mb-12">
 		  <!-- Page Heading -->
     <div class="card shadow mb-4">
-	@include('frontend::branch.complaints.topmenu')
+	@include('frontend.branch.complaints.topmenu')
 	<div class="card-header py-2">
 		<div class="float-left"><h3 class="m-0 font-weight-bold text-primary">Recent Complaints</h3></div>
 	  

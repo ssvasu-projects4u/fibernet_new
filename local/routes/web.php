@@ -164,7 +164,7 @@ Route::prefix('admin/franchises')->group(function() {
 	// Route::get('/citysubdistributorbranchesextraedit/{city}/{subdistributor}', 'Administration\FranchisesController@getCitySubdistributorBranchesExtraEdit');
 	
 	Route::get('/getdetails/{franchise}', 'Administration\FranchisesController@getFranchiseDetails');
-        Route::post('/passwordsetup', ['as' => 'franchises.change_password', 'uses' => 'Administration\FranchisesController@change_password']);
+    Route::post('/passwordsetup', ['as' => 'franchises.change_password', 'uses' => 'Administration\FranchisesController@change_password']);
         
         Route::post('/adddeposit', ['as' => 'franchises.add_deposit', 'uses' => 'Administration\FranchisesController@add_deposit']);
  Route::post('/ledger', ['as' => 'franchises.ledger', 'uses' => 'Administration\FranchisesController@ledger']);
@@ -321,6 +321,7 @@ Route::prefix('admin')->group(function() {
     
 	Route::get('/dp/fhdata/{id}', 'Technical\DPController@getFHsData');
     Route::get('/dp/dpdata/{id}', 'Technical\DPController@getDPData');
+	Route::get('/dp/get_enclosers/{id}', 'Technical\DPController@get_enclosers');
 
 	//FH
     Route::get('/fh/fhdata/{id}', 'Technical\FHController@getFHData');
@@ -1062,7 +1063,8 @@ Route::get('inventorybrandajax',[
 ]);
 
 /* Packages */
-Route::prefix('admin/connection-types')->middleware(['role:superadmin'])->group(function() {
+//Route::prefix('admin/connection-types')->middleware(['role:superadmin'])->group(function() {
+Route::prefix('admin/connection-types')->group(function() {
     Route::get('/', 'Packages\ConnectionTypesController@index');
 	Route::get('/create', 'Packages\ConnectionTypesController@create');
 	Route::post('/submit', ['as' => 'connection-types.store', 'uses' => 'Packages\ConnectionTypesController@store']);

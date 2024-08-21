@@ -90,9 +90,19 @@
 		
 		    <div class="form-group col-md-3"> {!! Form::label('termination_box', 'Termination Box ') !!}
         {!! Form::select('termination_box', $terminationbox, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Termination Box --') ) !!} </div>
+		
+		 <div class="form-group col-md-3"> {!! Form::label('termination_box_serial_no', 'Termination Box Serial No') !!}
+		 <select name="termination_box_serial_no" id="termination_box_serial_no" class="form-control" required>
+                <option value="">--Select Termination Box Serial No--</option>
+                 @foreach($getdata as $p)
+          
+               <option value="{{$p}}" >{{$p}}</option>
+                @endforeach
+            </select>
+			</div>
 	
-		<div class="form-group col-md-3"> {!! Form::label('termination_box_serial_no', 'Termination Box Serial No') !!}
-        {!! Form::select('termination_box_serial_no', $terminationbox, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Termination Box --') ) !!} </div>
+		<!--<div class="form-group col-md-3"> {!! Form::label('termination_box_serial_no', 'Termination Box Serial No') !!}
+        {!! Form::select('termination_box_serial_no', $terminationbox, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Termination Box --') ) !!} </div>-->
 	
 		
 		<div class="form-group col-md-3"> {!! Form::label('long_lat', 'Latitude & Longitude') !!}
@@ -313,8 +323,18 @@
           <div class="form-group col-md-3"> {!! Form::label('termination_box', 'Termination Box ') !!}
         {!! Form::select('termination_box', $terminationbox, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Termination Box --') ) !!} </div>
 	
-		<div class="form-group col-md-3"> {!! Form::label('termination_box_serial_no', 'Termination Box Serial No') !!}
-        {!! Form::select('termination_box_serial_no', $terminationbox, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Termination Box --') ) !!} </div>
+		<!--<div class="form-group col-md-3"> {!! Form::label('termination_box_serial_no', 'Termination Box Serial No') !!}
+        {!! Form::select('termination_box_serial_no', $terminationbox, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Termination Box --') ) !!} </div>-->
+		
+		 <div class="form-group col-md-3"> {!! Form::label('termination_box_serial_no', 'Termination Box Serial No') !!}
+		 <select name="termination_box_serial_no" id="termination_box_serial_no" class="form-control" required>
+                <option value="">--Select Termination Box Serial No--</option>
+                 @foreach($getdata as $p)
+          
+               <option value="{{$p}}" >{{$p}}</option>
+                @endforeach
+            </select>
+			</div>
 	
 			
 		
@@ -378,7 +398,7 @@
                    $('#distributor').html(data);
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
-                    alert(errorThrown);
+                   // alert(errorThrown);
                 }
             });
         });
@@ -398,7 +418,7 @@
                    $('#subdistributor').html(data);
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
-                    alert(errorThrown);
+                   // alert(errorThrown);
                 }
             });
         }); 
@@ -418,7 +438,7 @@
                    $('#branch').html(data);
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
-                    alert(errorThrown);
+                    //alert(errorThrown);
                 }
             });
         }); 
@@ -458,7 +478,7 @@
                            $('#franchise').html(data);
                         },
                         error: function(XMLHttpRequest, textStatus, errorThrown) {
-                            alert(errorThrown);
+                           // alert(errorThrown);
                         }
                     });
         }
@@ -482,7 +502,7 @@
                            $('#fiber').html(data);
                         },
                         error: function(XMLHttpRequest, textStatus, errorThrown) {
-                            alert(errorThrown);
+                            //alert(errorThrown);
                         }
                     });
 
@@ -493,7 +513,7 @@
                            $('#olt_id').html(data);
                         },
                         error: function(XMLHttpRequest, textStatus, errorThrown) {
-                            alert(errorThrown);
+                           // alert(errorThrown);
                         }
                     });
 
@@ -529,7 +549,7 @@
                    $('#fiber_color').html(data);
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
-                    alert(errorThrown);
+                    //alert(errorThrown);
                 }
             });
         });
@@ -547,7 +567,7 @@
                    $('#dp_num').html(data);
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
-                    alert(errorThrown);
+                   // alert(errorThrown);
                 }
             });
         });
@@ -567,7 +587,7 @@
                             $('#splitter_core').html(data);
                         },
                     error: function(XMLHttpRequest, textStatus, errorThrown) {
-                        alert(errorThrown);
+                        //alert(errorThrown);
                     }
                 });
             }else{
@@ -581,7 +601,7 @@
                             $('#splitter').html(data);
                         },
                     error: function(XMLHttpRequest, textStatus, errorThrown) {
-                        alert(errorThrown);
+                        //alert(errorThrown);
                     }
                 });
             }
@@ -608,7 +628,7 @@
                           $('#splitter_serialno').html(data);
                         },
                         error: function(XMLHttpRequest, textStatus, errorThrown) {
-                            alert(errorThrown);
+                           // alert(errorThrown);
                         }
                     });
 		
@@ -626,7 +646,7 @@
                         $('#termination_box_serial_no').html(data);
                         },
                         error: function(XMLHttpRequest, textStatus, errorThrown) {
-                            alert(errorThrown);
+                           // alert(errorThrown);
                         }
                     });
 		

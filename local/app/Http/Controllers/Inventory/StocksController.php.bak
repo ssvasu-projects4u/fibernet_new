@@ -139,7 +139,8 @@ class StocksController extends Controller {
     public function fiberindex() // added by durga
     {
       //   $categories = \App\ProductCategories::where('status','Y')->where('parent',14)->orderBy("name")->pluck('name', 'id');
-$categories = \App\Products::where('status','Y')->where('category',14)->orderBy("name")->pluck('name', 'id');
+  $categories = \App\Products::where('status','Y')->where('category',14)->orderBy("name")->pluck('name', 'id');
+  
  
     $subcategories = array();
     $category = '';
@@ -182,7 +183,8 @@ $categories = \App\Products::where('status','Y')->where('category',14)->orderBy(
         DB::raw("sum(case when status='theft' then 1 else 0 end) as count_theft"),
         DB::raw("sum(case when status='damaged' then 1 else 0 end) as count_damaged"),
         DB::raw("sum(case when status='inactive' then 1 else 0 end) as count_inactive")
-      );
+        );
+     
 
       // category
     //  if (!empty($category)){
@@ -190,21 +192,23 @@ $categories = \App\Products::where('status','Y')->where('category',14)->orderBy(
     //  }
 
           // sub_category
-      if (!empty($sub_category)){
+       if (!empty($sub_category)){
          
-          $query = $query->where("product",$sub_category);
-      }
+           $query = $query->where("product",$sub_category);
+       }
 
       // sub_category
       if (!empty($brand)){
         $query = $query->where("slj_stock_products.brand",$brand);
       }
 
+      
+      $query = $query->groupBy('id', 'product', 'length', 'status');
       $query = $query->orderBy("id");
-      $query = $query->groupBy('id');
       $data = $query->paginate(20);
 
     }
+   // print_r( $query);die;
     	  $employeedata=array();
 	  $id = \Auth::user()->id;
       
@@ -306,7 +310,7 @@ $categories = \App\Products::where('status','Y')->where('category',14)->orderBy(
            $products = \App\Products::where('status','Y')->where('category',14)->orderBy("name")->pluck('name', 'id');
             $vendors = \App\Vendors::where('status','Y')->orderBy("company_name")->pluck('company_name', 'id');
       
-         return view('inventory::fiber.create',[
+         return view('inventory.fiber.create',[
         'products'=>$products,
         'vendors'=>$vendors,
         
@@ -1640,8 +1644,11 @@ $parentnum = 3;
 
     public function download()
     {
+     
         //PDF file is stored under public/uploads/stock_upload_sheet.csv
-        $file= public_path(). "/uploads/stock_upload_sheet.csv";
+     //   $file= public_path(). "/public/uploads/stock_upload_sheet.csv";
+        $file= public_path()."/uploads/stock_upload_sheet.csv";
+       // print_r($file);die;
         $headers = array('Content-Type: text/csv');
 
         return response()->download($file); 
@@ -2256,13 +2263,19 @@ $parentnum = 3;
      * @return Response
      */
     public function transferFranchise($stakeholder, $prod_id) {
+		
       $input = request()->all();
       $usertype = explode('-', $stakeholder);
-
+		
+		
       $data = \App\StockProducts::join('slj_vendors','slj_stock_products.vendor', '=', 'slj_vendors.id')
         ->leftjoin('slj_products','slj_products.id', '=', 'slj_stock_products.product')
         ->select('slj_vendors.company_name as vendor_name','slj_stock_products.*')
         ->where('slj_stock_products.product', $prod_id);
+		
+		
+		
+	//	print_r($data);die;
 
       if ($stakeholder == "manage-wise") {
         $data = $data->where('slj_stock_products.status','available');
@@ -2450,13 +2463,20 @@ $parentnum = 3;
      * @return Response
      */
     public function transferEmployee($stakeholder, $prod_id) {
+		
       $input = request()->all();
       $usertype = explode('-', $stakeholder);
 
-      $data = \App\StockProducts::join('slj_vendors','slj_stock_products.vendor', '=', 'slj_vendors.id')
+     /*  $data = \App\StockProducts::join('slj_vendors','slj_stock_products.vendor', '=', 'slj_vendors.id')
         ->leftjoin('slj_products','slj_products.id', '=', 'slj_stock_products.product')
         ->select('slj_vendors.company_name as vendor_name','slj_stock_products.*')
-        ->where('slj_stock_products.product',$prod_id);
+        ->where('slj_stock_products.product',$prod_id); */
+		
+		 $data = \App\StockProducts::join('slj_vendors','slj_stock_products.vendor', '=', 'slj_vendors.id')
+        ->leftjoin('slj_products','slj_products.id', '=', 'slj_stock_products.product')
+        ->select('slj_vendors.company_name as vendor_name','slj_stock_products.*')
+        ->where('slj_stock_products.product', $prod_id);
+				
       if ($stakeholder == "manage-wise") {
         $data = $data->where('slj_stock_products.status','available');
       }
@@ -2488,9 +2508,8 @@ $parentnum = 3;
       if (isset($input['sub_category']) && $input['sub_category'] != "") {
         $data = $data->where("slj_products.id", $input['sub_category']);
       }
-
-      $data = $data->orderBy("slj_stock_products.id",'desc');
-      $data = $data->paginate(20);
+    
+	   $data = $data->orderBy("slj_stock_products.id",'desc')->paginate(20);
 
       $query = \App\Products::leftjoin('slj_stock_products','slj_stock_products.product', '=', 'slj_products.id');
       if ($stakeholder == "manage-wise") {
@@ -2573,6 +2592,8 @@ $parentnum = 3;
         'cities'=>$cities,
         'stakeholder'=>$stakeholder
       ]);
+	  
+	   
     }
 
     /**

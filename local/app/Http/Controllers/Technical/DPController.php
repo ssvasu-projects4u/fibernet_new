@@ -148,7 +148,8 @@ class DPController extends Controller
         $roles = $user->getRoleNames(); 
         $franchise_list=array();
         $franchise_id = null;
-     
+        $products = \App\Products::where('status','Y')->pluck('name', 'id');
+
         if($roles[0]=='branch'){
             $tbl='slj_branches.user_id'; 
             $column='slj_branches.id';
@@ -167,23 +168,36 @@ class DPController extends Controller
        $gg="PLC SPLITTER 1X8 -1";
        $getsplitterdata=\App\StockProducts::where('identification',$gg)->where('status',$j)->pluck('serial_no','serial_no');
      
-        $getdata=\App\StockProducts::where('identification',$no)->where('employee_status',$j)->where('assign_status',$kk)->pluck('serial_no','serial_no');
-     
-		return view('technical.dp.create',['cities'=>$cities,'franchise'=>$franchise_list, 'franchise_id'=>$franchise_id,'getdata'=>$getdata,'getsplitterdata'=>$getsplitterdata]);
+      //  $getdata=\App\StockProducts::where('identification',$no)->where('employee_status',$j)->where('assign_status',$kk)->pluck('serial_no','serial_no');
+	 
+	  $getdata = \App\StockProducts::join('slj_products','slj_products.id','=','slj_stock_products.product')            
+        ->where('slj_products.sub_category',19)
+		->where('slj_stock_products.assign_status',0)
+        ->orderBy('slj_stock_products.id','DESC')
+		->pluck('serial_no'); 
+      // print_r($getdata);die;
+		return view('technical.dp.create',['cities'=>$cities,'franchise'=>$franchise_list, 'franchise_id'=>$franchise_id,'getdata'=>$getdata,'getsplitterdata'=>$getsplitterdata,'products'=>$products]);
                   }
                    else
  {
+   
         $empdata=\App\Employees::where('user_id',$id)->get();
-     $cities = \App\City::where('status','Y')->pluck('name', 'id');
+        $cities = \App\City::where('status','Y')->pluck('name', 'id');
+    
      $no="GENERAL ENCLOSER";
         $j="available";
         $kk=1;
-        $getdata=\App\StockProducts::where('identification',$no)->where('employee_status',$j)->where('assign_status',$kk)->pluck('serial_no','serial_no');
-       
+       // $getdata=\App\StockProducts::where('identification',$no)->where('employee_status',$j)->where('assign_status',$kk)->pluck('serial_no','serial_no');
+      
+	  $getdata = \App\StockProducts::join('slj_products','slj_products.id','=','slj_stock_products.product')            
+        ->where('slj_products.sub_category',19)
+		 ->where('slj_stock_products.assign_status',0)
+        ->orderBy('slj_stock_products.id','DESC')
+		->pluck('serial_no');
       
 //return redirect('admin/dp/create');
                               
-	return view('technical.dp.create',['cities'=>$cities,'franchise'=>$franchise_list, 'franchise_id'=>$franchise_id,'getdata'=>'$getdata']);
+	return view('technical.dp.create',['cities'=>$cities,'franchise'=>$franchise_list, 'franchise_id'=>$franchise_id,'getdata'=>$getdata,'products'=>$products]);
    
  }
                  
@@ -249,24 +263,38 @@ class DPController extends Controller
         $input['longitude'] = $latlong[1];
 			$input['user_id']= $id;
 				$requestdata = $request->all(); 
+				
 				$input['fiber_color']=$requestdata['fibercolor'];
     
 	$input['splitter_serialno']= $requestdata['splitterdata'];
+	//$input['enclosure_serialno']= $requestdata['enclosure'];
+	
 	    
-	   $no="GENERAL ENCLOSER";
-        $kk=1;
+	  // $no="GENERAL ENCLOSER";
+      //  $kk=1;
         //$dpenclosure=[];
-       $enclosuredata=\App\StockProducts::where('serial_no',$requestdata['enclosure'])->where('identification',$no)->where('assign_status',$kk)->first();
-	    $ku=array();
-	    
-			
-		\App\DP::create($input);
-		$ku['assign_status']=0;
-		$enclosuredata->update($ku);
+       //$enclosuredata=\App\StockProducts::where('serial_no',$requestdata['enclosure'])->where('identification',$no)->where('assign_status',$kk)->first();
+	   \App\DP::create($input); 
+	  
+	  $update = [
+                'assign_status'   => 1,
+                'identification'    => "GENERAL ENCLOSER"
+               
+            ];   
+            
+            $enclosuredata=\App\StockProducts::where('serial_no',$requestdata['enclosure'])->update($update);
+	   // $enclosuredata=\App\StockProducts::where('serial_no',$requestdata['enclosure'])->where('identification',$no)->where('assign_status',$kk)->first();
+	  
+   // $ku = [];
+   // \App\DP::create($input);
+   // $ku['assign_status'] = 0;
+   // $enclosuredata->update($ku);
+
+	  
 		$data=array();
 		$data['franch']=$requestdata['franchise'];
 		
-		$data['seriatype']=$requestdata['serial'];
+		//$data['seriatype']=$requestdata['serial'];
 		$data['splitter_serialno']= $requestdata['splitterdata'];
 		$data['type']="dp";
 
@@ -529,6 +557,20 @@ class DPController extends Controller
         $html = "<option value=''>-- Select DP --</option>";
         foreach($list as $k=>$val){
             $html.="<option value='".$k."'>".$val."</option>";
+        }
+
+        return $html;
+    }
+
+    public function get_enclosers($product)
+    {
+       
+        $getdata=\App\StockProducts::where('product',$product)->select('serial_no')->get();
+       // print_r($getdata);die;
+
+        $html = "<option value=''>-- Select Sub Distributor --</option>";
+        foreach($getdata as $d){
+            $html.="<option value='".$d->serial_no."'>".$d->serial_no."</option>";
         }
 
         return $html;

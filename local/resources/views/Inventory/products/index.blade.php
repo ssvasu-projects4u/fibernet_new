@@ -40,8 +40,11 @@
 		<th>TOTAL</th>
 			<th>AVAIALABLE</th>
 				<th>TRANSFERED</th>
-    <th>Units</th>
-    <th>Description</th>
+     <!-- <th>Units</th>
+    <th>Description</th> -->
+    <th>Category</th>
+    <th>Sub Category</th>
+  
     @can("view-product-stock-item")
       <th>Availability</th>
     @endcan
@@ -96,8 +99,16 @@
 		<td>{{ $stockcount->count_total }}</td>
     <td>{{ ucfirst($stockavailable->count_available) }}</td>
     <td><a href="{{url('admin/inventory/products/customer/'.$datarow->id)}}">{{ ucfirst($stocktransfered->count_transfered) }}</a></td>
- <td>{{ $datarow->unit }}</td>
-   <td{{ $datarow->description }}></td>
+  <!-- <td>{{ $datarow->unit }}</td>
+   <td{{ $datarow->description }}></td>  -->
+   @foreach($categories as $category)
+   @if($datarow->category == $category->id)
+   <td>{{ ucfirst($category->name) }}</td>
+   @endif
+   @if($datarow->sub_category == $category->id)
+   <td>{{ ucfirst($category->name) }}</td>
+   @endif
+   @endforeach
   </tr>
   
   <!--
@@ -234,8 +245,16 @@ $user_id = Auth::user()->id;
     <?php
      $produnits= DB::table('slj_products')->where('sku',$productid->unit)->first();
      ?>
-   <td>{{ ucfirst($productid->unit) }}</td>
-    <td>{{ ucfirst($productid->description) }}</td>
+   <!-- <td>{{ ucfirst($productid->unit) }}</td>
+    <td>{{ ucfirst($productid->description) }}</td> -->
+    @foreach($categories as $category)
+   @if($productid->category == $category->id)
+   <td>{{ ucfirst($category->name) }}</td>
+   @endif
+   @if($productid->sub_category == $category->id)
+   <td>{{ ucfirst($category->name) }}</td>
+   @endif
+   @endforeach
     @can("view-product-stock-item")
   		<td><a href="{{url('admin/inventory/products/view/')}}" class="btn btn-sm btn-success">View Stock Items</a> </td>
     @endcan

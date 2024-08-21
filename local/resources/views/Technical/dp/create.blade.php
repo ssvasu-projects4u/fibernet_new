@@ -76,9 +76,21 @@
         {!! Form::select('olt_port_num', $olt_port_numbers, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select OLT Port Number --') ) !!} </div>
 		<div class="form-group col-md-3"> {!! Form::label('generate_dp', 'Generate DP No.') !!}
         {!! Form::text('generate_dp',null, array('class' => 'form-control','required'=>'required','placeholder'=>'Enter Generate DP')) !!} </div>
-		
-			 <div class="form-group col-md-3"> {!! Form::label('enclosure', 'Enclosure Serial Number') !!}
-        {!! Form::select('enclosure', $getdata, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Enclosure --') ) !!} </div>
+       
+	  <!-- <div class="form-group col-md-3"> {!! Form::label('product', 'Product') !!}
+		{!! Form::select('product', $products, null,array('required'=>'required','class' => 'form-control','placeholder'=>'-- Select Product --') ) !!} </div>
+		  -->
+		 <div class="form-group col-md-3"> {!! Form::label('enclosure', 'Enclosure Serial Number') !!}
+		 <select name="enclosure" id="enclosure" class="form-control" required>
+                <option value="">--Select enclosure--</option>
+                 @foreach($getdata as $p)
+          
+               <option value="{{$p}}" >{{$p}}</option>
+                @endforeach
+            </select>
+			</div>
+			<!-- <div class="form-group col-md-3"> {!! Form::label('enclosure', 'Enclosure Serial Number') !!}
+        {!! Form::select('enclosure', $getdata, array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Enclosure --') ) !!} </div>-->
 	
 		<?php $splitters = array("4"=>"1:4","8"=>"1:8"); ?>	
 		<div class="form-group col-md-3"> {!! Form::label('splitter', 'Splitter') !!}
@@ -158,16 +170,19 @@
             }
             ?>
             <select name="distributor" id="distributor" class="form-control" required>
-                <option value="">--Select Branch--</option>
+                <option value="">--Select Distributor--</option>
                  @foreach($distgroup as $p)
             @php $user = DB::table('slj_distributors')->where('id', $p)->first(); @endphp;
            <?php 
            if($sd>1)
            {
            ?>
+           
+            <option value="">--Select Distributor--</option>
             <option value="{{$p}}">{{$user->distributor_name}}</option>
             <?php } else { ?>
-              <option value="{{$p}}" selected>{{$user->distributor_name}}</option>
+            
+              <option value="{{$p}}" >{{$user->distributor_name}}</option>
             
             <?php } ?>
                 @endforeach
@@ -175,6 +190,8 @@
         
         
         </div>
+        <div class="form-group col-md-3"> {!! Form::label('subdistributor', 'Sub Distributor') !!}
+        {!! Form::select('subdistributor', [], null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Sub Distributor --') ) !!} </div>
 	<div class="form-group col-md-3">{!! Form::label('branch', 'Branch') !!}
 	
 	     @php $userdetails1 = DB::table('slj_employees')->where('user_id', $user_id)->first(); @endphp
@@ -271,16 +288,33 @@
         
 		<div class="form-group col-md-3"> {!! Form::label('generate_dp', 'Generate DP No.') !!}
         {!! Form::text('generate_dp',null, array('class' => 'form-control','required'=>'required','placeholder'=>'Enter Generate DP')) !!} </div>
+
+       <!-- <div class="form-group col-md-3"> {!! Form::label('product', 'Product') !!}
+		{!! Form::select('product', $products, null,array('required'=>'required','class' => 'form-control','placeholder'=>'-- Select Product --') ) !!} </div>-->
+		  
+
+        
 	        <?php
 	        $no="GENERAL ENCLOSER";
         $j="available";
-        $kk=1;
-        $getdata=\App\StockProducts::where('identification',$no)->where('employee_status',$j)->where('assign_status',$kk)->pluck('serial_no','serial_no');
+       // $kk=1;
+        $kk=0;
+        $getdata1=\App\StockProducts::where('identification',$no)->where('employee_status',$j)->where('assign_status',$kk)->pluck('serial_no','serial_no');
      
 	        ?>
 	
-				 <div class="form-group col-md-3"> {!! Form::label('enclosure', 'Enclosure Serial Number') !!}
-        {!! Form::select('enclosure', $getdata, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Enclosure --') ) !!} </div>
+		<!-- <div class="form-group col-md-3"> {!! Form::label('enclosure', 'Enclosure Serial Number') !!}
+        {!! Form::select('enclosure', $getdata, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Enclosure --') ) !!} </div> -->
+		
+		 <div class="form-group col-md-3"> {!! Form::label('enclosure', 'Enclosure Serial Number') !!}
+		 <select name="enclosure" id="enclosure" class="form-control" required>
+                <option value="">--Select Enclosure Serial Number--</option>
+                 @foreach($getdata as $p)
+          
+               <option value="{{$p}}" >{{$p}}</option>
+                @endforeach
+            </select>
+			</div>
 	
 		
 		
@@ -336,17 +370,16 @@
     		$('#splitter').on('change', function() {
             var splitter = $(this).val();
             var franch=$('#franchise').val();
-          //  alert(franch);
-        //  alert(splitter); 
+         
         			$.ajax({
                             url: "{{url('/admin/fh/split')}}/"+splitter+"/"+franch,
                             type: "GET",
                         success:function(data) {
-                        //    alert(data);
+                        
                           $('#splitterdata').html(data);
                         },
                         error: function(XMLHttpRequest, textStatus, errorThrown) {
-                            alert(errorThrown);
+                          //  alert(errorThrown);
                         }
                     });
 		
@@ -369,7 +402,7 @@
                    $('#distributor').html(data);
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
-                    alert(errorThrown);
+                    //alert(errorThrown);
                 }
             });
         });
@@ -392,7 +425,7 @@
                    $('#subdistributor').html(data);
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
-                    alert(errorThrown);
+                   // alert(errorThrown);
                 }
             });
         }); 
@@ -414,7 +447,7 @@
                    $('#branch').html(data);
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
-                    alert(errorThrown);
+                   // alert(errorThrown);
                 }
             });
         }); 
@@ -454,7 +487,7 @@ if(branch == '' || branch <=0){
                    $('#franchise').html(data);
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
-                    alert(errorThrown);
+                   // alert(errorThrown);
                 }
             });
 }
@@ -477,7 +510,7 @@ if(branch == '' || branch <=0){
                            $('#fiber').html(data);
                         },
                         error: function(XMLHttpRequest, textStatus, errorThrown) {
-                            alert(errorThrown);
+                           // alert(errorThrown);
                         }
                     });
 
@@ -488,7 +521,7 @@ if(branch == '' || branch <=0){
                            $('#olt_id').html(data);
                         },
                         error: function(XMLHttpRequest, textStatus, errorThrown) {
-                            alert(errorThrown);
+                           // alert(errorThrown);
                         }
                     });
 		}
@@ -515,7 +548,7 @@ if(branch == '' || branch <=0){
                             $('#olt_port_num').html(data);
                         },
                     error: function(XMLHttpRequest, textStatus, errorThrown) {
-                        alert(errorThrown);
+                       // alert(errorThrown);
                     }
                 });
             }else{
@@ -564,9 +597,31 @@ if(branch == '' || branch <=0){
                    $('#fibercolor').html(data);
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
-                    alert(errorThrown);
+                   // alert(errorThrown);
                 }
             });
         });
+
+
+
+        
+		 $('#product').on('change', function() {
+            var product = $(this).val();  
+				
+            
+            $.ajax({
+                url: "{{url('/admin/dp/get_enclosers')}}/"+product,
+                type: "GET",
+                success:function(data) {
+                   $('#enclosure').html(data);
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    //alert(errorThrown);
+                }
+            });
+        }); 
+
+
+
 </script>
 @stop

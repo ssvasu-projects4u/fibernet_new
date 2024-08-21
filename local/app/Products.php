@@ -12,6 +12,11 @@ class Products extends Model
 	protected $fillable = [
         'name','category','sub_category', 'unit', 'sku','description','status','fiber_core','product_photo'
     ];
+
+    public function cat()
+    {
+        return $this->belongsTo('App\ProductCategories', 'category', 'id');
+    }
 	
 	
 }

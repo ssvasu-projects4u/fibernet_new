@@ -49,6 +49,9 @@
 			<div class="form-group col-md-3"> {!! Form::label('branch', 'Branch') !!}
         {!! Form::select('branch', $branches, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Branch --') ) !!} </div>
 		
+        <div class="form-group col-md-3"> {!! Form::label('franchise', 'Franchise') !!}
+        {!! Form::select('franchise', $items, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Franchise --') ) !!} </div>
+
 		<?php } if( $roles[0]=='branch' || $roles[0]=='superadmin' ){ ?>
 		<div class="form-group col-md-3"> {!! Form::label('franchise', 'Franchise') !!}
         {!! Form::select('franchise', $items, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Franchise --') ) !!} </div>

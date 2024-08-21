@@ -1296,7 +1296,7 @@ $cust_pay['amount']=$input['secure_deposite_amount']+$input['setup_box_amount']+
 			'mobile_no'        => isset($input['mobile']) ? $input['mobile'] : null,
 			'install_address'  => isset($input['installation_address']) ? $input['installation_address'] : null,
 			'address_proof'    => isset($input['address_proof_no']) ? $input['address_proof_no'] : null,
-            'landline_no'    => "",
+            'landline_no'    => isset($input['landline_no']) ? $input['landline_no'] : "",
 		);
        // print_r( $query_params);die;
         

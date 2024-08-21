@@ -48,7 +48,7 @@
 			<div class="form-group col-md-3"> {!! Form::label('distributor', 'Distributor') !!}
         {!! Form::select('distributor', [], null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Distributor --') ) !!} </div>
 			
-        <div class="form-group col-md-3"> {!! Form::label('subdistributor', 'Sub Distributor*') !!}
+        <div class="form-group col-md-3"> {!! Form::label('subdistributor', 'Sub Distributor') !!}
         {!! Form::select('subdistributor', [], null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Sub Distributor --') ) !!} </div>
 
 
@@ -64,10 +64,17 @@
 		<div class="form-group col-md-3"> {!! Form::label('fiber', 'Fiber') !!}
         {!! Form::select('fiber', [], null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Fiber --') ) !!} </div>
 			
-			 <div class="form-group col-md-3"> {!! Form::label('Enclosure', 'Enclosure Serial Number') !!}
-        {!! Form::select('Enclosure', [], null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Enclosure --') ) !!} </div>
+      
 	
-		
+		 <div class="form-group col-md-3"> {!! Form::label('enclosure', 'Enclosure Serial Number') !!}
+		 <select name="enclosure" id="enclosure" class="form-control" required>
+                <option value="">--Select Enclosure Serial Number--</option>
+                 @foreach($getdata as $p)
+          
+               <option value="{{$p}}" >{{$p}}</option>
+                @endforeach
+            </select>
+			</div>
 		
 		<div class="form-group col-md-3"> {!! Form::label('long_lat', 'Latitude & Longitude') !!}
         {!! Form::text('long_lat',null, array('class' => 'form-control','id'=>'map1','required'=>'required','placeholder'=>'Enter Latitude & Longitude')) !!} 
@@ -138,6 +145,7 @@
             }
             ?>
             <select name="distributor" id="distributor" class="form-control" required>
+                <option value="">--Select Distributor--</option>
                 <?php
                 if($sizev<=1)
                 {
@@ -155,6 +163,8 @@
                 <?php } ?>
             </select>
         </div>
+        <div class="form-group col-md-3"> {!! Form::label('subdistributor', 'Sub Distributor') !!}
+        {!! Form::select('subdistributor', [], null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Sub Distributor --') ) !!} </div>
 			<div class="form-group col-md-3"> {!! Form::label('branch', 'Branch') !!}
                                       @php $userdetails1 = DB::table('slj_employees')->where('user_id', $user_id)->first(); @endphp
                          <?php
@@ -233,11 +243,17 @@
 		<div class="form-group col-md-3"> {!! Form::label('fiber', 'Fiber') !!}
         {!! Form::select('fiber', [], null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Fiber --') ) !!} </div>
 			
-			 <div class="form-group col-md-3"> {!! Form::label('Enclosure', 'Enclosure Serial Number') !!}
-        {!! Form::select('Enclosure', [], null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Termination Box --') ) !!} </div>
-	
-		
-		
+      
+
+         <div class="form-group col-md-3"> {!! Form::label('enclosure', 'Enclosure Serial Number') !!}
+		 <select name="enclosure" id="enclosure" class="form-control" required>
+                <option value="">--Select Enclosure Serial Number--</option>
+                 @foreach($getdata as $p)
+          
+               <option value="{{$p}}" >{{$p}}</option>
+                @endforeach
+            </select>
+			</div>
 		<div class="form-group col-md-3"> {!! Form::label('long_lat', 'Latitude & Longitude') !!}
         {!! Form::text('long_lat',null, array('class' => 'form-control','id'=>'map1','required'=>'required','placeholder'=>'Enter Latitude & Longitude')) !!} 
         <a class="btn btn-sm btn-warning getMap" map_num='1'>Get</a></div>
@@ -300,7 +316,7 @@ $(document).ready(function() {
                    $('#distributor').html(data);
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
-                    alert(errorThrown);
+                    //alert(errorThrown);
                 }
             });
         });
@@ -323,7 +339,7 @@ $(document).ready(function() {
                    $('#subdistributor').html(data);
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
-                    alert(errorThrown);
+                   // alert(errorThrown);
                 }
             });
         }); 
@@ -345,7 +361,7 @@ $(document).ready(function() {
                    $('#branch').html(data);
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
-                    alert(errorThrown);
+                   // alert(errorThrown);
                 }
             });
         }); 
@@ -384,7 +400,7 @@ if(branch == '' || branch <=0){
                    $('#franchise').html(data);
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
-                    alert(errorThrown);
+                    //alert(errorThrown);
                 }
             });
             }
@@ -406,12 +422,13 @@ if(branch == '' || branch <=0){
                            $('#fiber').html(data);
                         },
                         error: function(XMLHttpRequest, textStatus, errorThrown) {
-                            alert(errorThrown);
+                           // alert(errorThrown);
                         }
                     });
 		}
 		$('#franchise').on('change', function() {
             var franchise = $(this).val();
+			// alert(franchise);
 			getFiber(franchise);
         });
 		
@@ -452,7 +469,7 @@ if(branch == '' || branch <=0){
                   $('#Enclosure').html(data);
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
-                    alert(errorThrown);
+                   // alert(errorThrown);
                 }
             });
         });
@@ -471,10 +488,26 @@ if(branch == '' || branch <=0){
                    $('#sub_distributor').html(data);
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
-                    alert(errorThrown);
+                   // alert(errorThrown);
                 }
             });
         });
+
+        $('#product').on('change', function() {
+            var product = $(this).val();  
+				
+            
+            $.ajax({
+                url: "{{url('/admin/dp/get_enclosers')}}/"+product,
+                type: "GET",
+                success:function(data) {
+                   $('#enclosure').html(data);
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                   // alert(errorThrown);
+                }
+            });
+        }); 
         
 </script>
 @stop

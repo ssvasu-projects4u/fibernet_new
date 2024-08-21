@@ -90,9 +90,19 @@
 		
 		    <div class="form-group col-md-3"> {!! Form::label('termination_box', 'Termination Box ') !!}
         {!! Form::select('termination_box', $terminationbox, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Termination Box --') ) !!} </div>
+		
+		 <div class="form-group col-md-3"> {!! Form::label('termination_box_serial_no', 'Termination Box Serial No') !!}
+		 <select name="termination_box_serial_no" id="termination_box_serial_no" class="form-control" required>
+                <option value="">--Select Termination Box Serial No--</option>
+                 @foreach($getdata as $p)
+          
+               <option value="{{$p}}" >{{$p}}</option>
+                @endforeach
+            </select>
+			</div>
 	
-		<div class="form-group col-md-3"> {!! Form::label('termination_box_serial_no', 'Termination Box Serial No') !!}
-        {!! Form::select('termination_box_serial_no', $terminationbox, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Termination Box --') ) !!} </div>
+		<!--<div class="form-group col-md-3"> {!! Form::label('termination_box_serial_no', 'Termination Box Serial No') !!}
+        {!! Form::select('termination_box_serial_no', $terminationbox, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Termination Box --') ) !!} </div>-->
 	
 		
 		<div class="form-group col-md-3"> {!! Form::label('long_lat', 'Latitude & Longitude') !!}
@@ -176,6 +186,36 @@
             <option value="{{$p}}">{{$user->distributor_name}}</option>
             <?php } else { ?>
               <option value="{{$p}}" selected>{{$user->distributor_name}}</option>
+            
+            <?php } ?>
+                @endforeach
+            </select>
+        </div>
+		
+		<div class="form-group col-md-3"> {!! Form::label('subdistributor', 'Sub Distributor') !!}
+         @php $userdetails1 = DB::table('slj_employees')->where('user_id', $user_id)->first(); @endphp
+                         <?php
+			    	$sdistgroup = array();
+		 
+     
+            if(!empty($userdetails1->subdistributor)){
+			$sdistgroup = explode(",",$userdetails1->subdistributor);
+						
+				$ssd=count($sdistgroup);				
+							
+            }
+            ?>
+             <select name="subdistributor" id="subdistributor" class="form-control" required>
+                <option value="">--Select Branch--</option>
+                 @foreach($sdistgroup as $ps)
+            @php $user = DB::table('slj_subdistributors')->where('id', $ps)->first(); @endphp;
+           <?php 
+           if($ssd>1)
+           {
+           ?>
+            <option value="{{$ps}}">{{$user->subdistributor_name}}</option>
+            <?php } else { ?>
+              <option value="{{$ps}}" selected>{{$user->subdistributor_name}}</option>
             
             <?php } ?>
                 @endforeach
@@ -283,8 +323,18 @@
           <div class="form-group col-md-3"> {!! Form::label('termination_box', 'Termination Box ') !!}
         {!! Form::select('termination_box', $terminationbox, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Termination Box --') ) !!} </div>
 	
-		<div class="form-group col-md-3"> {!! Form::label('termination_box_serial_no', 'Termination Box Serial No') !!}
-        {!! Form::select('termination_box_serial_no', $terminationbox, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Termination Box --') ) !!} </div>
+		<!--<div class="form-group col-md-3"> {!! Form::label('termination_box_serial_no', 'Termination Box Serial No') !!}
+        {!! Form::select('termination_box_serial_no', $terminationbox, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Termination Box --') ) !!} </div>-->
+		
+		 <div class="form-group col-md-3"> {!! Form::label('termination_box_serial_no', 'Termination Box Serial No') !!}
+		 <select name="termination_box_serial_no" id="termination_box_serial_no" class="form-control" required>
+                <option value="">--Select Termination Box Serial No--</option>
+                 @foreach($getdata as $p)
+          
+               <option value="{{$p}}" >{{$p}}</option>
+                @endforeach
+            </select>
+			</div>
 	
 			
 		

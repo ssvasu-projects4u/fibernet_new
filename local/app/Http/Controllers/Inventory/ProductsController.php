@@ -26,15 +26,20 @@ class ProductsController extends Controller
       if($roles[0]=='superadmin' || $roles[0]=="Inventory Manager")
       {
           $data = \App\Products::orderBy('name')->paginate(20);
+          $categories = \App\ProductCategories::where('status','Y')	->select('id','name')->get();
+
       }
       else
       {
          $userid=\Auth::user()->id; 
-          $data = \App\StockHistory::join('users','users.id', '=', 'slj_stock_history.to_user_id')
+         $data = \App\StockHistory::join('users','users.id', '=', 'slj_stock_history.to_user_id')
                            	->select('slj_stock_history.*')
             	           	->where('slj_stock_history.to_user_id', '=', \Auth::user()->id)
             	         
-				            ->paginate(10); // added by durga
+				            ->paginate(10);
+                            $categories = \App\ProductCategories::where('status','Y')	->select('id','name')->get();                
+                            
+                            // added by durga
         // $data = \App\Products::orderBy('name')->paginate(20); old information
 
         //echo "<pre>"; print_r($data); exit;
@@ -48,7 +53,7 @@ class ProductsController extends Controller
      
       \App\Employees_Logs::create($employeedata);
 	  
-		return view('inventory.products.index',['data'=>$data]);
+		return view('inventory.products.index',['data'=>$data,'categories'=>$categories]);
     }
 	
 	/**

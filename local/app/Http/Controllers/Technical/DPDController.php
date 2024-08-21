@@ -132,6 +132,15 @@ class DPDController extends Controller
         }
         $id = \Auth::user()->id;
         $roles = $user->getRoleNames(); 
+     
+       /* $subcategories = \App\ProductCategories::where('status','Y')->where('parent',18)->orderBy('name')->pluck('name', 'id'); */
+		 
+		 $getdata = \App\StockProducts::join('slj_products','slj_products.id','=','slj_stock_products.product')            
+        ->where('slj_products.sub_category',19)
+		->where('slj_stock_products.assign_status',0)
+        ->orderBy('slj_stock_products.id','DESC')
+		->pluck('serial_no'); 
+		
         
         $cities = \App\City::where('status','Y')->pluck('name', 'id');
 	    $franchise_list=array();
@@ -146,7 +155,7 @@ class DPDController extends Controller
         if($roles[0]=='franchise'){
                     $franchise_id = \App\Franchises::where('user_id',$id)->pluck('id');
          }
-	    return view('technical.dpd.create',['cities'=>$cities,'franchise'=>$franchise_list, 'branch_id'=>$id, 'franchise_id'=>$franchise_id]);
+	    return view('technical.dpd.create',['cities'=>$cities,'franchise'=>$franchise_list, 'branch_id'=>$id, 'getdata'=>$getdata,'franchise_id'=>$franchise_id]);
     }
 
     /**
@@ -195,16 +204,26 @@ class DPDController extends Controller
             $requestdata = $request->all(); 
     
             
-            $input['Enclosure']=$requestdata['Enclosure'];
+           // $input['Enclosure']=$requestdata['Enclosure'];
+			
+			 \App\DPD::create($input); 
+	  
+	      $update = [
+                'assign_status'   => 1,
+                'identification'    => "GENERAL ENCLOSER"
+               
+            ];   
             
-		\App\DPD::create($input);
+            $enclosuredata=\App\StockProducts::where('serial_no',$requestdata['enclosure'])->update($update);
+            
+		/* \App\DPD::create($input);
 		
 		$datad=\App\StockProducts::where('serial_no',$input['Enclosure'])->where('assign_status',1)->first();
 		
 		 $stock_product = \App\StockProducts::find($datad->id);
 		 $datar=array();
 		 $datar['assign_status']=0;
-		 $stock_product->update($datar);
+		 $stock_product->update($datar); */
 		
 	
     

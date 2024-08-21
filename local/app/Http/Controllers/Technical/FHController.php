@@ -118,9 +118,15 @@ class FHController extends Controller
             $franchise_list = \App\Franchises::whereIn('branch',$ids)->pluck('franchise_name', 'id');
             $t=9;
         $terminationbox=\App\ProductCategories::where('parent',$t)->pluck('name', 'id');
+		
+		 $getdata = \App\StockProducts::join('slj_products','slj_products.id','=','slj_stock_products.product')            
+        ->where('slj_products.category',$terminationbox)
+		->where('slj_stock_products.assign_status',0)
+        ->orderBy('slj_stock_products.id','DESC')
+		->pluck('serial_no'); 
        
                                     $franchise_id = \App\Franchises::where('user_id',$id)->pluck('id');
-        return view('technical.fh.create',['cities'=>$cities,'franchise'=>$franchise_list, 'franchise_id'=>$franchise_id,'terminationbox'=>$terminationbox]);
+        return view('technical.fh.create',['cities'=>$cities,'franchise'=>$franchise_list, 'franchise_id'=>$franchise_id,'terminationbox'=>$terminationbox,'getdata'=>$getdata]);
  }
  else
  {
@@ -129,8 +135,13 @@ class FHController extends Controller
       $t=9;
         $terminationbox=\App\ProductCategories::where('parent',$t)->pluck('name', 'id');
           
+		   $getdata = \App\StockProducts::join('slj_products','slj_products.id','=','slj_stock_products.product')            
+        ->where('slj_products.category',$terminationbox)
+		->where('slj_stock_products.assign_status',0)
+        ->orderBy('slj_stock_products.id','DESC')
+		->pluck('serial_no'); 
                               
-return view('technical.fh.create',['empdata'=>$empdata,'terminationbox'=>$terminationbox]);
+return view('technical.fh.create',['empdata'=>$empdata,'terminationbox'=>$terminationbox,'getdata'=>$getdata]);
  }
                          
 
@@ -205,6 +216,14 @@ return view('technical.fh.create',['empdata'=>$empdata,'terminationbox'=>$termin
         $input['termination_box']=$requestdata['termination_box'];
 		
 		\App\FH::create($input);
+		
+		 $update = [
+                'assign_status'   => 1,
+                'identification'    => "JC BOX -1"
+               
+            ];   
+            
+            $terminationdata=\App\StockProducts::where('serial_no',$requestdata['termination_box_serial_no'])->update($update);
 		
 		$data=array();
 	$data['franch']=$requestdata['franchise'];

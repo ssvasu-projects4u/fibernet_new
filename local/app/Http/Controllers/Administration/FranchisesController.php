@@ -324,7 +324,7 @@ class FranchisesController extends Controller
      * @param int $id
      * @return Response
      */
-   /* public function change_password(Request $request)
+    public function change_password(Request $request)
     {
         
         $validatedData = $request->validate([
@@ -342,40 +342,40 @@ class FranchisesController extends Controller
                 $user->update($data);
 		
 		return redirect('admin/'.$requestdata['pageName'])->with('success', 'Password updated successfully.');
-    } */
+    } 
 	
-	 public function change_password(Request $request)
-    {
+	//  public function change_password(Request $request)
+    // {
         
-         $user_id = Auth::user()->id; 
-        $validatedData = $request->validate([
-            'oldpassword' => 'required',
-            'password' => 'required|confirmed|min:8',
-			'password_confirmation' => 'required',
-        ]);
+    //      $user_id = Auth::user()->id; 
+    //     $validatedData = $request->validate([
+    //         'oldpassword' => 'required',
+    //         'password' => 'required|confirmed|min:8',
+	// 		'password_confirmation' => 'required',
+    //     ]);
 
-        $requestdata = $request->all(); 
-        //$data['oldpassword'] = $requestdata['oldpassword'];
+    //     $requestdata = $request->all(); 
+    //     //$data['oldpassword'] = $requestdata['oldpassword'];
         
-        //Update details
+    //     //Update details
         
-        $current_password = Auth::User()->password;   
+    //     $current_password = Auth::User()->password;   
 		
-		 if(Hash::check($requestdata['oldpassword'], $current_password))
-        {           
-            $obj_user = \App\User::find($user_id);
-            $obj_user->password = Hash::make($requestdata['password']);;
-            $obj_user->save(); 
-           // return redirect()->back()->with('success', 'Password updated successfully.');
-			return redirect('admin/'.$requestdata['pageName'])->with('success', 'Password updated successfully.');
-        }
-        else
-        {           
-            //return redirect('admin/changepassword')->withErrors('oldpassword.required', 'Failed - Invalid Old Password.'); 
+	// 	 if(Hash::check($requestdata['oldpassword'], $current_password))
+    //     {           
+    //         $obj_user = \App\User::find($user_id);
+    //         $obj_user->password = Hash::make($requestdata['password']);;
+    //         $obj_user->save(); 
+    //        // return redirect()->back()->with('success', 'Password updated successfully.');
+	// 		return redirect('admin/'.$requestdata['pageName'])->with('success', 'Password updated successfully.');
+    //     }
+    //     else
+    //     {           
+    //         //return redirect('admin/changepassword')->withErrors('oldpassword.required', 'Failed - Invalid Old Password.'); 
 			
-            return redirect()->back()->with("error","Invalid old password.");
-        }
-    }
+    //         return redirect()->back()->with("error","Invalid old password.");
+    //     }
+    // }
 	
 	
 

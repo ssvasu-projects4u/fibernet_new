@@ -2263,13 +2263,19 @@ $parentnum = 3;
      * @return Response
      */
     public function transferFranchise($stakeholder, $prod_id) {
+		
       $input = request()->all();
       $usertype = explode('-', $stakeholder);
-
+		
+		
       $data = \App\StockProducts::join('slj_vendors','slj_stock_products.vendor', '=', 'slj_vendors.id')
         ->leftjoin('slj_products','slj_products.id', '=', 'slj_stock_products.product')
         ->select('slj_vendors.company_name as vendor_name','slj_stock_products.*')
         ->where('slj_stock_products.product', $prod_id);
+		
+		
+		
+	//	print_r($data);die;
 
       if ($stakeholder == "manage-wise") {
         $data = $data->where('slj_stock_products.status','available');
@@ -2457,14 +2463,18 @@ $parentnum = 3;
      * @return Response
      */
     public function transferEmployee($stakeholder, $prod_id) {
+		
       $input = request()->all();
       $usertype = explode('-', $stakeholder);
 
       $data = \App\StockProducts::join('slj_vendors','slj_stock_products.vendor', '=', 'slj_vendors.id')
         ->leftjoin('slj_products','slj_products.id', '=', 'slj_stock_products.product')
         ->select('slj_vendors.company_name as vendor_name','slj_stock_products.*')
-        ->where('slj_stock_products.product',$prod_id);
-      if ($stakeholder == "manage-wise") {
+        ->where('slj_stock_products.product',$prod_id); 
+		
+		
+				
+    /*   if ($stakeholder == "manage-wise") {
         $data = $data->where('slj_stock_products.status','available');
       }
       else {
@@ -2495,9 +2505,41 @@ $parentnum = 3;
       if (isset($input['sub_category']) && $input['sub_category'] != "") {
         $data = $data->where("slj_products.id", $input['sub_category']);
       }
+    
+	   $data = $data->orderBy("slj_stock_products.id",'desc')->paginate(20); */
+	   
+	    if ($stakeholder == "manage-wise") {
+        $data = $data->where('slj_stock_products.status','available');
+      }
+      else {
+        $data = $data->where('slj_stock_products.current_user_type', $usertype['0']);
+      }
 
-      $data = $data->orderBy("slj_stock_products.id",'desc');
-      $data = $data->paginate(20);
+      if ($usertype['0'] == 'warehouse' && isset($input['warehouse']) && $input['warehouse'] != "") {
+        $data = $data->where("slj_stock_products.current_user_id", $input['warehouse']);
+      }
+
+      if ($usertype['0'] == 'distributor' && isset($input['distributor']) && $input['distributor'] != "") {
+        $data = $data->where("slj_stock_products.current_user_id", $input['distributor']);
+      }
+
+      if ($usertype['0'] == 'branch' && isset($input['branch']) && $input['branch'] != "") {
+        $data = $data->where("slj_stock_products.current_user_id", $input['branch']);
+      }
+
+      if ($usertype['0'] == 'franchise' && isset($input['franchise']) && $input['franchise'] != "") {
+        $data = $data->where("slj_stock_products.current_user_id", $input['franchise']);
+      }
+
+      if (isset($input['category']) && $input['category'] != "") {
+        $data = $data->where("slj_products.category", $input['category']);
+      }
+
+      if (isset($input['sub_category']) && $input['sub_category'] != "") {
+        $data = $data->where("slj_products.sub_category", $input['sub_category']);
+      }
+
+      $data = $data->orderBy("slj_stock_products.id",'desc')->paginate(20);
 
       $query = \App\Products::leftjoin('slj_stock_products','slj_stock_products.product', '=', 'slj_products.id');
       if ($stakeholder == "manage-wise") {
@@ -2580,6 +2622,8 @@ $parentnum = 3;
         'cities'=>$cities,
         'stakeholder'=>$stakeholder
       ]);
+	  
+	   
     }
 
     /**

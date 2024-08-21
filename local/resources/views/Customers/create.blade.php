@@ -169,8 +169,8 @@
 				        
 				        <div class="form-group col-md-3"> {!! Form::label('gstin', 'GSTIN') !!}
 				        {!! Form::text('gstin',null, array('class' => 'form-control','placeholder'=>'Enter GSTIN')) !!} </div>
-					 <div class="form-group col-md-3"> <span style="color:white">{!! Form::label('EmailVerify', 'EmailVerify') !!}</span>
-				        <input type="text" value="" name="dp" id="dp" required>     
+					 <div style="display:none;"  class="form-group col-md-3"> <span style="color:white">{!! Form::label('EmailVerify', 'EmailVerify') !!}</span>
+				        <input type="text" value="1" name="dp" id="dp" required>     
 				        
 				        </div>
 						<?php 
@@ -1163,7 +1163,7 @@
                 type: "GET",
                 success:function(data) {
                    console.log(data);
-                   alert(data);
+                  // alert(data);
                    olt_amt=data.olt_security_deposit;
                    setupbox_amt=data.setupbox_amount;
                   // alert(setupbox_amt);
@@ -1175,7 +1175,7 @@
 				   
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
-                    alert('wrong');
+                   // alert('wrong');
                 }
             });
 			

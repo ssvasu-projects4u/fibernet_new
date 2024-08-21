@@ -415,10 +415,10 @@
 
         $('#connection_type').on('change', function() {
         	var connection_type = $(this).val();
-			//alert(connection_type);
 			
+						
 			$.ajax({
-                url: "{{url('/admin/connection-types/details')}}/"+connection_type,
+                url: "{{url('admin/connection-types/details')}}/"+connection_type,
                 type: "GET",
                 success:function(data) {
                    //console.log(data);
@@ -427,8 +427,8 @@
 				   $('#androidbox_security_deposit').val(data.ont_security_deposit);
 				   $('#setup_box_amount').val(data.setupbox_amount);
                 },
-                error: function(XMLHttpRequest, textStatus, errorThrown) {
-                    alert(errorThrown);
+                 error: function(XMLHttpRequest, textStatus, errorThrown) {
+                     alert(errorThrown);
                 }
             });
 			

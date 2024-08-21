@@ -669,16 +669,34 @@
         });
 		
 		
-		$('#distributor').on('change', function() {
-            var distributor = $(this).val();
-            var city = $("#city").val();
+		 $('#distributor').on('change', function() {
+            var distributor = $(this).val();  
+				
             if(distributor == '' || distributor <=0){
-            	$('#branch').html("<option value=''>-- Select Branch --</option>");
-				$('#franchise').html("<option value=''>-- Select Franchise --</option>");
-				return;
+            	$('#subdistributor').html("<option value=''>-- Select Sub Distributor --</option>");
+            	return;
             }
             $.ajax({
-                url: "{{url('/admin/franchises/citydistributorbranches')}}/"+city+"/"+distributor,
+                url: "{{url('/admin/branches/subdistributors')}}/"+distributor,
+                type: "GET",
+                success:function(data) {
+                   $('#subdistributor').html(data);
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    alert(errorThrown);
+                }
+            });
+        }); 
+		
+		 $('#subdistributor').on('change', function() {
+            var subdistributor = $(this).val();  
+				
+            if(subdistributor == '' || subdistributor <=0){
+            	$('#branch').html("<option value=''>-- Select Branch --</option>");
+            	return;
+            }
+            $.ajax({
+                url: "{{url('/admin/franchises/branches')}}/"+subdistributor,
                 type: "GET",
                 success:function(data) {
                    $('#branch').html(data);
@@ -687,7 +705,8 @@
                     alert(errorThrown);
                 }
             });
-        });
+        }); 
+
         
 
         $('#branch').on('change', function() {
