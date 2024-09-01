@@ -180,7 +180,8 @@ class FranchisesController extends Controller
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $json_data);
 
 		 $response = curl_exec($ch);
-        
+         $input['api_response'] = $response;
+         $input['api_request'] = $json_data;
 
             if (curl_errno($ch)) {
 				echo 'Error:' . curl_error($ch);

@@ -61,9 +61,10 @@
 
          				
 					
-        			
+	<?php	if($connection_types[0] != 5)
+        {	?>
         			 
-        									<div class="form-group col-md-3"> {!! Form::label('vlan', 'VLAN') !!}
+        			<div class="form-group col-md-3"> {!! Form::label('vlan', 'VLAN') !!}
         									<input type="text" id="vlan" name="vlan" class="form-control" value="{{$franchisedetails->vlan }}">
 				         </div>
 				         	<div class="form-group col-md-3"> {!! Form::label('ipaddress', 'Ipaddress') !!}
@@ -152,6 +153,7 @@
 	                                        
         									
 				         </div>
+						 <?php } ?>
 				         	<div class="form-group col-md-3"> {!! Form::label('fiber_length', 'Fiber Length (in Meters)') !!}
 				        {!! Form::text('fiber_length',null, array('class' => 'form-control','placeholder'=>'Enter Fiber Length (in Meters)')) !!} </div>
 						
@@ -195,10 +197,10 @@
         {!! Form::select('fh_port', [], null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select FH Port --') ) !!} </div>
 
          				
-					
-        			
-        			 
-        									<div class="form-group col-md-3"> {!! Form::label('vlan', 'VLAN') !!}
+		<?php	if($connection_types[0] != 5)
+        {	?>			
+        	       			 
+        			<div class="form-group col-md-3"> {!! Form::label('vlan', 'VLAN') !!}
         									<input type="text" id="vlan" name="vlan" class="form-control" value="{{$franchisedetails->vlan }}">
 				         </div>
 				         	<div class="form-group col-md-3"> {!! Form::label('ipaddress', 'Ipaddress') !!}
@@ -312,6 +314,7 @@
 	                            ?>
         									
 				         </div>
+						 <?php } ?>
 				         	<div class="form-group col-md-3"> {!! Form::label('fiber_length', 'Fiber Length (in Meters)') !!}
 				        {!! Form::text('fiber_length',null, array('class' => 'form-control','placeholder'=>'Enter Fiber Length (in Meters)')) !!} </div>
 						

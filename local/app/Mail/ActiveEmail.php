@@ -30,7 +30,7 @@ class ActiveEmail extends Mailable
     public function build()
     {
         
-         $this->subject('Your Services Activated Successfully - SLJ Fiber Networks')->view('customers::activeuseremail')->with('$details');
+         $this->subject('Your Services Activated Successfully - SLJ Fiber Networks')->view('customers.activeuseremail')->with('$details');
          return $this;
     }
 }

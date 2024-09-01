@@ -31,7 +31,7 @@ class TermsandConditions extends Mailable
     public function build()
     {
         
-         $this->subject('Thanking You for Accepted Terms & Conditions - SLJ Fiber Networks')->view('customers::acceptedtermsconditions')->with('$details');
+         $this->subject('Thanking You for Accepted Terms & Conditions - SLJ Fiber Networks')->view('customers.acceptedtermsconditions')->with('$details');
          return $this;
     }
 }

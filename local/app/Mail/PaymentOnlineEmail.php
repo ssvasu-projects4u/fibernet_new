@@ -31,7 +31,7 @@ class PaymentOnlineEmail extends Mailable
     public function build()
     {
         
-         $this->subject('Online Payment Confirmation - SLJ Fiber Networks')->view('customers::payonlineemail')->with('$details');
+         $this->subject('Online Payment Confirmation - SLJ Fiber Networks')->view('customers.payonlineemail')->with('$details');
          return $this;
     }
 }

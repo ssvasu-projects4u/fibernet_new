@@ -584,6 +584,14 @@
         } ?>" href="{{url('admin/customers/activation')}}">Activate Customers</a>
 
 @endcan
+
+ 
+<a class="collapse-item <?php if (Request::segment(2) == 'customers' && Request::segment(3) == 'smartboxusers') {
+            echo 'active';
+        } ?>" href="{{url('admin/customers/smartboxusers')}}">Smartbox Added Users</a>
+
+ 
+
 @can("active-customers")
                                     <a class="collapse-item <?php if (Request::segment(2) == 'customers' && Request::segment(3) == 'active') {
                                 echo 'active';

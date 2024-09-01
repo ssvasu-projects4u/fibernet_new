@@ -9,6 +9,8 @@
         $layout='layouts.'.$roles[0];    
     }
  ?>
+ 
+ 
 @extends($layout)
 
 @section('content')
@@ -150,11 +152,12 @@
 
 				        <div class="form-group col-md-3"> {!! Form::label('last_name', 'Last Name *') !!}
 				        {!! Form::text('last_name',null, array('class' => 'form-control','required'=>'required','placeholder'=>'Enter Last Name')) !!} </div>
-
-				      <div class="form-group col-md-3"> {!! Form::label('date_of_birth', 'Date of Birth *') !!}
-				        {!! Form::text('date_of_birth',null, array('class' => 'form-control','required'=>'required','placeholder'=>'Enter Date of Birth')) !!} </div>
-
-					  <div class="form-group col-md-3"> {!! Form::label('f_name_c_name', 'Father/Company Name *') !!}
+	   
+					
+						<div class="form-group col-md-3" > {!! Form::label('date_of_birth', 'Date of Birth') !!}
+						{!! Form::date('date_of_birth', null,array('class' => 'form-control','placeholder'=>'- Date of Birth -','type'=>'date') ) !!} </div>
+					 
+						<div class="form-group col-md-3"> {!! Form::label('f_name_c_name', 'Father/Company Name *') !!}
 				        {!! Form::text('f_name_c_name',null, array('class' => 'form-control','required'=>'required','placeholder'=>'Enter Father Name or Company Name')) !!} </div>
 
 				        <div class="form-group col-md-3"> {!! Form::label('email', 'Email *') !!}
@@ -532,7 +535,8 @@
 		{!! Form::close() !!} 
 	</div>
   </div>
-
+	
+ 
     `<script type="text/javascript">
 	$(document).ready(function() {
 	/*setInterval(function(){ 
@@ -1249,7 +1253,7 @@
             });
         });
 </script>
-  
+ 
 
   
 @stop

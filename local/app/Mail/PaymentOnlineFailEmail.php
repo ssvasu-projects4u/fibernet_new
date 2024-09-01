@@ -31,7 +31,7 @@ class PaymentOnlineFailEmail extends Mailable
     public function build()
     {
         
-         $this->subject('Online Payment Failed - SLJ Fiber Networks')->view('customers::payonlinefailemail')->with('$details');
+         $this->subject('Online Payment Failed - SLJ Fiber Networks')->view('customers.payonlinefailemail')->with('$details');
          return $this;
     }
 }

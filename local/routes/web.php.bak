@@ -26,12 +26,12 @@ Route::prefix('admin')->group(function() {
 });
 
 Route::prefix('admin/state')->group(function() {
-    Route::get('/', 'Administration\CityController@index');
-	Route::get('/create', 'Administration\CityController@create');
-	Route::post('/submit', ['as' => 'state.store', 'uses' => 'Administration\CityController@store']);
-	Route::get('/edit/{id}', 'Administration\CityController@edit');
-	Route::put('/{id}', ['as' => 'state.update', 'uses' => 'Administration\CityController@update']);
-	Route::get('/delete/{id}', 'Administration\CityController@destroy');
+    Route::get('/', 'Administration\StateController@index');
+	Route::get('/create', 'Administration\StateController@create');
+	Route::post('/submit', ['as' => 'state.store', 'uses' => 'Administration\StateController@store']);
+	Route::get('/edit/{id}', 'Administration\StateController@edit');
+	Route::put('/{id}', ['as' => 'state.update', 'uses' => 'Administration\StateController@update']);
+	Route::get('/delete/{id}', 'Administration\StateController@destroy');
         
 });
 
@@ -164,7 +164,7 @@ Route::prefix('admin/franchises')->group(function() {
 	// Route::get('/citysubdistributorbranchesextraedit/{city}/{subdistributor}', 'Administration\FranchisesController@getCitySubdistributorBranchesExtraEdit');
 	
 	Route::get('/getdetails/{franchise}', 'Administration\FranchisesController@getFranchiseDetails');
-        Route::post('/passwordsetup', ['as' => 'franchises.change_password', 'uses' => 'Administration\FranchisesController@change_password']);
+    Route::post('/passwordsetup', ['as' => 'franchises.change_password', 'uses' => 'Administration\FranchisesController@change_password']);
         
         Route::post('/adddeposit', ['as' => 'franchises.add_deposit', 'uses' => 'Administration\FranchisesController@add_deposit']);
  Route::post('/ledger', ['as' => 'franchises.ledger', 'uses' => 'Administration\FranchisesController@ledger']);
@@ -321,6 +321,7 @@ Route::prefix('admin')->group(function() {
     
 	Route::get('/dp/fhdata/{id}', 'Technical\DPController@getFHsData');
     Route::get('/dp/dpdata/{id}', 'Technical\DPController@getDPData');
+	Route::get('/dp/get_enclosers/{id}', 'Technical\DPController@get_enclosers');
 
 	//FH
     Route::get('/fh/fhdata/{id}', 'Technical\FHController@getFHData');
@@ -593,12 +594,15 @@ Route::prefix('admin/customers')->group(function() {
 
     Route::get('/getmodels/{manufacturer}', 'Customers\CustomersController@GetModels');
     Route::get('/getmodels1/{manufacturer}', 'Customers\CustomersController@GetSTBModels');
+
+	Route::get('/get_smartbox/{op_id}', 'Customers\CustomersController@get_smartbox');
    
     Route::get('/getserial/{stb_model}', 'Customers\CustomersController@GetSerialNumber');
      Route::get('/getserial1/{stb_model}', 'Customers\CustomersController@GetSTBSerialNumber');
 
 	Route::put('/user-activate/{id}', ['as' => 'customers.useractivate', 'uses' => 'Customers\CustomersController@updateActivateUser']);
 	 Route::get('/user-activate/{id}', 'Customers\CustomersController@activateUser');
+	 Route::put('/first-time-activation/{id}', ['as' => 'customers.firsttimeactivation', 'uses' => 'Customers\CustomersController@firstTimeActivation']);
 
 	Route::get('/delete/{id}', 'Customers\CustomersController@destroy');
 	Route::get('/branch-franchises/{city}/{branch}', 'Customers\CustomersController@getCityBranchFranchises');
@@ -1062,7 +1066,8 @@ Route::get('inventorybrandajax',[
 ]);
 
 /* Packages */
-Route::prefix('admin/connection-types')->middleware(['role:superadmin'])->group(function() {
+//Route::prefix('admin/connection-types')->middleware(['role:superadmin'])->group(function() {
+Route::prefix('admin/connection-types')->group(function() {
     Route::get('/', 'Packages\ConnectionTypesController@index');
 	Route::get('/create', 'Packages\ConnectionTypesController@create');
 	Route::post('/submit', ['as' => 'connection-types.store', 'uses' => 'Packages\ConnectionTypesController@store']);

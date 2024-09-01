@@ -31,7 +31,7 @@ class DurgaConfirm extends Mailable
     public function build()
     {
         
-         $this->subject('Accept Terms & Conditions - SLJ Fiber Networks')->view('customers::emailverification')->with('$details');
+         $this->subject('Accept Terms & Conditions - SLJ Fiber Networks')->view('customers.emailverification')->with('$details');
          return $this;
     }
 }

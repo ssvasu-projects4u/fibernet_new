@@ -173,10 +173,10 @@
 
                 <!-- Nav Item - Pages Collapse Menu -->
 @canany([
-  'city', 'departments', 'designations', 'distributors', 'subdistributors', 'branches', 'franchises', 'employees'
+    'state','city', 'departments', 'designations', 'distributors', 'subdistributors', 'branches', 'franchises', 'employees'
 ])
 <?php
-  $administration_items = array('city', 'departments', 'designations', 'distributors', 'subdistributors', 'branches', 'franchises', 'employees');
+  $administration_items = array('state','city', 'departments', 'designations', 'distributors', 'subdistributors', 'branches', 'franchises', 'employees');
 ?>
 
                     <li class="nav-item <?php if (in_array(Request::segment(2), $administration_items)) {
@@ -207,6 +207,11 @@
                                     } ?>" href="{{url('admin/employees')}}">Employees</a>
 
                               <hr class="py-0 my-0">
+                    @endcan
+                    @can("state")
+                    <a class="collapse-item <?php if (Request::segment(2) == 'state') {
+                        echo 'active';
+                    } ?>" href="{{url('admin/state')}}">State</a>
                     @endcan
                     @can("city")
                     <a class="collapse-item <?php if (Request::segment(2) == 'city') {
@@ -579,6 +584,14 @@
         } ?>" href="{{url('admin/customers/activation')}}">Activate Customers</a>
 
 @endcan
+
+ 
+<a class="collapse-item <?php if (Request::segment(2) == 'customers' && Request::segment(3) == 'smartboxusers') {
+            echo 'active';
+        } ?>" href="{{url('admin/customers/smartcardusers')}}">Smartbox Added Users</a>
+
+ 
+
 @can("active-customers")
                                     <a class="collapse-item <?php if (Request::segment(2) == 'customers' && Request::segment(3) == 'active') {
                                 echo 'active';
@@ -1344,9 +1357,9 @@ $technical_items = array(
                         <input type="hidden" name="userID" id="userID" value="" />
                         <input type="hidden" name="pageName" id="pageName" value="" />
 						
-						 <div class="form-group">
+					<!--	 <div class="form-group">
                            <label for="old_pass">old Password :</label>
-							 <!--<label for="oldpassword" class="col-form-label text-md-right">{{ __('Old Password') }}</label>-->
+							
                             <input class="form-control" type="password" class="form-control @error('oldpassword') is-invalid @enderror" name="oldpassword" id="oldpassword">
                         @error('oldpassword')
                     <span class="invalid-feedback" role="alert">
@@ -1354,7 +1367,7 @@ $technical_items = array(
                     </span>
                 @enderror
 
-					   </div>
+					   </div> -->
 						
 						
 

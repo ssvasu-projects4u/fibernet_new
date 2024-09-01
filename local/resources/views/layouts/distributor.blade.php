@@ -101,6 +101,7 @@
 		  <a class="collapse-item <?php if(Request::segment(2) == 'customers' && Request::segment(3) == 'technical'){echo 'active';} ?>" href="{{url('distributor/customers/technical')}}">Add Technical</a>
 		  <a class="collapse-item <?php if(Request::segment(2) == 'customers' && Request::segment(3) == 'schedule'){echo 'active';} ?>" href="{{url('distributor/customers/schedule')}}">Scheduled Customers</a>
 		  <a class="collapse-item <?php if(Request::segment(2) == 'customers' && Request::segment(3) == 'activation'){echo 'active';} ?>" href="{{url('distributor/customers/activation')}}">Activate Customers</a>
+		  <a class="collapse-item <?php if(Request::segment(2) == 'customers' && Request::segment(3) == 'smartboxusrs'){echo 'active';} ?>" href="{{url('distributor/customers/smartboxusers')}}">Smartbox Added Users</a>
 		  <a class="collapse-item <?php if(Request::segment(2) == 'customers' && Request::segment(3) == 'active'){echo 'active';} ?>" href="{{url('distributor/customers/active')}}">Active Customers</a>
 		  <a class="collapse-item <?php if(Request::segment(2) == 'customers' && Request::segment(3) == 'expired'){echo 'active';} ?>" href="{{url('distributor/customers/expired')}}">Expired Customers</a>
 		  <a class="collapse-item <?php if(Request::segment(2) == 'customers' && Request::segment(3) == 'closed'){echo 'active';} ?>" href="{{url('distributor/customers/closed')}}">Disconnections</a>

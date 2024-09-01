@@ -120,7 +120,7 @@ class FHController extends Controller
         $terminationbox=\App\ProductCategories::where('parent',$t)->pluck('name', 'id');
 		
 		 $getdata = \App\StockProducts::join('slj_products','slj_products.id','=','slj_stock_products.product')            
-        ->where('slj_products.category',$terminationbox)
+        ->where('slj_products.sub_category',10)
 		->where('slj_stock_products.assign_status',0)
         ->orderBy('slj_stock_products.id','DESC')
 		->pluck('serial_no'); 
@@ -136,7 +136,7 @@ class FHController extends Controller
         $terminationbox=\App\ProductCategories::where('parent',$t)->pluck('name', 'id');
           
 		   $getdata = \App\StockProducts::join('slj_products','slj_products.id','=','slj_stock_products.product')            
-        ->where('slj_products.category',$terminationbox)
+        ->where('slj_products.sub_category',10)
 		->where('slj_stock_products.assign_status',0)
         ->orderBy('slj_stock_products.id','DESC')
 		->pluck('serial_no'); 
@@ -229,7 +229,7 @@ return view('technical.fh.create',['empdata'=>$empdata,'terminationbox'=>$termin
 	$data['franch']=$requestdata['franchise'];
 		
 		$data['seriatype']=$requestdata['splitter'];
-		$data['splitter_serialno']= $requestdata['splitter_serialno'];
+		//$data['splitter_serialno']= $requestdata['splitter_serialno'];
 		$data['type']="fh";
 
 	\App\Serial_Data::create($data);

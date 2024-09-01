@@ -67,6 +67,17 @@ foreach($groupcustomers as $group){
         ?>
       </span></a>
     </li>
+	 <li class="nav-item">
+      <a class="nav-link <?php if(Request::segment(2) == 'customers' && Request::segment(3) == 'activation'){echo 'active';} ?>" href="{{url('distributor/customers/smartboxusers')}}">Smartbox Added Users&nbsp;<span class="badge badge-warning">
+        <?php 
+        if(isset($groupwisecustomers['activation']) && ($groupwisecustomers['activation'] > 0)){
+          echo $groupwisecustomers['activation'];
+        }else{
+          echo "0";
+        }
+        ?>
+      </span></a>
+    </li>
 	<li class="nav-item">
       <a class="nav-link <?php if(Request::segment(2) == 'customers' && Request::segment(3) == 'active'){echo 'active';} ?>" href="{{url('distributor/customers/active')}}">Active&nbsp;<span class="badge badge-info">
         <?php 

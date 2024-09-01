@@ -30,7 +30,7 @@ class MyTestMail extends Mailable
     public function build()
     {
         
-         $this->subject('Terms & Conditions - SLJ Fiber Networks')->view('customers::emailtemplate')->with('$details');
+         $this->subject('Terms & Conditions - SLJ Fiber Networks')->view('customers.emailtemplate')->with('$details');
          return $this;
     }
 }

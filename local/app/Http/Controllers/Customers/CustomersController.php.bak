@@ -956,9 +956,7 @@ $user = Auth::user();
     {
         $datav=1;
         $validatedData = $request->validate([
-          'email' => 'required|unique:users'
-        
-        
+          'email' => 'required|unique:users'              
           
         ]);
         $custid = \App\Customers::orderBy('id', 'desc')->first(); // gets the whole row
@@ -1066,7 +1064,8 @@ $user = Auth::user();
 		 $cust_pay['state']=$input['state'];
 		  
 		$input['state']=$input['state'];
-        $input['date_of_birth']=$input['date_of_birth'];
+       // $input['date_of_birth']=$input['date_of_birth'];
+       $input['date_of_birth'] =  date("Y-m-d", strtotime($input['date_of_birth']) );
 		
 		
 //$connection=\App\ConnectionType::where('id',$input['connection_type'])->first();
@@ -1312,8 +1311,12 @@ $cust_pay['amount']=$input['secure_deposite_amount']+$input['setup_box_amount']+
 
 		 $response = curl_exec($ch);
          curl_close($ch);
+         $response_decode = json_decode($response,1);
+         
+         $sub_id = $response_decode['sub_id'];
 		$input['api_response'] = $response;
         $input['api_request'] = $json_data;
+        $input['sub_id'] = $sub_id;
         }
 		
 		
@@ -1402,7 +1405,7 @@ $cust_pay['amount']=$input['secure_deposite_amount']+$input['setup_box_amount']+
         'token'=>$input['token']
         
     ];
-     Mail::to($email)->send(new \App\Mail\DurgaConfirm($details));
+    // Mail::to($email)->send(new \App\Mail\DurgaConfirm($details));
 
    // Mail::to($email)->send(new \App\Mail\MyTestMail($details));
     
@@ -1476,6 +1479,7 @@ return view('customers.emailtemplate',['details'=>$details]);
 }
     public function processPayment($id, $payment_mode = "")
     {
+       
         $customerdetails = \App\Customers::join('users','slj_customers.user_id', '=', 'users.id')
 ->select('slj_customers.*','users.name','users.first_name','users.last_name','users.mobile','users.email')
                 ->where('slj_customers.id','=',$id)
@@ -1484,7 +1488,7 @@ return view('customers.emailtemplate',['details'=>$details]);
 		$newtransactiondetails = \App\Transactions::where('customer_id','=',$customerdetails->id)->where('payment_type','=','new')->where('status','=','success')->first();
 
 		if(count((array)$newtransactiondetails) > 0) {
-			return view('customers::process-payment-details',['customerdetails'=>$customerdetails,'newtransactiondetails'=>$newtransactiondetails]);
+			return view('customers.process-payment-details',['customerdetails'=>$customerdetails,'newtransactiondetails'=>$newtransactiondetails]);
 		} else {
 			$package_amount = 0;
 			if($customerdetails->connection_type == 5){
@@ -1667,7 +1671,7 @@ $subpackdetails = \App\BroadbandSubPackages::select('sub_plan_name','total')->wh
                    
 
 }
-  Mail::to($email)->send(new \App\Mail\PaymentOnlineFailEmail($details));
+ // Mail::to($email)->send(new \App\Mail\PaymentOnlineFailEmail($details));
 
 
                     
@@ -2005,7 +2009,7 @@ $totamt=0;
                    }
      
           
-  Mail::to($email)->send(new \App\Mail\PaymentOnlineEmail($details));
+ // Mail::to($email)->send(new \App\Mail\PaymentOnlineEmail($details));
 
                     
                     
@@ -2473,7 +2477,7 @@ $totamt=0;
      
                    
     
-     //Mail::to($email)->send(new \App\Mail\PaymentEmail($details));
+   //  Mail::to($email)->send(new \App\Mail\PaymentEmail($details));
 
                     
 
@@ -2829,7 +2833,7 @@ $totamt=0;
         'base_price'=>$base_price,
 
         'setup_box_amount'=>$customer->setup_box_amount,
-        'instaamt'=>$instaamt,
+        'instaamt'=>isset($instaamt)?$instaamt:0,
         'totalamt'=>$totamt,
         'cablepackages'=>$customer->cable_packages,
         'cableallacart'=>$customer->cable_allacart,
@@ -2942,7 +2946,7 @@ $subpackdetails = \App\BroadbandSubPackages::select('sub_plan_name','total')->wh
            }
                   
 
-    Mail::to($email)->send(new \App\Mail\PayChequeEmail($details));
+    //Mail::to($email)->send(new \App\Mail\PayChequeEmail($details));
 
 
 
@@ -3656,6 +3660,9 @@ return view('customers.pickupequipment',['stockontdata'=>$stockontdata,'stockstb
         $fh = \App\FH::where('franchise',$customerdetails->franchise)->pluck('generate_fh_id as name', 'id');
         
         $fh_port = \App\FH::where('franchise',$customerdetails->franchise)->pluck('dp_port as name', 'id');
+        $connection_types = \App\ConnectionType::where('id',$customerdetails->connection_type)->pluck('id');
+      
+       // print_r($connection_types);die;
         //$dp=$fh=$fh_port=array();
         /*
 		 $query=\App\Ipaddresspool::select('count(Ip_number) as copies')
@@ -3668,7 +3675,7 @@ return view('customers.pickupequipment',['stockontdata'=>$stockontdata,'stockstb
                     $ipnumber=($query->copies)+2;
                     */
 		
-        return view('customers.add-technical',['dp'=>$dp,'dp1'=>$dp1,'fh'=>$fh,'fh_port'=>$fh_port,'olt'=>$olt,'customerdetails'=>$customerdetails,'franchisedetails'=>$franchisedetails,'ipdetails'=>$ipdetails]);
+        return view('customers.add-technical',['dp'=>$dp,'dp1'=>$dp1,'fh'=>$fh,'fh_port'=>$fh_port,'olt'=>$olt,'customerdetails'=>$customerdetails,'franchisedetails'=>$franchisedetails,'ipdetails'=>$ipdetails,'connection_types'=>$connection_types]);
     }
     
     /**
@@ -3684,6 +3691,7 @@ return view('customers.pickupequipment',['stockontdata'=>$stockontdata,'stockstb
         $user_id = Auth::user()->id;
         $customer = \App\Customers::find($id);
         $requestdata = $request->all();
+        //  dd($requestdata);
         $customerdata = array();
       //  $customerdata['olt'] = $requestdata['olt'];
         $customerdata['dp'] = $requestdata['dp'];
@@ -3703,9 +3711,10 @@ return view('customers.pickupequipment',['stockontdata'=>$stockontdata,'stockstb
         if(!empty($requestdata['imp']))
         $impval=$requestdata['imp'];
       
-        $ippool['Ip_number']=$requestdata['ipnum'];
+        $requestdata['pool_name'] =   isset($requestdata['pool_name'])?$requestdata['pool_name']: 0;
+       $ippool['Ip_number']= isset($requestdata['ipnum'])?$requestdata['ipnum']: 0;
         $ippool['customer_id']=$id;
-        $ippool['IpName']=$requestdata['pool_name'];
+        // $ippool['IpName']=$requestdata['pool_name'];
         $ippool['status']="y";
         \App\Ipaddresspool::create($ippool);
         
@@ -3778,11 +3787,80 @@ return view('customers.pickupequipment',['stockontdata'=>$stockontdata,'stockstb
                 ->select('slj_customers.*','users.name','users.first_name','users.last_name','users.mobile','users.email as email')
                 ->where('slj_customers.id','=',$id)
                 ->first();
+       $franchise_list = \App\Franchises::pluck('franchise_name','op_id');
+
+       $operator = \App\Franchises::where('id',$customerdetails->franchise)->select('op_id')->first();
                 
       
 
-        return view('customers.user-activate',['customerdetails'=>$customerdetails]);
+        return view('customers.user-activate',['customerdetails'=>$customerdetails,'franchise_list'=>$franchise_list,'sub_id'=>$customerdetails->sub_id,'operator'=>$operator]);
     }
+	
+	 public function updateActivateUser(Request $request, $id)
+    {
+		 $data = $request->all();
+      
+		$access_token = 'ei0ff1d675eec4c016fa86a4d12b';
+		
+		$base_url = config('constants.base_url');
+		 $sub_id = isset($data['sub_id']) ? $data['sub_id'] : '0';
+		 $cas_type = isset($data['cas_type']) ? $data['cas_type'] : '';
+		 $smartcard = isset($data['smart']) ? $data['smart'] : '';
+		 $box_id = isset($data['subscribername']) ? $data['subscribername'] : '';
+		 $operator_id = isset($data['operator_id']) ? $data['operator_id'] : '';
+         $stb_company = isset($data['stb_company']) ? $data['stb_company'] : 1;
+         $stb_model_number = isset($data['stb_model_number']) ? $data['stb_model_number'] : '';
+		
+		 
+	  $url = $base_url.'RSMS/AddSmartcard?sub_id='.$sub_id.'&smartcard='.$smartcard.'&box_id='.$box_id.'&operator_id='.$operator_id;
+		
+		 $headers = array(
+            "Accept: application/json",
+            'Authorization: ' . $access_token
+        );
+		
+               
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        $response = curl_exec($ch);
+		          
+        curl_close($ch);
+		
+		//$input['api_response'] = $response;
+        //$input['api_request'] = $json_data;
+        
+        $data = json_decode(($response), true);
+        $id = Auth::user()->id;
+
+        $input['cas_type'] = $cas_type;
+        $input['smart_card'] = $smartcard;
+
+        $input['box_id'] = $box_id;
+        $input['stb_company'] = $stb_company;
+        $input['stb_model_number'] = $stb_model_number;
+        $input['op_id'] = $operator_id;
+        $input['sub_id'] = $sub_id;
+        $input['cas_type'] = $cas_type;
+
+        $input['api_request'] = "";
+        $input['api_response'] = $response;
+        $input['api_url'] = $url;
+        $input['created_by'] = $id;
+      
+		
+		
+        //Customer
+        $smart_box = \App\SmartBox::create($input);
+		
+		
+      //  return redirect('admin/customers/active')->with('success', 'updated Activate User details added successfully. !');
+	   return view('customers.firsttime-activation',['smartcard'=>$smartcard,'box_id'=>$box_id,'sub_id'=>$sub_id,'operator_id'=>$operator_id]);
+   
+		
+	}
+	
+	
 
     /**
      * Update the specified resource in storage.
@@ -3790,7 +3868,7 @@ return view('customers.pickupequipment',['stockontdata'=>$stockontdata,'stockstb
      * @param int $id
      * @return Response
      */
-    public function updateActivateUser(Request $request, $id)
+   /*  public function updateActivateUser(Request $request, $id)
     {
         $customer = \App\Customers::find($id);
             $custmerid=$id;
@@ -4039,13 +4117,79 @@ $ctype="iptv combo";
 			return redirect($url.'/customers')->with('success', 'Customer activated successfully.');
 		}
 
-    }
+    } */
 
     /**
      * Remove the specified resource from storage.
      * @param int $id
      * @return Response
      */
+	 
+	  public function firstTimeActivation(Request $request)
+    {
+		 $data = $request->all();
+      
+		$access_token = 'ei0ff1d675eec4c016fa86a4d12b';
+		
+		$base_url = config('constants.base_url');
+		 $sub_id = isset($data['sub_id']) ? $data['sub_id'] : '0';		 
+		 $smartcard = isset($data['smart']) ? $data['smart'] : '';
+		 $plan_type = isset($data['plan_type']) ? $data['plan_type'] : 1;
+		 $plan = isset($data['plan']) ? $data['plan'] : '';
+         $package_id = isset($data['package_id']) ? $data['package_id'] :'';
+         $ip = "192.168.70.254";
+		 $customer_pay = "false";
+		
+		 
+	  $url = $base_url.'RSMS/FirsttimeActivation?sub_id='.$sub_id.'&smartcard='.$smartcard.'&plan_type='.$plan_type.'&plan='.$plan.'&package_id='.$package_id.'&ip='.$ip.'&customer_pay='.$customer_pay;
+	  
+
+		
+		 $headers = array(
+            "Accept: application/json",
+            'Authorization: ' . $access_token
+        );
+		
+               
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        $response = curl_exec($ch);
+		          
+        curl_close($ch);
+		
+		//$input['api_response'] = $response;
+        //$input['api_request'] = $json_data;
+        
+        $data = json_decode(($response), true);
+        $id = Auth::user()->id;
+		
+		$input['sub_id'] = $sub_id;      
+        $input['smart_card'] = $smartcard;
+
+        $input['plan_type'] = $plan_type;
+        $input['plan'] = $plan;
+        $input['package_id'] = $package_id;
+        $input['ip'] = $ip;
+       
+        $input['customer_pay'] = $customer_pay;
+
+        $input['api_request'] = "";
+        $input['api_response'] = $response;
+        $input['api_url'] = $url;
+        $input['created_by'] = $id;
+      
+		
+		
+        //Customer
+        $smart_box = \App\SmartBox::create($input);
+		
+		
+      //  return redirect('admin/customers/active')->with('success', 'updated Activate User details added successfully. !');
+	   return view('customers.firsttime-activation',['smartcard'=>$smartcard,'box_id'=>$box_id,'sub_id'=>$sub_id,'operator_id'=>$operator_id]);
+   
+		
+	}
     public function destroy($id)
     {
         //
@@ -4634,4 +4778,51 @@ public function destroynotintrested($id)
 
         return $op_id['op_id'];
     }
+
+    public function get_smartbox($op_id, $cas_type =1)
+    {
+        // $data = $request->all();
+		$access_token = 'ei0ff1d675eec4c016fa86a4d12b';
+		
+		$base_url = config('constants.base_url');
+		//  $cas_type = isset($data['cas_type']) ? $data['cas_type'] : 1;
+		
+		//  $operator_id = isset($data['operator_id']) ? $data['operator_id'] : '';
+		
+		 
+		$url = $base_url.'RSMS/NotAllocatedSmartcard?operator_id='.$op_id.'&castype='.$cas_type;
+		
+		 $headers = array(
+            "Accept: application/json",
+            'Authorization: ' . $access_token
+        );
+		
+               
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        $response = curl_exec($ch);
+		          
+        curl_close($ch);
+		
+		//$input['api_response'] = $response;
+        //$input['api_request'] = $json_data;
+        
+        $data = json_decode(($response), true);
+        $smartcard_list = $data['smartcard_list'];
+		//print_r($smartcard_list);die;
+
+        
+     	//$submodels = \App\StockProducts::where('manufacturer',$manufacturer)->where('current_user_id',$id)->where('employee_status','available')->get()->unique('identification');
+
+        $html = "<option value=''>-- Select Smart Box --</option>";
+        foreach($smartcard_list as $sb)
+        {
+           
+           $html.="<option value='".$sb['subscribername']."'>".$sb['subscriberid']."</option>";
+        }
+
+        echo $html;
+    }
+
 }

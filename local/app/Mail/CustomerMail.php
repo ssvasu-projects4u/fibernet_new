@@ -31,7 +31,7 @@ class CustomerMail extends Mailable
     public function build()
     {
         //return $this->markdown('CustomerMail')->with('body',$this->body);
-        return $this->view('customers::mailtemplate');
+        return $this->view('customers.mailtemplate');
     
     }
 }

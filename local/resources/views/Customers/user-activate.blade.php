@@ -38,22 +38,56 @@
 	      
 
 	    
-	    <div class="row">    
+	    <div class="row">  
+			
+		<!--<div class="form-group col-md-3"> {!! Form::label('franchise', 'Franchise *') !!}
+        {!! Form::select('franchise', $franchise_list, null,array('class' => 'form-control','required'=>'required','placeholder'=>'-- Select Franchise --') ) !!} </div>-->
+
+		<input type="hidden" id="operator_id" name="operator_id"  value = "{{ $operator->op_id}}" class ="form-control">
+
+		<div class="form-group col-md-3">
+			<label>CAS Type	 </label>
+			<select name="cas_type" id="cas_type" class ="form-control">
+			 
+			<option value="1"> Rcas</option>
+			</select>
+		</div>
+
+		<div class="form-group col-md-3">
+			<label>Smartcard</label>
+			<select name="smart_box" id="smart_box" class ="form-control">
+			<option value=""> --Select smart box--</option>
+			</select>
+		</div>
+
+		<div class="form-group col-md-3">
+		<label>Boxid</label>
+
+		
+
+		
+ 		<input type ="text" name= "subscribername" id="subscribername" value = "" class ="form-control">
+ 		<input type ="hidden" name= "smart" id="smart" value = "" class ="form-control">
+		<input type ="hidden" name= "sub_id" id="sub_id" value = "{{ $sub_id }}" class ="form-control">
+		<input type ="hidden" name= "customer_id" id="customer_id" value = "{{ $customer_id }}" class ="form-control">
+		</div>
+
+
 	         <?php $renew_cycles = array('immediate'=>'Immediate','schedule'=>'Schedule'); ?>
-		<div class="form-group col-md-3"> {!! Form::label('renewal_cycle', 'Renew Cycle') !!}
+	<!--	<div class="form-group col-md-3"> {!! Form::label('renewal_cycle', 'Renew Cycle') !!}
 		<input type="hidden" value="{{$customerdetails->email}}" id="custem" name="custem">
-        {!! Form::select('renewal_cycle', $renew_cycles, 'immediate',array('class' => 'form-control','required'=>'required') ) !!} </div>
+        {!! Form::select('renewal_cycle', $renew_cycles, 'immediate',array('class' => 'form-control','required'=>'required') ) !!} </div>-->
 
 			
 	    	<?php $generate_invoice = array('immediate'=>'Immediate','schedule'=>'While Schedule Time'); ?>
-		<div class="form-group col-md-3" style="display: none;"> {!! Form::label('invoice_generate_option', 'Generate Invoice') !!}
+		<!--<div class="form-group col-md-3" style="display: none;"> {!! Form::label('invoice_generate_option', 'Generate Invoice') !!}
         {!! Form::select('invoice_generate_option', $generate_invoice, null,array('class' => 'form-control','placeholder'=>'- Select Invoice Generate Option -') ) !!} </div>
         <div class="form-group col-md-3" style="display: none;"> {!! Form::label('schedule_date', 'Schedule Date') !!}
         {!! Form::date('schedule_date', null,array('class' => 'form-control','placeholder'=>'- Schedule Date -','type'=>'date') ) !!} </div>
 		<div class="form-group col-md-3"> {!! Form::label('password', 'Password') !!}
 	        <input class="form-control" required="required" placeholder="Enter Password" name="password" type="password" id="password">
 	         </div>
-	    </div>	
+	    </div>	-->
 	    <div class="row">
 	        	 <?php if($customerdetails->connection_type == 3){ 
 			 
@@ -91,7 +125,7 @@
 			 
 			<div class="form-group col-md-3"> 
 			{!! Form::label('stb_company', 'ONT Company') !!}
-			<select id="stb_company" name="stb_company" class="form-control">
+		<!--	<select id="stb_company" name="stb_company" class="form-control">
 			    <option> Select Company Name </option>
                    @foreach($ont as $p)
                   
@@ -99,14 +133,14 @@
                    <option value="{{$p->manufacturer}}">{{ $p->manufacturer }}</option>
                    @endif
                      @endforeach
-               </select>			 
+               </select>-->			 
 			 
 		    </div>
 
 			<div class="form-group col-md-3"> {!! Form::label('stb_model', 'ONT Model Number') !!}
-		    <select id="stb_model" name="stb_model" class="form-control">
+		    <!--<select id="stb_model" name="stb_model" class="form-control">
 			
-			</select> </div>
+			</select>--> </div>
         	<div class="form-group col-md-3"> {!! Form::label('stb_num', 'ONT Serial Number') !!}
         	 <select id="stb_num" name="stb_num" class="form-control">
 			
@@ -152,7 +186,7 @@
 			 
 			<div class="form-group col-md-3"> 
 			{!! Form::label('stb_company', 'ONT Company') !!}
-			<select id="stb_company" name="stb_company" class="form-control">
+			<!--<select id="stb_company" name="stb_company" class="form-control">
 			    <option> Select Company Name </option>
                    @foreach($ont as $p)
                   
@@ -160,14 +194,14 @@
                    <option value="{{$p->manufacturer}}">{{ $p->manufacturer }}</option>
                    @endif
                      @endforeach
-               </select>			 
+               </select>	-->		 
 			 
 		    </div>
 
 			<div class="form-group col-md-3"> {!! Form::label('stb_model', 'ONT Model Number') !!}
-		    <select id="stb_model" name="stb_model" class="form-control">
+		   <!-- <select id="stb_model" name="stb_model" class="form-control">
 			
-			</select> </div>
+			</select> --></div>
         	<div class="form-group col-md-3"> {!! Form::label('stb_num', 'ONT Serial Number') !!}
         	 <select id="stb_num" name="stb_num" class="form-control">
 			
@@ -212,7 +246,9 @@
 			 
 			<div class="form-group col-md-3"> 
 			{!! Form::label('stb_company', 'STB Company') !!}
-			<select id="stb_company1" name="stb_company1" class="form-control">
+			<input class="form-control" required="required" placeholder="STB Company" name="stb_company1" type="text" id="stb_company1">
+
+		<!--	<select id="stb_company1" name="stb_company1" class="form-control">
 			            <option value=""> Select Company Name </option>
 				
                    @foreach($ont as $p)
@@ -221,14 +257,15 @@
                    <option value="{{$p->manufacturer}}">{{ $p->manufacturer }}</option>
                    @endif
                      @endforeach
-               </select>			 
+               </select>	-->		 
 			 
 		    </div>
 
 			<div class="form-group col-md-3"> {!! Form::label('stb_model', 'STB Model Number') !!}
-			<select id="stb_model1" name="stb_model1" class="form-control">
+		<!--	<select id="stb_model1" name="stb_model1" class="form-control">
 			
-			</select>
+			</select>-->
+			<input class="form-control" required="required" placeholder="STB Model Number" name="stb_model1" type="text" id="stb_model1">
 			</div>
 
 			<div class="form-group col-md-3"> {!! Form::label('stb_company', 'STB Company') !!}
@@ -295,11 +332,11 @@
 		    <select id="stb_model" name="stb_model" class="form-control">
 			
 			</select> </div>
-        	<div class="form-group col-md-3"> {!! Form::label('stb_num', 'STB Serial Number') !!}
+        	<!--<div class="form-group col-md-3"> {!! Form::label('stb_num', 'STB Serial Number') !!}
         	 <select id="stb_num" name="stb_num" class="form-control">
 			
 			</select>
-			 </div>
+			 </div>-->
 				
 			
 			<?php }
@@ -385,7 +422,8 @@
 			 
 			<div class="form-group col-md-3"> 
 			{!! Form::label('stb_company', 'STB Company') !!}
-			<select id="stb_company1" name="stb_company1" class="form-control">
+				<input class="form-control" required="required" placeholder="STB Company" name="stb_company1" type="text" id="stb_company1">
+			<!--<select id="stb_company1" name="stb_company1" class="form-control">
 			            <option value=""> Select Company Name </option>
 				
                    @foreach($ont as $p)
@@ -394,14 +432,15 @@
                    <option value="{{$p->manufacturer}}">{{ $p->manufacturer }}</option>
                    @endif
                      @endforeach
-               </select>			 
+               </select>-->			 
 			 
 		    </div>
 
 			<div class="form-group col-md-3"> {!! Form::label('stb_model', 'STB Model Number') !!}
-			<select id="stb_model1" name="stb_model1" class="form-control">
+			<input class="form-control" required="required" placeholder="STB Model Number" name="stb_model1" type="text" id="stb_model1">
+			<!--<select id="stb_model1" name="stb_model1" class="form-control">
 			
-			</select>
+			</select>-->
 			</div>
 
 			<div class="form-group col-md-3"> {!! Form::label('stb_company', 'STB Company') !!}
@@ -417,7 +456,7 @@
 	    
 	    </div>    
 		<div class="form-group col-md-12" align="right">
-       {!! Form::submit('Submit', ['class' => 'btn btn-success']) !!} 
+       {!! Form::submit('Next', ['class' => 'btn btn-success']) !!} 
       {!! Form::close() !!} 
       </div>
 
@@ -466,6 +505,39 @@
                 }
             });
         });
+
+
+		// $('#franchise').on('change', function() {
+			$(document).ready(function() {
+
+            var op_id = $("#operator_id").val();
+          
+       
+            $.ajax({
+                url: "{{url('/admin/customers/get_smartbox')}}/"+op_id,
+                type: "GET",
+                success:function(data) {
+                    
+                   $('#smart_box').html(data);
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    alert(errorThrown);
+                }
+            });
+        });
+
+		$('#smart_box').on('change', function() {
+            var subscribername = $(this).val();
+			var smart = $("#smart_box option:selected").text();
+
+			$("#subscribername").val(subscribername);
+			$("#smart").val(smart);
+          
+       
+           
+        });
+
+
 </script>
 	<script>
       	$('#stb_model').on('change', function() {

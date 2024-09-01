@@ -174,6 +174,11 @@
                     <a class="collapse-item <?php if (Request::segment(2) == 'customers' && Request::segment(3) == 'activation') {
                         echo 'active';
                     } ?>" href="{{url('franchise/customers/activation')}}">Activate Customers</a>
+					
+					          <a class="collapse-item <?php if (Request::segment(2) == 'customers' && Request::segment(3) == 'smartboxusers') {
+                        echo 'active';
+                    } ?>" href="{{url('franchise/customers/smartboxusers')}}">Smartbox Added Users</a>
+					
                     <a class="collapse-item <?php if (Request::segment(2) == 'customers' && Request::segment(3) == 'active') {
                         echo 'active';
                     } ?>" href="{{url('franchise/customers/active')}}">Active Customers</a>

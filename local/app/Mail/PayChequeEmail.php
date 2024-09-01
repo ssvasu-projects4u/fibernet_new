@@ -30,7 +30,7 @@ class PayChequeEmail extends Mailable
     public function build()
     {
         
-         $this->subject('Payment Received Successfully - SLJ Fiber Networks')->view('customers::paychequeemail')->with('$details');
+         $this->subject('Payment Received Successfully - SLJ Fiber Networks')->view('customers.paychequeemail')->with('$details');
          return $this;
     }
 }

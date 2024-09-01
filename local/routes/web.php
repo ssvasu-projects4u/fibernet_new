@@ -526,6 +526,7 @@ Route::prefix('admin/customers')->group(function() {
     Route::get('/technical', 'Customers\CustomersController@technicalCustomers');
     Route::get('/schedule', 'Customers\CustomersController@scheduleCustomers');
 	Route::get('/activation', 'Customers\CustomersController@activationCustomers');
+	Route::get('/smartboxusers', 'Customers\CustomersController@smartboxUsers');
 	Route::get('/active', 'Customers\CustomersController@activeCustomers');
 	Route::get('/expired', 'Customers\CustomersController@expiredCustomers');
     Route::get('/closed', 'Customers\CustomersController@closedCustomers');
@@ -594,12 +595,17 @@ Route::prefix('admin/customers')->group(function() {
 
     Route::get('/getmodels/{manufacturer}', 'Customers\CustomersController@GetModels');
     Route::get('/getmodels1/{manufacturer}', 'Customers\CustomersController@GetSTBModels');
+
+	Route::get('/get_smartbox/{op_id}', 'Customers\CustomersController@get_smartbox');
    
     Route::get('/getserial/{stb_model}', 'Customers\CustomersController@GetSerialNumber');
      Route::get('/getserial1/{stb_model}', 'Customers\CustomersController@GetSTBSerialNumber');
 
 	Route::put('/user-activate/{id}', ['as' => 'customers.useractivate', 'uses' => 'Customers\CustomersController@updateActivateUser']);
 	 Route::get('/user-activate/{id}', 'Customers\CustomersController@activateUser');
+
+	 Route::get('/smartbox-user-activate/{id}', 'Customers\CustomersController@smartboxActivateUser');
+	 Route::post('/first-time-activation', ['as' => 'customers.firsttimeactivation', 'uses' => 'Customers\CustomersController@firstTimeActivation']);
 
 	Route::get('/delete/{id}', 'Customers\CustomersController@destroy');
 	Route::get('/branch-franchises/{city}/{branch}', 'Customers\CustomersController@getCityBranchFranchises');
