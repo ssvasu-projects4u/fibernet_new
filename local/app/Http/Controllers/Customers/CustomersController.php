@@ -769,7 +769,8 @@ $user = Auth::user();
                 ->where('slj_customers.current_status','=','activation')
                 ->where('slj_customers.smartcard_added_user','=',1)
                 ->orderBy('slj_customers.id')
-                ->paginate(20);
+               // ->paginate(20);
+               ->get();
       }
       else
       {
@@ -782,7 +783,8 @@ $user = Auth::user();
                 ->where('slj_customers.smartcard_added_user','=',1)
                 ->where('eid',$id)
                 ->orderBy('slj_customers.id')
-                ->paginate(20);
+                //->paginate(20);
+                ->get();
       }
         return view('customers.smartbox_users',['data'=>$data]);
     }
@@ -800,14 +802,27 @@ $user = Auth::user();
     public function activeCustomers()
     {
         $data = \App\Customers::join('users','slj_customers.user_id', '=', 'users.id')
-                ->leftJoin('slj_franchises','slj_customers.franchise', '=', 'slj_franchises.id')
-                ->leftJoin('slj_branches','slj_branches.id', '=', 'slj_customers.branch')
-                ->leftJoin('slj_cities','slj_cities.id', '=', 'slj_customers.city')
-                ->select('slj_customers.*','slj_franchises.franchise_name','slj_branches.branch_name','slj_cities.name as city_name','users.mobile','users.email','users.name')
-                ->whereIn('slj_customers.current_status',['active','activated'])
-               // ->whereDate('expiry_date', '>', Carbon::now()) // added by durga
-                ->orderBy('slj_customers.id')
-                ->paginate(20);
+        ->leftJoin('slj_franchises','slj_customers.franchise', '=', 'slj_franchises.id')
+        ->leftJoin('slj_branches','slj_branches.id', '=', 'slj_customers.branch')
+        ->leftJoin('slj_cities','slj_cities.id', '=', 'slj_customers.city')
+        ->select('slj_customers.*','slj_franchises.franchise_name','slj_branches.branch_name','slj_cities.name as city_name','users.mobile','users.email','users.name')
+        ->where('slj_customers.current_status','=','activation')
+        ->where('slj_customers.smartcard_added_user','=',2)
+        ->orderBy('slj_customers.id')
+        ->paginate(20);
+
+
+
+
+        // $data = \App\Customers::join('users','slj_customers.user_id', '=', 'users.id')
+        //         ->leftJoin('slj_franchises','slj_customers.franchise', '=', 'slj_franchises.id')
+        //         ->leftJoin('slj_branches','slj_branches.id', '=', 'slj_customers.branch')
+        //         ->leftJoin('slj_cities','slj_cities.id', '=', 'slj_customers.city')
+        //         ->select('slj_customers.*','slj_franchises.franchise_name','slj_branches.branch_name','slj_cities.name as city_name','users.mobile','users.email','users.name')
+        //         ->whereIn('slj_customers.current_status',['active','activated'])
+        //        // ->whereDate('expiry_date', '>', Carbon::now()) // added by durga
+        //         ->orderBy('slj_customers.id')
+        //         ->paginate(20);
                 
                 /*
                    $exipireed_customers = \App\Customers::whereDate('expiry_date', '<', Carbon::now());
@@ -3915,7 +3930,7 @@ return view('customers.pickupequipment',['stockontdata'=>$stockontdata,'stockstb
         curl_close($ch);
 		
 		$input['api_response'] = $response;
-        $input['api_request'] = $json_data;
+        $input['api_request'] = $url;
         
         $data = json_decode(($response), true);
         $id = Auth::user()->id;
@@ -3932,8 +3947,8 @@ return view('customers.pickupequipment',['stockontdata'=>$stockontdata,'stockstb
         $input['customer_id'] = $customer_id;
         $input['cas_type'] = $cas_type;
 
-        $input['api_request'] = "";
-        $input['api_response'] = $response;
+        // $input['api_request'] = "";
+        // $input['api_response'] = $response;
         $input['api_url'] = $url;
         $input['created_by'] = $id;
       
@@ -3953,7 +3968,7 @@ return view('customers.pickupequipment',['stockontdata'=>$stockontdata,'stockstb
  
       //  return redirect('admin/customers/active')->with('success', 'updated Activate User details added successfully. !');
 	//    return view('customers.firsttime-activation',['smartcard'=>$smartcard,'box_id'=>$box_id,'sub_id'=>$sub_id,'operator_id'=>$operator_id]);
-	   return view('customers.smartboxusers',['smartcard'=>$smartcard,'box_id'=>$box_id,'sub_id'=>$sub_id,'operator_id'=>$operator_id]);
+	   return view('customers.smartbox_users',['smartcard'=>$smartcard,'box_id'=>$box_id,'sub_id'=>$sub_id,'operator_id'=>$operator_id]);
    
 		
 	}
@@ -4293,8 +4308,8 @@ $ctype="iptv combo";
     $customer = \App\Customers::where('id', $customer_id);
     $customer->update($customerdata);
 		
-      //  return redirect('admin/customers/active')->with('success', 'updated Activate User details added successfully. !');
-	   return view('customers.firsttime-activation');
+        return redirect('admin/customers/active')->with('success', 'updated Activate User details added successfully. !');
+	  // return view('customers.firsttime-activation');
    
 		
 	}

@@ -97,7 +97,7 @@ table.table th{min-width: 100px;}
 	</tr>	
     @endif
 	</table>
-{{ $data->links() }}
+<!-- {{ $data->links() }} -->
 	</div>
   </div>
 	
